@@ -79,8 +79,11 @@ W: West
             string directionLongitudi = parts[5];
             string quality = parts[6];
             
-            CoordinateConv GK = CoordinateConverter.to_GK(latitudi, longitudi, directionLatitudi, directionLongitudi, 21);
-            Logger.LogInfo($"GK21 X: {GK.N}  Y: {GK.E}");
+            CoordinateConverter.create_dem();
+            CoordinateConv GK = CoordinateConverter.to_GK(latitudi, longitudi, directionLatitudi, directionLongitudi, 21, altitude);
+            
+            Logger.LogInfo($"GK21 X: {GK.N.ToString("#.000")} Y: {GK.E.ToString("#.000")} N2000 Korkeus: {GK.Z.ToString("#.000")}");
+            
         }
     }
     

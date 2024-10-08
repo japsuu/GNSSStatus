@@ -7,7 +7,7 @@ public class CoordinateConverter
     //Funktion tarkoituksena ottaa sisään Decimal Degrees koordinaatit GGA viestistä ja muuntaa ne haluttuun GK järjestelmään
     //Funktio siis ottaa sisään N ja E koordinaatit sekä GK järjestelmän numeron.
     //Palauttaa X,Y koordinaatit GK järjestelmässä.
-            public static CoordinateConv to_GK(string lat, string lon, string hemisphereLatitude, string hemisphereLongitude, int GK)
+            public static CoordinateConv to_GK(string lat, string lon, string hemisphereLatitude, string hemisphereLongitude, int GK, string altitude)
             {
                 double LeveysasteDD = NmeaToDecimal(lat, hemisphereLatitude);
                 double PituusasteDD = NmeaToDecimal(lon, hemisphereLongitude);
@@ -56,9 +56,11 @@ public class CoordinateConverter
         double zeeta = zeeta_pilkku + zeeta1 + zeeta2 + zeeta3 + zeeta4;
         double eeta = eeta_pilkku + eeta1 + eeta2 + eeta3 + eeta4;
 
+        double Z = Convert.ToDouble(altitude)-(get_dem(LeveysasteDD, PituusasteDD));
+        
         // Tulos tasokoordinaatteina
-
-        return new CoordinateConv(A1 * zeeta * k_nolla, A1 * eeta * k_nolla + E_nolla);
+        
+        return new CoordinateConv(A1 * zeeta * k_nolla, A1 * eeta * k_nolla + E_nolla, Z);
     }
             
             public static double NmeaToDecimal(string ll, string hemisphere)
@@ -77,4 +79,81 @@ public class CoordinateConverter
                 double coordinate = double.Parse(ll, CultureInfo.InvariantCulture);
                 return Math.Round((Convert.ToInt32(coordinate / 100) + (coordinate - Convert.ToInt32(coordinate / 100) * 100) / 60) * hemisph,10);
             }
+            private static dem_node[,] dem = new dem_node[586, 389];
+            public struct dem_node
+            {
+                public double lat;
+                public double lon;
+                public double height;
+            }
+            
+            public static double get_dem(double LeveysasteDD, double PituusasteDD)
+            {
+                //double LeveysasteDD = NmeaToDecimal(lat, hemisphereLatitude);
+                //double PituusasteDD = NmeaToDecimal(lon, hemisphereLongitude);
+                
+                int row;
+                int col;
+
+                double x, x1, x2, y, y1, y2;
+                double q11, q12, q21, q22;
+                double r1, r2, p;
+
+                row = (int) ((double) ((LeveysasteDD - 59) / 0.02));
+                col = (int) ((double) ((PituusasteDD - 17.48) / 0.04));
+
+                q12 = dem[row + 1, col].height;
+                q22 = dem[row + 1, col + 1].height;
+                q11 = dem[row, col].height;
+                q21 = dem[row, col + 1].height;
+
+                x = PituusasteDD;
+                x1 = dem[row, col].lon;
+                x2 = dem[row, col + 1].lon;
+
+                y = LeveysasteDD;
+                y1 = dem[row, col].lat;
+                y2 = dem[row + 1, col].lat;
+
+                r1 = ((x2 - x) / (x2 - x1)) * q11 + ((x - x1) / (x2 - x1)) * q21;
+                r2 = ((x2 - x) / (x2 - x1)) * q12 + ((x - x1) / (x2 - x1)) * q22;
+                p = ((y2 - y) / (y2 - y1)) * r1 + ((y - y1) / (y2 - y1)) * r2;
+        
+                return p;
+            }
+            
+            public static void create_dem()
+            {
+                int row = 586;
+                int col = 1;
+                double lat;
+                double lon;
+                double height;
+                String[] input = File.ReadAllText("FIN2005N00.lst").Split('\n');
+                //70.700000  17.480000  34.415
+                //70,00000000  10,04000000  41,5820
+                //lat = Double.Parse(input[i].Substring(0,11));
+                //lon = Double.Parse(input[i].Substring(13,11));
+                //height = Double.Parse(input[i].Substring(26));
+                //60.280000  24.160000  19.184 tama on FIN2005N00.lst formaatti
+
+                for (int i = 0; i < 227954; i++)
+                {
+                    lat = Double.Parse(input[i].Substring(0, 9));
+                    lon = Double.Parse(input[i].Substring(11, 9));
+                    height = Double.Parse(input[i].Substring(22));
+                    dem[row - 1, col - 1].lat = lat;
+                    dem[row - 1, col - 1].lon = lon;
+                    dem[row - 1, col - 1].height = height;
+                    col++;
+
+                    if (col > 389)
+                    {
+                        col = 1;
+                        row--;
+                    }
+                }
+            }
+
+
 }
