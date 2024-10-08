@@ -30,7 +30,7 @@ internal static class Program
 
     /*
      * 0	Message ID $GPGGA
-1	UTC of position fix
+1 UTC of position fix
 2	Latitude
 3	Direction of latitude:
 N: North
