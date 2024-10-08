@@ -9,6 +9,7 @@ public class ConfigurationData
     // MQTT
     public string MqttBrokerAddress { get; set; }
     public int MqttBrokerPort { get; set; }
+    public string MqttBrokerChannelAltitude { get; set; }
     public string MqttUsername { get; set; }
     public string MqttPassword { get; set; }
 }

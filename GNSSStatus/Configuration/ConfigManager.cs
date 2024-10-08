@@ -6,6 +6,7 @@ namespace GNSSStatus.Configuration;
 public static class ConfigManager
 {
     private const string CONFIG_PATH = "config.yaml";
+    private static bool _createdDefaultConfiguration = false;
 
     public static ConfigurationData CurrentConfiguration { get; private set; } = null!;
 
@@ -29,7 +30,13 @@ public static class ConfigManager
         }
         catch (Exception e)
         {
-            Logger.LogException("Failed to load configuration", e);
+            Logger.LogError($"Failed to load configuration: {e.Message}");
+            
+            if (!_createdDefaultConfiguration)
+            {
+                Logger.LogWarning("Overwriting configuration with default values.");
+                CreateDefaultConfiguration();
+            }
         }
         
         Logger.LogInfo("Configuration loaded successfully.");
@@ -44,6 +51,7 @@ public static class ConfigManager
             ServerPort = 2999,
             MqttBrokerAddress = "mqtt3.thingspeak.com",
             MqttBrokerPort = 1883,
+            MqttBrokerChannelAltitude = "channels/2688542/publish/fields/field1",
             MqttUsername = "username",
             MqttPassword = "password"
         };
@@ -53,5 +61,11 @@ public static class ConfigManager
             .Build();
         
         File.WriteAllText(CONFIG_PATH, serializer.Serialize(defaultConfig));
+        _createdDefaultConfiguration = true;
+        
+        Logger.LogInfo("Default configuration created. Please edit the configuration file and restart the application.");
+            
+        // Exit
+        Environment.Exit(0);
     }
 }
