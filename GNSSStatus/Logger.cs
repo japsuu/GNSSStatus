@@ -41,7 +41,7 @@ public static class Logger
     public static void LogException(string message, Exception ex)
     {
         WriteColored(LogLevel.FATAL, message, ConsoleColor.Red, ConsoleColor.Black);
-        WriteColored(LogLevel.FATAL, ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+        Console.ForegroundColor = ConsoleColor.Red;
         
         throw ex;
     }
