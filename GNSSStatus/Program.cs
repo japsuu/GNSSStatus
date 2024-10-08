@@ -1,6 +1,7 @@
-﻿using GNSSStatus.Networking;
+﻿using System.Globalization;
+using GNSSStatus.Networking;
 using GNSSStatus.Nmea;
-
+using System.Globalization;
 namespace GNSSStatus;
 
 internal static class Program
@@ -11,6 +12,9 @@ internal static class Program
     
     private static void Main(string[] args)
     {
+        var culture = new CultureInfo("en-US");
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
         // If args contains a server address and port, use those instead.
         ParseArgs(args);
 
@@ -24,6 +28,38 @@ internal static class Program
         }
     }
 
+    /*
+     * 0	Message ID $GPGGA
+1	UTC of position fix
+2	Latitude
+3	Direction of latitude:
+N: North
+S: South
+
+4	Longitude
+5	Direction of longitude:
+E: East
+W: West
+
+6	GPS Quality indicator:
+0: Fix not valid
+1: GPS fix
+2: Differential GPS fix (DGNSS), SBAS, OmniSTAR VBS, Beacon, RTX in GVBS mode
+3: Not applicable
+4: RTK Fixed, xFill
+5: RTK Float, OmniSTAR XP/HP, Location RTK, RTX
+6: INS Dead reckoning
+
+7	Number of SVs in use, range from 00 through to 24+
+8	HDOP
+9	Orthometric height (MSL reference)
+10	M: unit of measure for orthometric height is meters
+11	Geoid separation
+12	M: geoid separation measured in meters
+13	Age of differential GPS data record, Type 1 or Type 9. Null field when DGPS is not used.
+14	Reference station ID, range 0000 to 4095. A null field when any reference station ID is selected and no corrections are received. See table below for a description of the field values.
+15	The checksum data, always begins with *
+     */
 
     private static void HandleSentence(Nmea0183Sentence sentence)
     {
@@ -36,12 +72,18 @@ internal static class Program
             
             string altitude = parts[9];
             string altitudeUnit = parts[10];
-
-            Logger.LogInfo($"Altitude: {altitude} {altitudeUnit}");
+            string utcTime = parts[1];
+            string latitudi = parts[2];
+            string directionLatitudi = parts[3];
+            string longitudi = parts[4];
+            string directionLongitudi = parts[5];
+            string quality = parts[6];
+            
+            CoordinateConv GK = CoordinateConverter.to_GK(latitudi, longitudi, directionLatitudi, directionLongitudi, 21);
+            Logger.LogInfo($"GK21 X: {GK.N}  Y: {GK.E}");
         }
     }
-
-
+    
     private static void ParseArgs(string[] args)
     {
         if (args.Length == 2)
