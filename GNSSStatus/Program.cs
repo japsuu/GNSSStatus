@@ -10,6 +10,11 @@ namespace GNSSStatus;
 
 internal static class Program
 {
+    private const int MQTT_SEND_INTERVAL_MILLIS = 15000;    // 15 seconds.
+    
+    private static GKCoordinate? lastGkCoordinate = null;
+    
+    
     private static async Task Main(string[] args)
     {
         InitializeThreadCultureInfo();
@@ -35,17 +40,30 @@ internal static class Program
         
         CoordinateConverter.create_dem();
         
+        double lastSendTime = 0;
+        
         // Read the latest received NMEA sentence from the server.
         foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentence())
         {
-            await HandleSentence(mqttClient, sentence);
+            HandleSentence(sentence);
+            
+            if (lastGkCoordinate == null)
+                continue;
+
+            double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
+            if (timeSinceLastSend < MQTT_SEND_INTERVAL_MILLIS)
+                continue;
+            
+            await SendMqttMessage(mqttClient, lastGkCoordinate.Value.Z.ToString());
+            
+            lastSendTime = TimeUtils.GetTimeMillis();
         }
     }
 
 
 #region Sentence Processing
 
-    private static async Task HandleSentence(IMqttClient mqttClient, Nmea0183Sentence sentence)
+    private static void HandleSentence(Nmea0183Sentence sentence)
     {
         if (sentence.Type == Nmea0183SentenceType.GGA)
         {
@@ -100,7 +118,7 @@ internal static class Program
 
             Logger.LogInfo($"GK21 X: {gk.N.ToString("#.000")} Y: {gk.E.ToString("#.000")} N2000 Korkeus: {gk.Z.ToString("#.000")}");
             
-            await SendMqttMessage(mqttClient, gk.Z.ToString());
+            lastGkCoordinate = gk;
         }
     }
 
@@ -158,6 +176,8 @@ internal static class Program
             .Build();
 
         await mqttClient.PublishAsync(message, CancellationToken.None);
+        
+        Logger.LogInfo($"Sent MQTT message: {payload}");
     }
 
 #endregion
