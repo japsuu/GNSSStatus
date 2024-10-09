@@ -6,6 +6,9 @@ public class ConfigurationData
     public required string ServerAddress { get; set; }
     public required int ServerPort { get; set; }
     
+    // Coordinate System
+    public required int GkValue { get; set; }
+    
     // MQTT
     public required string MqttBrokerAddress { get; set; }
     public required int MqttBrokerPort { get; set; }

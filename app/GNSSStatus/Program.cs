@@ -113,8 +113,8 @@ internal static class Program
             string longitudi = parts[4];
             string directionLongitudi = parts[5];
             string quality = parts[6];
-
-            GKCoordinate gk = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, 21, altitude);
+            
+            GKCoordinate gk = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, Convert.ToInt32(ConfigManager.CurrentConfiguration.GkValue), altitude);
 
             Logger.LogInfo($"GK21 X: {gk.N.ToString("#.000")} Y: {gk.E.ToString("#.000")} N2000 Korkeus: {gk.Z.ToString("#.000")}");
             

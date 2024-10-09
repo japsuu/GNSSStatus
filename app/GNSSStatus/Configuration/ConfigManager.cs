@@ -51,6 +51,7 @@ public static class ConfigManager
         {
             ServerAddress = "192.168.1.42",
             ServerPort = 2999,
+            GkValue = 21,
             MqttBrokerAddress = "mqtt3.thingspeak.com",
             MqttBrokerPort = 8883,
             MqttBrokerChannelAltitude = "channels/2688542/publish/fields/field1",
