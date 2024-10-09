@@ -32,6 +32,8 @@ internal static class Program
         // Connect to the MQTT broker.
         await ConnectMqttBroker(mqttClient);
         
+        CoordinateConverter.create_dem();
+        
         // Read the latest received NMEA sentence from the server.
         foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentence())
         {
@@ -93,7 +95,6 @@ internal static class Program
             string directionLongitudi = parts[5];
             string quality = parts[6];
 
-            CoordinateConverter.create_dem();
             ConvertedCoordinate GK = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, 21, altitude);
 
             Logger.LogInfo($"GK21 X: {GK.N.ToString("#.000")} Y: {GK.E.ToString("#.000")} N2000 Korkeus: {GK.Z.ToString("#.000")}");
