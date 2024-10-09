@@ -5,7 +5,7 @@ namespace GNSSStatus.Configuration;
 
 public static class ConfigManager
 {
-    private const string CONFIG_PATH = "config.yaml";
+    private const string CONFIG_PATH = "assets/config.yaml";
     private static bool createdDefaultConfiguration = false;
 
     public static ConfigurationData CurrentConfiguration { get; private set; } = null!;
@@ -66,7 +66,8 @@ public static class ConfigManager
         File.WriteAllText(CONFIG_PATH, serializer.Serialize(defaultConfig));
         createdDefaultConfiguration = true;
         
-        Logger.LogInfo("Default configuration created. Please edit the configuration file and restart the application.");
+        string configPath = Path.GetFullPath(CONFIG_PATH);
+        Logger.LogInfo($"Default configuration created. Please edit the configuration file ({configPath}) and restart the application.");
             
         // Exit
         Environment.Exit(0);
