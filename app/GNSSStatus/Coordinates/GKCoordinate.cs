@@ -14,4 +14,10 @@ public readonly struct GKCoordinate
         E = e;
         Z = z;
     }
+
+
+    public override string ToString()
+    {
+        return $"N: {N}, E: {E}, Z: {Z}";
+    }
 }

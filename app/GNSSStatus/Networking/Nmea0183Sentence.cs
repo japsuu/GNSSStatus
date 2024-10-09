@@ -4,6 +4,7 @@ public readonly struct Nmea0183Sentence
 {
     public readonly Nmea0183SentenceType Type;
     public readonly string Data;
+    public readonly string[] Parts;
 
 
     public Nmea0183Sentence(string data)
@@ -13,6 +14,7 @@ public readonly struct Nmea0183Sentence
         
         Type = ParseType(data.Substring(3, 3));
         Data = data;
+        Parts = data.Split(',');
     }
     
     
