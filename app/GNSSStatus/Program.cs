@@ -54,7 +54,7 @@ internal static class Program
             if (timeSinceLastSend < MQTT_SEND_INTERVAL_MILLIS)
                 continue;
             
-            await SendMqttMessage(mqttClient, lastGkCoordinate.Value.Z.ToString());
+            await SendMqttMessage(mqttClient, lastGkCoordinate.Value.Z.ToString("#.000"));
             
             lastSendTime = TimeUtils.GetTimeMillis();
         }
