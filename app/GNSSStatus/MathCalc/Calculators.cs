@@ -12,4 +12,9 @@ public class Calculators
     {
         return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
     }
+
+    public static double deltaZCalc(double z1, double z2)
+    {
+        return z2 - z1;
+    }
 }

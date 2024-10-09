@@ -121,6 +121,8 @@ internal static class Program
             double dxy = Calculators.deltaXYCalc(Convert.ToDouble(ConfigManager.CurrentConfiguration.StaticX), Convert.ToDouble(ConfigManager.CurrentConfiguration.StaticY),gk.N,gk.E);
             Logger.LogInfo($"dXY: {dxy.ToString("#.000")}");
             lastGkCoordinate = gk;
+            double dz = Calculators.deltaZCalc(Convert.ToDouble(ConfigManager.CurrentConfiguration.StaticZ), gk.Z);
+            Logger.LogInfo($"dZ: {dz.ToString("#.000")}");
         }
     }
 
