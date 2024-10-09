@@ -140,7 +140,7 @@ public static class CoordinateConverter
     {
         int row = 586;
         int col = 1;
-        string[] input = File.ReadAllText("assets/FIN2005N00.asc").Split('\n');
+        string[] input = File.ReadAllText("assets/FIN2005N00.lst").Split('\n');
 
         // 70.700000  17.480000  34.415
         // 70,00000000  10,04000000  41,5820
@@ -151,9 +151,9 @@ public static class CoordinateConverter
 
         for (int i = 0; i < 227954; i++)
         {
-            double lat = double.Parse(input[i].Substring(0, 9));
-            double lon = double.Parse(input[i].Substring(11, 9));
-            double height = double.Parse(input[i].Substring(22));
+            double lat = double.Parse(input[i].Substring(3, 9));
+            double lon = double.Parse(input[i].Substring(15, 9));
+            double height = double.Parse(input[i].Substring(26));
             DemNode node = new DemNode(lat, lon, height);
             NodeBuffer[row - 1, col - 1] = node;
             col++;
