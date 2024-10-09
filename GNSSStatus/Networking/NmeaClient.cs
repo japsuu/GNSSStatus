@@ -26,7 +26,7 @@ public sealed class NmeaClient : IDisposable
         _reader = new StreamReader(_tcpClient.GetStream());
         IsConnected = true;
         
-        Logger.LogInfo("Connected to server, listening for packets");
+        Logger.LogInfo("Connected to NMEA server, listening for packets");
     }
     
     
@@ -71,6 +71,6 @@ public sealed class NmeaClient : IDisposable
         _tcpClient.Dispose();
         _reader.Dispose();
         
-        Logger.LogInfo("Disconnected from server");
+        Logger.LogInfo("Disconnected from NMEA server");
     }
 }

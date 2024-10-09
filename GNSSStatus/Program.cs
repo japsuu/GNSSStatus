@@ -1,76 +1,89 @@
-﻿using System.Globalization;
+using System.Globalization;
+using GNSSStatus.Configuration;
 using GNSSStatus.Networking;
 using GNSSStatus.Nmea;
+using MQTTnet;
+using MQTTnet.Client;
 
 namespace GNSSStatus;
 
 internal static class Program
 {
-    private static string serverAddress = "192.168.1.42";
-    private static int port = 2999;
-
-
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
-        CultureInfo culture = new("en-US");
-        CultureInfo.DefaultThreadCurrentCulture = culture;
-        CultureInfo.DefaultThreadCurrentUICulture = culture;
-
-        // If args contains a server address and port, use those instead.
-        ParseArgs(args);
-
-        // Create a new NMEA client.
-        using NmeaClient client = new(serverAddress, port);
-
-        // Read the latest received NMEA sentence from the server.
-        foreach (Nmea0183Sentence sentence in client.ReadSentence())
-            HandleSentence(sentence);
+        InitializeThreadCultureInfo();
+        ConfigManager.LoadConfiguration();
+        
+        using IMqttClient mqttClient = CreateMqttClient();
+        using NmeaClient nmeaClient = new(ConfigManager.CurrentConfiguration.ServerAddress, ConfigManager.CurrentConfiguration.ServerPort);
+        
+        // Run the main loop.
+        await Run(nmeaClient, mqttClient);
     }
 
 
-    /*
-        Message ID $GPGGA
-        1 UTC of position fix
-        2	Latitude
-        3	Direction of latitude:
-        N: North
-        S: South
+    /// <summary>
+    /// The main (infinite) loop of the program.
+    /// </summary>
+    /// <param name="nmeaClient">The NMEA client to read data from.</param>
+    /// <param name="mqttClient">The MQTT client to send data to.</param>
+    private static async Task Run(NmeaClient nmeaClient, IMqttClient mqttClient)
+    {
+        // Connect to the MQTT broker.
+        await ConnectMqttBroker(mqttClient);
         
-        4	Longitude
-        5	Direction of longitude:
-        E: East
-        W: West
-        
-        6	GPS Quality indicator:
-        0: Fix not valid
-        1: GPS fix
-        2: Differential GPS fix (DGNSS), SBAS, OmniSTAR VBS, Beacon, RTX in GVBS mode
-        3: Not applicable
-        4: RTK Fixed, xFill
-        5: RTK Float, OmniSTAR XP/HP, Location RTK, RTX
-        6: INS Dead reckoning
-        
-        7	Number of SVs in use, range from 00 through to 24+
-        8	HDOP
-        9	Orthometric height (MSL reference)
-        10	M: unit of measure for orthometric height is meters
-        11	Geoid separation
-        12	M: geoid separation measured in meters
-        13	Age of differential GPS data record, Type 1 or Type 9. Null field when DGPS is not used.
-        14	Reference station ID, range 0000 to 4095. A null field when any reference station ID is selected and no corrections are received. See table below for a description of the field values.
-        15	The checksum data, always begins with *
-    */
+        // Read the latest received NMEA sentence from the server.
+        foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentence())
+        {
+            await HandleSentence(mqttClient, sentence);
+        }
+    }
 
 
-    private static void HandleSentence(Nmea0183Sentence sentence)
+#region Sentence Processing
+
+    private static async Task HandleSentence(IMqttClient mqttClient, Nmea0183Sentence sentence)
     {
         if (sentence.Type == Nmea0183SentenceType.GGA)
         {
+            /*
+                Message ID $GPGGA
+                1 UTC of position fix
+                2	Latitude
+                3	Direction of latitude:
+                N: North
+                S: South
+                
+                4	Longitude
+                5	Direction of longitude:
+                E: East
+                W: West
+                
+                6	GPS Quality indicator:
+                0: Fix not valid
+                1: GPS fix
+                2: Differential GPS fix (DGNSS), SBAS, OmniSTAR VBS, Beacon, RTX in GVBS mode
+                3: Not applicable
+                4: RTK Fixed, xFill
+                5: RTK Float, OmniSTAR XP/HP, Location RTK, RTX
+                6: INS Dead reckoning
+                
+                7	Number of SVs in use, range from 00 through to 24+
+                8	HDOP
+                9	Orthometric height (MSL reference)
+                10	M: unit of measure for orthometric height is meters
+                11	Geoid separation
+                12	M: geoid separation measured in meters
+                13	Age of differential GPS data record, Type 1 or Type 9. Null field when DGPS is not used.
+                14	Reference station ID, range 0000 to 4095. A null field when any reference station ID is selected and no corrections are received.
+                        See table below for a description of the field values.
+                15	The checksum data, always begins with *
+            */
             string[] parts = sentence.Data.Split(',');
 
             if (parts.Length < 10)
                 return;
-
+            
             string altitude = parts[9];
             string altitudeUnit = parts[10];
             string utcTime = parts[1];
@@ -84,16 +97,78 @@ internal static class Program
             ConvertedCoordinate GK = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, 21, altitude);
 
             Logger.LogInfo($"GK21 X: {GK.N.ToString("#.000")} Y: {GK.E.ToString("#.000")} N2000 Korkeus: {GK.Z.ToString("#.000")}");
+            
+            await SendMqttMessage(mqttClient, altitude);
         }
     }
 
+#endregion
 
-    private static void ParseArgs(string[] args)
+
+#region MQTT
+
+    private static IMqttClient CreateMqttClient()
     {
-        if (args.Length == 2)
-        {
-            serverAddress = args[0];
-            port = int.Parse(args[1]);
-        }
+        Logger.LogInfo("Creating MQTT client...");
+        
+        MqttFactory factory = new();
+        IMqttClient? mqttClient = factory.CreateMqttClient();
+        
+        Logger.LogInfo("MQTT client created.");
+        return mqttClient;
     }
+
+
+    private static async Task ConnectMqttBroker(IMqttClient mqttClient)
+    {
+        Logger.LogInfo("Connecting to MQTT broker...");
+
+        MqttClientOptionsBuilder builder = new MqttClientOptionsBuilder()
+            .WithTcpServer(ConfigManager.CurrentConfiguration.MqttBrokerAddress, ConfigManager.CurrentConfiguration.MqttBrokerPort)
+            .WithCredentials(ConfigManager.CurrentConfiguration.MqttUsername, ConfigManager.CurrentConfiguration.MqttPassword)
+            .WithClientId(ConfigManager.CurrentConfiguration.MqttClientId)
+            .WithTimeout(TimeSpan.FromSeconds(10));
+        
+        MqttClientTlsOptions tlsOptions = new MqttClientTlsOptionsBuilder().UseTls().Build();
+        
+        MqttClientOptions mqttClientOptions = ConfigManager.CurrentConfiguration.UseTls
+            ? builder.WithTlsOptions(tlsOptions).Build()
+            : builder.Build();
+        
+        try
+        {
+            await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Logger.LogException("Failed to connect to MQTT broker", e);
+        }
+        
+        Logger.LogInfo("Connected to MQTT broker.");
+    }
+
+
+    private static async Task SendMqttMessage(IMqttClient mqttClient, string altitude)
+    {
+        MqttApplicationMessage message = new MqttApplicationMessageBuilder()
+            .WithTopic(ConfigManager.CurrentConfiguration.MqttBrokerChannelAltitude)
+            .WithPayload(altitude)
+            .Build();
+
+        await mqttClient.PublishAsync(message, CancellationToken.None);
+    }
+
+#endregion
+
+
+#region Utility
+
+    private static void InitializeThreadCultureInfo()
+    {
+        CultureInfo culture = new("en-US");
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+    }
+
+#endregion
 }
