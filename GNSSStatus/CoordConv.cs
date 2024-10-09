@@ -1,15 +1,17 @@
 ﻿namespace GNSSStatus;
 
 
-public class CoordinateConv
+public readonly struct ConvertedCoordinate
 {
-    public double N, E, Z;
+    public readonly double N;
+    public readonly double E;
+    public readonly double Z;
 
-    public CoordinateConv(double _N, double _E, double _Z)
+
+    public ConvertedCoordinate(double n, double e, double z)
     {
-        this.N = _N;
-        this.E = _E;
-        this.Z = _Z;
-
+        N = n;
+        E = e;
+        Z = z;
     }
 }
