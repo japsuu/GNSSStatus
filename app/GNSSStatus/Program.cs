@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
 using GNSSStatus.MathCalc;
@@ -66,7 +67,18 @@ internal static class Program
 
     private static void HandleSentence(Nmea0183Sentence sentence)
     {
-        if (sentence.Type == Nmea0183SentenceType.GGA)
+        
+        if (sentence.Type == Nmea0183SentenceType.GPNTR)
+        {
+            string[] partsNTR = sentence.Data.Split(',');
+            
+            string basedistance = partsNTR[4];
+            Logger.LogInfo($"Baseline: {basedistance.ToString()}");
+            
+        }
+        
+
+        if (sentence.Type == Nmea0183SentenceType.GNGGA)
         {
             /*
                 Message ID $GPGGA
@@ -114,6 +126,8 @@ internal static class Program
             string longitudi = parts[4];
             string directionLongitudi = parts[5];
             string quality = parts[6];
+            string diffage = parts[13];
+            string noSV = parts[7];
             
             GKCoordinate gk = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, ConfigManager.CurrentConfiguration.GkValue, altitude);
 
@@ -123,6 +137,8 @@ internal static class Program
             lastGkCoordinate = gk;
             double dz = Calculators.deltaZCalc(Convert.ToDouble(ConfigManager.CurrentConfiguration.StaticZ), gk.Z);
             Logger.LogInfo($"dZ: {dz.ToString("#.000")}");
+            Logger.LogInfo($"diffAge: {diffage.ToString()}");
+            Logger.LogInfo($"Satelliitit: {noSV.ToString()}");
         }
     }
 
