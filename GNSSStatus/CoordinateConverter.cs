@@ -140,7 +140,7 @@ public static class CoordinateConverter
     {
         int row = 586;
         int col = 1;
-        string[] input = File.ReadAllText("FIN2005N00.lst").Split('\n');
+        string[] input = File.ReadAllText("assets/FIN2005N00.asc").Split('\n');
 
         // 70.700000  17.480000  34.415
         // 70,00000000  10,04000000  41,5820
