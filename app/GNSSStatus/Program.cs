@@ -72,7 +72,7 @@ internal static class Program
         {
             string[] partsNTR = sentence.Data.Split(',');
             
-            string basedistance = partsNTR[4];
+            string basedistance = partsNTR[3];
             Logger.LogInfo($"Baseline: {basedistance.ToString()}");
             
         }
