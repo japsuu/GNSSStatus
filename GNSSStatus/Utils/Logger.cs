@@ -1,4 +1,4 @@
-﻿namespace GNSSStatus;
+﻿namespace GNSSStatus.Utils;
 
 public static class Logger
 {

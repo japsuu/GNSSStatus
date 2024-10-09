@@ -1,7 +1,8 @@
 using System.Globalization;
 using GNSSStatus.Configuration;
+using GNSSStatus.Coordinates;
 using GNSSStatus.Networking;
-using GNSSStatus.Nmea;
+using GNSSStatus.Utils;
 using MQTTnet;
 using MQTTnet.Client;
 
@@ -95,7 +96,7 @@ internal static class Program
             string directionLongitudi = parts[5];
             string quality = parts[6];
 
-            ConvertedCoordinate gk = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, 21, altitude);
+            GKCoordinate gk = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, 21, altitude);
 
             Logger.LogInfo($"GK21 X: {gk.N.ToString("#.000")} Y: {gk.E.ToString("#.000")} N2000 Korkeus: {gk.Z.ToString("#.000")}");
             

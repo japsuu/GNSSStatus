@@ -1,4 +1,4 @@
-﻿namespace GNSSStatus.Nmea;
+﻿namespace GNSSStatus.Networking;
 
 public enum Nmea0183SentenceType
 {

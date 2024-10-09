@@ -1,4 +1,4 @@
-﻿namespace GNSSStatus.Nmea;
+﻿namespace GNSSStatus.Networking;
 
 public readonly struct Nmea0183Sentence
 {

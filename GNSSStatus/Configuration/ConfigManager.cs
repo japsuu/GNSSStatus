@@ -1,4 +1,5 @@
-﻿using YamlDotNet.Serialization;
+﻿using GNSSStatus.Utils;
+using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace GNSSStatus.Configuration;

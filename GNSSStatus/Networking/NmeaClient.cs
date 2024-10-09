@@ -1,5 +1,5 @@
 ﻿using System.Net.Sockets;
-using GNSSStatus.Nmea;
+using GNSSStatus.Utils;
 
 namespace GNSSStatus.Networking;
 

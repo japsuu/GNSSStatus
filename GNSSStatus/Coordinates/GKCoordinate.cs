@@ -1,14 +1,14 @@
-﻿namespace GNSSStatus;
+﻿namespace GNSSStatus.Coordinates;
 
 
-public readonly struct ConvertedCoordinate
+public readonly struct GKCoordinate
 {
     public readonly double N;
     public readonly double E;
     public readonly double Z;
 
 
-    public ConvertedCoordinate(double n, double e, double z)
+    public GKCoordinate(double n, double e, double z)
     {
         N = n;
         E = e;

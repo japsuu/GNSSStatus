@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace GNSSStatus;
+namespace GNSSStatus.Coordinates;
 
 public static class CoordinateConverter
 {
@@ -33,7 +33,7 @@ public static class CoordinateConverter
     /// <param name="GK">GK järjestelmän numero.</param>
     /// <param name="altitude"></param>
     /// <returns>X,Y koordinaatit GK järjestelmässä.</returns>
-    public static ConvertedCoordinate ConvertToGk(string lat, string lon, string hemisphereLatitude, string hemisphereLongitude, int GK, string altitude)
+    public static GKCoordinate ConvertToGk(string lat, string lon, string hemisphereLatitude, string hemisphereLongitude, int GK, string altitude)
     {
         double leveysasteDd = NmeaToDecimal(lat, hemisphereLatitude);
         double pituusasteDd = NmeaToDecimal(lon, hemisphereLongitude);
@@ -89,7 +89,7 @@ public static class CoordinateConverter
         double z = Convert.ToDouble(altitude) - CreateDem(leveysasteDd, pituusasteDd);
 
         // Tulos tasokoordinaatteina
-        return new ConvertedCoordinate(a1 * zeeta * kNolla, a1 * eeta * kNolla + eNolla, z);
+        return new GKCoordinate(a1 * zeeta * kNolla, a1 * eeta * kNolla + eNolla, z);
     }
 
 
