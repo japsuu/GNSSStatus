@@ -6,7 +6,7 @@ namespace GNSSStatus.Configuration;
 public static class ConfigManager
 {
     private const string CONFIG_PATH = "config.yaml";
-    private static bool _createdDefaultConfiguration = false;
+    private static bool createdDefaultConfiguration = false;
 
     public static ConfigurationData CurrentConfiguration { get; private set; } = null!;
 
@@ -22,6 +22,7 @@ public static class ConfigManager
         
         IDeserializer deserializer = new DeserializerBuilder()
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
+            .WithEnforceRequiredMembers()
             .Build();
 
         try
@@ -32,7 +33,7 @@ public static class ConfigManager
         {
             Logger.LogError($"Failed to load configuration: {e.Message}");
             
-            if (!_createdDefaultConfiguration)
+            if (!createdDefaultConfiguration)
             {
                 Logger.LogWarning("Overwriting configuration with default values.");
                 CreateDefaultConfiguration();
@@ -53,7 +54,9 @@ public static class ConfigManager
             MqttBrokerPort = 8883,
             MqttBrokerChannelAltitude = "channels/2688542/publish/fields/field1",
             MqttUsername = "username",
-            MqttPassword = "password"
+            MqttPassword = "password",
+            MqttClientId = "clientID",
+            UseTls = true
         };
         
         ISerializer serializer = new SerializerBuilder()
@@ -61,7 +64,7 @@ public static class ConfigManager
             .Build();
         
         File.WriteAllText(CONFIG_PATH, serializer.Serialize(defaultConfig));
-        _createdDefaultConfiguration = true;
+        createdDefaultConfiguration = true;
         
         Logger.LogInfo("Default configuration created. Please edit the configuration file and restart the application.");
             

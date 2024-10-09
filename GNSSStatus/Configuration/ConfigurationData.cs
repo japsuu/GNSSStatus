@@ -3,13 +3,15 @@
 public class ConfigurationData
 {
     // Connection
-    public string ServerAddress { get; set; }
-    public int ServerPort { get; set; }
+    public required string ServerAddress { get; set; }
+    public required int ServerPort { get; set; }
     
     // MQTT
-    public string MqttBrokerAddress { get; set; }
-    public int MqttBrokerPort { get; set; }
-    public string MqttBrokerChannelAltitude { get; set; }
-    public string MqttUsername { get; set; }
-    public string MqttPassword { get; set; }
+    public required string MqttBrokerAddress { get; set; }
+    public required int MqttBrokerPort { get; set; }
+    public required string MqttBrokerChannelAltitude { get; set; }
+    public required string MqttUsername { get; set; }
+    public required string MqttPassword { get; set; }
+    public required string MqttClientId { get; set; }
+    public required bool UseTls { get; set; }
 }

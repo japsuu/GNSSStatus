@@ -13,21 +13,10 @@ internal static class Program
         ConfigManager.LoadConfiguration();
         
         // Create a new MQTT client.
-        MqttFactory factory = new();
-        IMqttClient? mqttClient = factory.CreateMqttClient();
-        MqttClientOptions? mqttClientOptions = new MqttClientOptionsBuilder()
-            .WithTcpServer(ConfigManager.CurrentConfiguration.MqttBrokerAddress, ConfigManager.CurrentConfiguration.MqttBrokerPort)
-            .Build();
+        IMqttClient mqttClient = CreateMqttClient();
 
         // Connect to the MQTT broker.
-        try
-        {
-            await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
-        }
-        catch (Exception e)
-        {
-            Logger.LogException("Failed to connect to MQTT broker", e);
-        }
+        await ConnectMqttBroker(mqttClient);
         
         // Create a new NMEA client.
         using NmeaClient client = new(ConfigManager.CurrentConfiguration.ServerAddress, ConfigManager.CurrentConfiguration.ServerPort);
@@ -37,6 +26,47 @@ internal static class Program
         {
             await HandleSentence(mqttClient, sentence);
         }
+    }
+
+
+    private static async Task ConnectMqttBroker(IMqttClient mqttClient)
+    {
+        Logger.LogInfo("Connecting to MQTT broker...");
+
+        MqttClientOptionsBuilder builder = new MqttClientOptionsBuilder()
+            .WithTcpServer(ConfigManager.CurrentConfiguration.MqttBrokerAddress, ConfigManager.CurrentConfiguration.MqttBrokerPort)
+            .WithCredentials(ConfigManager.CurrentConfiguration.MqttUsername, ConfigManager.CurrentConfiguration.MqttPassword)
+            .WithClientId(ConfigManager.CurrentConfiguration.MqttClientId)
+            .WithTimeout(TimeSpan.FromSeconds(10));
+        
+        MqttClientTlsOptions tlsOptions = new MqttClientTlsOptionsBuilder().UseTls().Build();
+        
+        MqttClientOptions mqttClientOptions = ConfigManager.CurrentConfiguration.UseTls
+            ? builder.WithTlsOptions(tlsOptions).Build()
+            : builder.Build();
+        
+        try
+        {
+            await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Logger.LogException("Failed to connect to MQTT broker", e);
+        }
+        
+        Logger.LogInfo("Connected to MQTT broker.");
+    }
+
+
+    private static IMqttClient CreateMqttClient()
+    {
+        Logger.LogInfo("Creating MQTT client...");
+        
+        MqttFactory factory = new();
+        IMqttClient? mqttClient = factory.CreateMqttClient();
+        
+        Logger.LogInfo("MQTT client created.");
+        return mqttClient;
     }
 
 
