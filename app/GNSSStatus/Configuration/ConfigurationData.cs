@@ -9,6 +9,11 @@ public class ConfigurationData
     // Coordinate System
     public required int GkValue { get; set; }
     
+    //Rover base point
+    public required string StaticX { get; set; }
+    public required string StaticY { get; set; }
+    public required string StaticZ { get; set; }
+    
     // MQTT
     public required string MqttBrokerAddress { get; set; }
     public required int MqttBrokerPort { get; set; }

@@ -1,6 +1,7 @@
 using System.Globalization;
 using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
+using GNSSStatus.MathCalc;
 using GNSSStatus.Networking;
 using GNSSStatus.Utils;
 using MQTTnet;
@@ -117,7 +118,8 @@ internal static class Program
             GKCoordinate gk = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, ConfigManager.CurrentConfiguration.GkValue, altitude);
 
             Logger.LogInfo($"GK21 X: {gk.N.ToString("#.000")} Y: {gk.E.ToString("#.000")} N2000 Korkeus: {gk.Z.ToString("#.000")}");
-            
+            double dxy = Calculators.deltaXYCalc(Convert.ToDouble(ConfigManager.CurrentConfiguration.StaticX), Convert.ToDouble(ConfigManager.CurrentConfiguration.StaticY),gk.N,gk.E);
+            Logger.LogInfo($"dXY: {dxy.ToString("#.000")}");
             lastGkCoordinate = gk;
         }
     }

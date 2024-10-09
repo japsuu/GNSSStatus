@@ -52,6 +52,10 @@ public static class ConfigManager
             ServerAddress = "192.168.1.42",
             ServerPort = 2999,
             GkValue = 21,
+            //Rover antenna base point, measured with total station
+            StaticX = "6996389.622",
+            StaticY = "21533297.613",
+            StaticZ = "12.220",
             MqttBrokerAddress = "mqtt3.thingspeak.com",
             MqttBrokerPort = 8883,
             MqttBrokerChannelAltitude = "channels/2688542/publish/fields/field1",
