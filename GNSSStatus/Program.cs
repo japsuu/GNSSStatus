@@ -95,11 +95,11 @@ internal static class Program
             string directionLongitudi = parts[5];
             string quality = parts[6];
 
-            ConvertedCoordinate GK = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, 21, altitude);
+            ConvertedCoordinate gk = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, 21, altitude);
 
-            Logger.LogInfo($"GK21 X: {GK.N.ToString("#.000")} Y: {GK.E.ToString("#.000")} N2000 Korkeus: {GK.Z.ToString("#.000")}");
+            Logger.LogInfo($"GK21 X: {gk.N.ToString("#.000")} Y: {gk.E.ToString("#.000")} N2000 Korkeus: {gk.Z.ToString("#.000")}");
             
-            await SendMqttMessage(mqttClient, altitude);
+            await SendMqttMessage(mqttClient, gk.Z.ToString());
         }
     }
 
@@ -149,11 +149,11 @@ internal static class Program
     }
 
 
-    private static async Task SendMqttMessage(IMqttClient mqttClient, string altitude)
+    private static async Task SendMqttMessage(IMqttClient mqttClient, string payload)
     {
         MqttApplicationMessage message = new MqttApplicationMessageBuilder()
             .WithTopic(ConfigManager.CurrentConfiguration.MqttBrokerChannelAltitude)
-            .WithPayload(altitude)
+            .WithPayload(payload)
             .Build();
 
         await mqttClient.PublishAsync(message, CancellationToken.None);
