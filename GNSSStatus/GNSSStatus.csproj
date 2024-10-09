@@ -13,4 +13,21 @@
         </Content>
     </ItemGroup>
 
+    <!-- Debug configuration -->
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <Optimize>false</Optimize>
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <DefineConstants>TRACE;Debug</DefineConstants>
+        <OutputPath>..\Build\Debug\</OutputPath>
+    </PropertyGroup>
+
+    <!-- Release configuration -->
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <Optimize>true</Optimize>
+        <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+        <DefineConstants>TRACE;Release</DefineConstants>
+        <OutputPath>..\Build\Release\</OutputPath>
+    </PropertyGroup>
+
+
 </Project>
