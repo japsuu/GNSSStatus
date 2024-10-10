@@ -51,9 +51,6 @@ internal static class Program
         {
             HandleSentence(sentence);
             
-            Console.Clear();
-            Logger.LogInfo(LatestData.ToString());
-            
             double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
             if (timeSinceLastSend < MQTT_SEND_INTERVAL_MILLIS)
                 continue;
