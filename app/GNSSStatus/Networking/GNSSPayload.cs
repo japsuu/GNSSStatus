@@ -16,5 +16,12 @@ public class GNSSPayload
     public string AltitudeError { get; set; }
 
 
-    public string ToJson() => JsonSerializer.Serialize(this);
+    public string ToJson()
+    {
+        JsonSerializerOptions ops = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        return JsonSerializer.Serialize(this, ops);
+    }
 }
