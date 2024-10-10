@@ -1,9 +1,10 @@
+// #define MQTT_ENABLE
+
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
-using GNSSStatus.MathCalc;
 using GNSSStatus.Networking;
+using GNSSStatus.Parsing;
 using GNSSStatus.Utils;
 using MQTTnet;
 using MQTTnet.Client;
@@ -14,7 +15,7 @@ internal static class Program
 {
     private const int MQTT_SEND_INTERVAL_MILLIS = 15000;    // 15 seconds.
     
-    private static GKCoordinate? lastGkCoordinate = null;
+    private static readonly GNSSData LatestData = new();
     
     
     private static async Task Main(string[] args)
@@ -48,15 +49,14 @@ internal static class Program
         foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentence())
         {
             HandleSentence(sentence);
+                
+            Logger.LogInfo(LatestData.ToString());
             
-            if (lastGkCoordinate == null)
-                continue;
-
             double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
             if (timeSinceLastSend < MQTT_SEND_INTERVAL_MILLIS)
                 continue;
             
-            await SendMqttMessage(mqttClient, lastGkCoordinate.Value.Z.ToString("#.000"));
+            await SendMqttMessage(mqttClient, LatestData.ToString());
             
             lastSendTime = TimeUtils.GetTimeMillis();
         }
@@ -67,78 +67,52 @@ internal static class Program
 
     private static void HandleSentence(Nmea0183Sentence sentence)
     {
-        
-        if (sentence.Type == Nmea0183SentenceType.GPNTR)
+        switch (sentence.Type)
         {
-            string[] partsNTR = sentence.Data.Split(',');
-            
-            string basedistance = partsNTR[3];
-            Logger.LogInfo($"Baseline: {basedistance.ToString()}");
-            
-        }
-        
-
-        if (sentence.Type == Nmea0183SentenceType.GNGGA)
-        {
-            /*
-                Message ID $GPGGA
-                1 UTC of position fix
-                2	Latitude
-                3	Direction of latitude:
-                N: North
-                S: South
+            case Nmea0183SentenceType.GGA:
+            {
+                if (sentence.Parts.Length < GGAData.LENGTH)
+                {
+                    Logger.LogWarning("Invalid GGA sentence received.");
+                    return;
+                }
                 
-                4	Longitude
-                5	Direction of longitude:
-                E: East
-                W: West
-                
-                6	GPS Quality indicator:
-                0: Fix not valid
-                1: GPS fix
-                2: Differential GPS fix (DGNSS), SBAS, OmniSTAR VBS, Beacon, RTX in GVBS mode
-                3: Not applicable
-                4: RTK Fixed, xFill
-                5: RTK Float, OmniSTAR XP/HP, Location RTK, RTX
-                6: INS Dead reckoning
-                
-                7	Number of SVs in use, range from 00 through to 24+
-                8	HDOP
-                9	Orthometric height (MSL reference)
-                10	M: unit of measure for orthometric height is meters
-                11	Geoid separation
-                12	M: geoid separation measured in meters
-                13	Age of differential GPS data record, Type 1 or Type 9. Null field when DGPS is not used.
-                14	Reference station ID, range 0000 to 4095. A null field when any reference station ID is selected and no corrections are received.
-                        See table below for a description of the field values.
-                15	The checksum data, always begins with *
-            */
-            string[] parts = sentence.Data.Split(',');
-
-            if (parts.Length < 10)
-                return;
+                LatestData.GGA = new GGAData(sentence);
+                break;
+            }
+            case Nmea0183SentenceType.GSA:
+            {
+                if (sentence.Parts.Length < GSAData.LENGTH)
+                {
+                    Logger.LogWarning("Invalid GSA sentence received.");
+                    return;
+                }
             
-            string altitude = parts[9];
-            string altitudeUnit = parts[10];
-            string utcTime = parts[1];
-            string latitudi = parts[2];
-            string directionLatitudi = parts[3];
-            string longitudi = parts[4];
-            string directionLongitudi = parts[5];
-            string quality = parts[6];
-            string diffage = parts[13];
-            string noSV = parts[7];
+                LatestData.GSA = new GSAData(sentence);
+                break;
+            }
+            case Nmea0183SentenceType.GST:
+            {
+                if (sentence.Parts.Length < GSTData.LENGTH)
+                {
+                    Logger.LogWarning("Invalid GST sentence received.");
+                    return;
+                }
             
-            GKCoordinate gk = CoordinateConverter.ConvertToGk(latitudi, longitudi, directionLatitudi, directionLongitudi, ConfigManager.CurrentConfiguration.GkValue, altitude);
-
-            Logger.LogInfo($"GK21 X: {gk.N.ToString("#.000")} Y: {gk.E.ToString("#.000")} N2000 Korkeus: {gk.Z.ToString("#.000")}");
-            double dxy = Calculators.deltaXYCalc(Convert.ToDouble(ConfigManager.CurrentConfiguration.StaticX), Convert.ToDouble(ConfigManager.CurrentConfiguration.StaticY),gk.N,gk.E);
-            Logger.LogInfo($"dXY: {dxy.ToString("#.000")}");
-            lastGkCoordinate = gk;
-            double dz = Calculators.deltaZCalc(Convert.ToDouble(ConfigManager.CurrentConfiguration.StaticZ), gk.Z);
-            Logger.LogInfo($"dZ: {dz.ToString("#.000")}");
-            Logger.LogInfo($"diffAge: {diffage.ToString()}");
-            Logger.LogInfo($"Satelliitit: {noSV.ToString()}");
+                LatestData.GST = new GSTData(sentence);
+                break;
+            }
+            case Nmea0183SentenceType.GSV:
+            {
+                if (sentence.Parts.Length < GSVData.LENGTH)
+                {
+                    Logger.LogWarning("Invalid GSV sentence received.");
+                    return;
+                }
+            
+                LatestData.GSV = new GSVData(sentence);
+                break;
+            }
         }
     }
 
@@ -149,6 +123,9 @@ internal static class Program
 
     private static IMqttClient CreateMqttClient()
     {
+#if !MQTT_ENABLE
+        return null!;
+#endif
         Logger.LogInfo("Creating MQTT client...");
         
         MqttFactory factory = new();
@@ -161,6 +138,9 @@ internal static class Program
 
     private static async Task ConnectMqttBroker(IMqttClient mqttClient)
     {
+#if !MQTT_ENABLE
+        return;
+#endif
         Logger.LogInfo("Connecting to MQTT broker...");
 
         MqttClientOptionsBuilder builder = new MqttClientOptionsBuilder()
@@ -190,6 +170,9 @@ internal static class Program
 
     private static async Task SendMqttMessage(IMqttClient mqttClient, string payload)
     {
+#if !MQTT_ENABLE
+        return;
+#endif
         MqttApplicationMessage message = new MqttApplicationMessageBuilder()
             .WithTopic(ConfigManager.CurrentConfiguration.MqttBrokerChannelAltitude)
             .WithPayload(payload)

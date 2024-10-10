@@ -7,12 +7,12 @@ public class ConfigurationData
     public required int ServerPort { get; set; }
     
     // Coordinate System
-    public required int GkValue { get; set; }
+    public required int GkSystemNumber { get; set; }
     
-    //Rover base point
-    public required string StaticX { get; set; }
-    public required string StaticY { get; set; }
-    public required string StaticZ { get; set; }
+    // Static rover antenna base point
+    public required double BaseLocationX { get; set; }
+    public required double BaseLocationY { get; set; }
+    public required double BaseLocationZ { get; set; }
     
     // MQTT
     public required string MqttBrokerAddress { get; set; }

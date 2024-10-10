@@ -22,6 +22,8 @@ public sealed class NmeaClient : IDisposable
     /// <param name="port">The port number to listen on.</param>
     public NmeaClient(string ipAddress, int port)
     {
+        Logger.LogInfo("Connecting to NMEA server...");
+        
         _tcpClient = new TcpClient(ipAddress, port);
         _reader = new StreamReader(_tcpClient.GetStream());
         IsConnected = true;
