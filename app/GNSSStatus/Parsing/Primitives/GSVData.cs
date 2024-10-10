@@ -1,5 +1,4 @@
-﻿using System.Text;
-using GNSSStatus.Networking;
+﻿using GNSSStatus.Networking;
 
 namespace GNSSStatus.Parsing;
 
@@ -27,18 +26,5 @@ public readonly struct GSVData
         TotalMessages = totalMessages;
         MessageNumber = messageNumber;
         TotalSatellitesVisible = totalSatellitesVisible;
-    }
-    
-    
-    public override string ToString()
-    {
-        StringBuilder sb = new();
-        
-        sb.AppendLine("GSV Data:");
-        sb.AppendLine($"  Total Messages: {TotalMessages}");
-        sb.AppendLine($"  Message Number: {MessageNumber}");
-        sb.AppendLine($"  Total Satellites Visible: {TotalSatellitesVisible}");
-        
-        return sb.ToString();
     }
 }

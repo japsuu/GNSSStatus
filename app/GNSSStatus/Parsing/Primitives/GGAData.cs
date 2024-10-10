@@ -1,5 +1,4 @@
-﻿using System.Text;
-using GNSSStatus.Configuration;
+﻿using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
 using GNSSStatus.Networking;
 
@@ -19,7 +18,7 @@ public readonly struct GGAData
     public readonly string Longitude;
     public readonly string DirectionLongitude;
     public readonly string Quality;
-    public readonly string SatellitesInUse;
+    public readonly string TotalSatellitesInUse;
     public readonly string HDOP;
     public readonly string Altitude;
     public readonly string AltitudeUnit;
@@ -88,7 +87,7 @@ public readonly struct GGAData
         Longitude = longitude;
         DirectionLongitude = directionLongitude;
         Quality = quality;
-        SatellitesInUse = satellites;
+        TotalSatellitesInUse = satellites;
         HDOP = hdop;
         Altitude = altitude;
         AltitudeUnit = altitudeUnit;
@@ -102,27 +101,5 @@ public readonly struct GGAData
         DeltaX = GKCoordinate.N - ConfigManager.CurrentConfiguration.RoverLocationX;
         DeltaY = GKCoordinate.E - ConfigManager.CurrentConfiguration.RoverLocationY;
         DeltaZ = GKCoordinate.Z - ConfigManager.CurrentConfiguration.RoverLocationZ;
-    }
-
-
-    public override string ToString()
-    {
-        StringBuilder sb = new();
-
-        sb.AppendLine("GGA Data:");
-        sb.AppendLine($"  UTC Time: {UtcTime}");
-        sb.AppendLine($"  Latitude: {Latitude} {DirectionLatitude}");
-        sb.AppendLine($"  Longitude: {Longitude} {DirectionLongitude}");
-        sb.AppendLine($"  Quality: {Quality}");
-        sb.AppendLine($"  Satellites: {SatellitesInUse}");
-        sb.AppendLine($"  HDOP: {HDOP}");
-        sb.AppendLine($"  Altitude: {Altitude} {AltitudeUnit}");
-        sb.AppendLine($"  Geoid Separation: {GeoidSeparation} {GeoidSeparationUnit}");
-        sb.AppendLine($"  Age of Differential Data: {AgeOfDifferentialData}");
-        sb.AppendLine($"  Differential Reference Station ID: {DifferentialReferenceStationID}");
-        sb.AppendLine($"  GK Coordinate: {GKCoordinate}");
-        sb.AppendLine($"  Deltas: X={DeltaX}, Y={DeltaY}, Z={DeltaZ}");
-
-        return sb.ToString();
     }
 }

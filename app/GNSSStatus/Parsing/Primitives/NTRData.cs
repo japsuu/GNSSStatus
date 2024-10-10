@@ -1,5 +1,4 @@
-﻿using System.Text;
-using GNSSStatus.Networking;
+﻿using GNSSStatus.Networking;
 
 namespace GNSSStatus.Parsing;
 
@@ -17,16 +16,5 @@ public readonly struct NTRData
         string distanceBetweenBaseAndRover = sentence.Parts[3];
         
         DistanceBetweenBaseAndRover = distanceBetweenBaseAndRover;
-    }
-    
-    
-    public override string ToString()
-    {
-        StringBuilder sb = new();
-        
-        sb.AppendLine("NTR Data:");
-        sb.AppendLine($"  Distance Between Base And Rover: {DistanceBetweenBaseAndRover}");
-        
-        return sb.ToString();
     }
 }

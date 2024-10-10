@@ -1,6 +1,7 @@
-// #define MQTT_ENABLE
+#define MQTT_ENABLE
 
 using System.Globalization;
+using System.Text;
 using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
 using GNSSStatus.Networking;
@@ -14,8 +15,6 @@ namespace GNSSStatus;
 internal static class Program
 {
     private const int MQTT_SEND_INTERVAL_MILLIS = 15000;    // 15 seconds.
-    
-    private static readonly GNSSData LatestData = new();
     
     
     private static async Task Main(string[] args)
@@ -43,91 +42,24 @@ internal static class Program
         
         CoordinateConverter.create_dem();
         
-        double lastSendTime = 0;
+        // Avoid sending the first message immediately.
+        double lastSendTime = TimeUtils.GetTimeMillis() + 5000;
         
         // Read the latest received NMEA sentence from the server.
         foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentence())
         {
-            HandleSentence(sentence);
-                
-            Logger.LogInfo(LatestData.ToString());
+            SentenceParser.Parse(sentence);
             
             double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
             if (timeSinceLastSend < MQTT_SEND_INTERVAL_MILLIS)
                 continue;
             
-            await SendMqttMessage(mqttClient, LatestData.ToString());
+            string payload = SentenceParser.ParsedData.GetPayloadJson();
+            await SendMqttMessage(mqttClient, payload);
             
             lastSendTime = TimeUtils.GetTimeMillis();
         }
     }
-
-
-#region Sentence Processing
-
-    private static void HandleSentence(Nmea0183Sentence sentence)
-    {
-        switch (sentence.Type)
-        {
-            case Nmea0183SentenceType.GGA:
-            {
-                if (sentence.Parts.Length < GGAData.LENGTH)
-                {
-                    Logger.LogWarning("Invalid GGA sentence received.");
-                    return;
-                }
-                
-                LatestData.GGA = new GGAData(sentence);
-                break;
-            }
-            case Nmea0183SentenceType.GSA:
-            {
-                if (sentence.Parts.Length < GSAData.LENGTH)
-                {
-                    Logger.LogWarning("Invalid GSA sentence received.");
-                    return;
-                }
-            
-                LatestData.GSA = new GSAData(sentence);
-                break;
-            }
-            case Nmea0183SentenceType.GST:
-            {
-                if (sentence.Parts.Length < GSTData.LENGTH)
-                {
-                    Logger.LogWarning("Invalid GST sentence received.");
-                    return;
-                }
-            
-                LatestData.GST = new GSTData(sentence);
-                break;
-            }
-            case Nmea0183SentenceType.GSV:
-            {
-                if (sentence.Parts.Length < GSVData.LENGTH)
-                {
-                    Logger.LogWarning("Invalid GSV sentence received.");
-                    return;
-                }
-            
-                LatestData.GSV = new GSVData(sentence);
-                break;
-            }
-            case Nmea0183SentenceType.NTR:
-            {
-                if (sentence.Parts.Length < NTRData.LENGTH)
-                {
-                    Logger.LogWarning("Invalid NTR sentence received.");
-                    return;
-                }
-            
-                LatestData.NTR = new NTRData(sentence);
-                break;
-            }
-        }
-    }
-
-#endregion
 
 
 #region MQTT
@@ -185,13 +117,15 @@ internal static class Program
         return;
 #endif
         MqttApplicationMessage message = new MqttApplicationMessageBuilder()
-            .WithTopic(ConfigManager.CurrentConfiguration.MqttBrokerChannelAltitude)
+            .WithTopic(ConfigManager.CurrentConfiguration.MqttBrokerTopic)
             .WithPayload(payload)
             .Build();
 
         await mqttClient.PublishAsync(message, CancellationToken.None);
         
-        Logger.LogInfo($"Sent MQTT message: {payload}");
+        int bytes = Encoding.UTF8.GetByteCount(payload);
+        
+        Logger.LogInfo($"Sent MQTT message ({bytes} bytes): {payload}");
     }
 
 #endregion

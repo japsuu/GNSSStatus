@@ -57,10 +57,10 @@ public static class ConfigManager
             RoverLocationZ = 12.220,
             MqttBrokerAddress = "mqtt3.thingspeak.com",
             MqttBrokerPort = 1883,
-            MqttBrokerChannelAltitude = "channels/2688542/publish/fields/field1",
+            MqttBrokerTopic = "channels/2688542/publish/fields/field1",
+            MqttClientId = "clientID",
             MqttUsername = "username",
             MqttPassword = "password",
-            MqttClientId = "clientID",
             UseTls = false
         };
         

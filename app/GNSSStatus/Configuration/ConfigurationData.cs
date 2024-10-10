@@ -17,9 +17,9 @@ public class ConfigurationData
     // MQTT
     public required string MqttBrokerAddress { get; set; }
     public required int MqttBrokerPort { get; set; }
-    public required string MqttBrokerChannelAltitude { get; set; }
+    public required string MqttBrokerTopic { get; set; }
+    public required string MqttClientId { get; set; }
     public required string MqttUsername { get; set; }
     public required string MqttPassword { get; set; }
-    public required string MqttClientId { get; set; }
     public required bool UseTls { get; set; }
 }
