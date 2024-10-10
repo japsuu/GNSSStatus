@@ -43,7 +43,8 @@ internal static class Program
         
         CoordinateConverter.create_dem();
         
-        double lastSendTime = 0;
+        // Avoid sending the first message immediately.
+        double lastSendTime = TimeUtils.GetTimeMillis() + 5000;
         
         // Read the latest received NMEA sentence from the server.
         foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentence())
