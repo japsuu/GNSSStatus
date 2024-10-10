@@ -1,5 +1,4 @@
-﻿using System.Text;
-using GNSSStatus.Networking;
+﻿using GNSSStatus.Networking;
 
 namespace GNSSStatus.Parsing;
 

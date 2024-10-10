@@ -1,5 +1,4 @@
-﻿using System.Text;
-using GNSSStatus.Configuration;
+﻿using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
 using GNSSStatus.Networking;
 
