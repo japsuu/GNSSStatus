@@ -121,6 +121,7 @@ public readonly struct GGAData
         sb.AppendLine($"  Age of Differential Data: {AgeOfDifferentialData}");
         sb.AppendLine($"  Differential Reference Station ID: {DifferentialReferenceStationID}");
         sb.AppendLine($"  GK Coordinate: {GKCoordinate}");
+        sb.AppendLine($"  Deltas: X={DeltaX}, Y={DeltaY}, Z={DeltaZ}");
 
         return sb.ToString();
     }
