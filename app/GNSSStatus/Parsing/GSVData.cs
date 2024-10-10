@@ -5,7 +5,7 @@ namespace GNSSStatus.Parsing;
 
 public readonly struct GSVData
 {
-    public const int LENGTH = 17;
+    public const int LENGTH = 4;
     
     public readonly string TotalMessages;
     public readonly string MessageNumber;
