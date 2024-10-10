@@ -58,9 +58,9 @@ public static class ConfigManager
             MqttBrokerAddress = "mqtt3.thingspeak.com",
             MqttBrokerPort = 1883,
             MqttBrokerTopic = "channels/2688542/publish/fields/field1",
+            MqttClientId = "clientID",
             MqttUsername = "username",
             MqttPassword = "password",
-            MqttClientId = "clientID",
             UseTls = false
         };
         
