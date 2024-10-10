@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json;
 using GNSSStatus.Networking;
 
 namespace GNSSStatus.Parsing;
@@ -11,38 +12,26 @@ public class GNSSData
     public GSVData GSV { get; set; }
     public NTRData NTR { get; set; }
     
-    public string Utc => GGA.UtcTime;
-    public string FixType => GGA.Quality;
-    public string SatellitesInUse => GGA.SatellitesInUse;
-    public string SatellitesInView => GSV.TotalSatellitesVisible;
-    public string PDop => GSA.PDOP;
-    public string HDop => GSA.HDOP;
-    public string VDop => GSA.VDOP;
-    public string LatitudeError => GST.LatitudeError;
-    public string LongitudeError => GST.LongitudeError;
-    public string AltitudeError => GST.AltitudeError;
-    public string AgeOfDifferentialData => GGA.AgeOfDifferentialData;
-    public string ReferenceStationId => GGA.DifferentialReferenceStationID;
-    public string DistanceBetweenBaseAndRover => NTR.DistanceBetweenBaseAndRover;
-    //public string HorizontalAccuracy => throw new NotImplementedException();
-    //public string VerticalAccuracy => throw new NotImplementedException();
     
-    
-    public GNSSPayload GetPayload()
+    public string GetPayloadJson()
     {
-        GNSSPayload payload = new()
+        // Manually serialize relevant properties to JSON.
+        string payload = JsonSerializer.Serialize(new
         {
-            Utc = Utc,
-            FixType = FixType,
-            SatellitesInUse = SatellitesInUse,
-            SatellitesInView = SatellitesInView,
-            PDop = PDop,
-            HDop = HDop,
-            VDop = VDop,
-            LatitudeError = LatitudeError,
-            LongitudeError = LongitudeError,
-            AltitudeError = AltitudeError
-        };
+            TimeUtc = GGA.UtcTime,
+            FixType = GGA.Quality,
+            SatellitesInUse = GGA.SatellitesInUse,
+            SatellitesInView = GSV.TotalSatellitesVisible,
+            PDop = GSA.PDOP,
+            HDop = GSA.HDOP,
+            VDop = GSA.VDOP,
+            ErrorLatitude = GST.LatitudeError,
+            ErrorLongitude = GST.LongitudeError,
+            ErrorAltitude = GST.AltitudeError,
+            DifferentialDataAge = GGA.AgeOfDifferentialData,
+            ReferenceStationId = GGA.DifferentialReferenceStationID,
+            BaseRoverDistance = NTR.DistanceBetweenBaseAndRover
+        });
         
         return payload;
     }

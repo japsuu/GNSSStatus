@@ -54,8 +54,8 @@ internal static class Program
             if (timeSinceLastSend < MQTT_SEND_INTERVAL_MILLIS)
                 continue;
             
-            GNSSPayload payload = SentenceParser.ParsedData.GetPayload();
-            await SendMqttMessage(mqttClient, payload.ToJson());
+            string payload = SentenceParser.ParsedData.GetPayloadJson();
+            await SendMqttMessage(mqttClient, payload);
             
             lastSendTime = TimeUtils.GetTimeMillis();
         }
