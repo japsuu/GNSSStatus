@@ -8,6 +8,7 @@ public class GNSSData
     public GSAData GSA { get; set; }
     public GSTData GST { get; set; }
     public GSVData GSV { get; set; }
+    public NTRData NTR { get; set; }
     
     public string Utc => GGA.UtcTime;
     public string FixType => GGA.Quality;
@@ -23,6 +24,7 @@ public class GNSSData
     public string VerticalAccuracy => throw new NotImplementedException();
     public string AgeOfDifferentialData => GGA.AgeOfDifferentialData;
     public string ReferenceStationId => GGA.DifferentialReferenceStationID;
+    public string DistanceBetweenBaseAndRover => NTR.DistanceBetweenBaseAndRover;
     
     
     public override string ToString()
@@ -34,6 +36,7 @@ public class GNSSData
         sb.AppendLine($"  {GSA}");
         sb.AppendLine($"  {GST}");
         sb.AppendLine($"  {GSV}");
+        sb.AppendLine($"  {NTR}");
         
         return sb.ToString();
     }

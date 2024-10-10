@@ -113,6 +113,17 @@ internal static class Program
                 LatestData.GSV = new GSVData(sentence);
                 break;
             }
+            case Nmea0183SentenceType.NTR:
+            {
+                if (sentence.Parts.Length < NTRData.LENGTH)
+                {
+                    Logger.LogWarning("Invalid NTR sentence received.");
+                    return;
+                }
+            
+                LatestData.NTR = new NTRData(sentence);
+                break;
+            }
         }
     }
 
