@@ -102,6 +102,17 @@ internal static class Program
                 LatestData.GST = new GSTData(sentence);
                 break;
             }
+            case Nmea0183SentenceType.GSV:
+            {
+                if (sentence.Parts.Length < GSVData.LENGTH)
+                {
+                    Logger.LogWarning("Invalid GSV sentence received.");
+                    return;
+                }
+            
+                LatestData.GSV = new GSVData(sentence);
+                break;
+            }
         }
     }
 

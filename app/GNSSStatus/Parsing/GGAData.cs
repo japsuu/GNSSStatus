@@ -15,7 +15,7 @@ public readonly struct GGAData
     public readonly string Longitude;
     public readonly string DirectionLongitude;
     public readonly string Quality;
-    public readonly string Satellites;
+    public readonly string SatellitesInUse;
     public readonly string HDOP;
     public readonly string Altitude;
     public readonly string AltitudeUnit;
@@ -84,7 +84,7 @@ public readonly struct GGAData
         Longitude = longitude;
         DirectionLongitude = directionLongitude;
         Quality = quality;
-        Satellites = satellites;
+        SatellitesInUse = satellites;
         HDOP = hdop;
         Altitude = altitude;
         AltitudeUnit = altitudeUnit;
@@ -106,7 +106,7 @@ public readonly struct GGAData
         sb.AppendLine($"  Latitude: {Latitude} {DirectionLatitude}");
         sb.AppendLine($"  Longitude: {Longitude} {DirectionLongitude}");
         sb.AppendLine($"  Quality: {Quality}");
-        sb.AppendLine($"  Satellites: {Satellites}");
+        sb.AppendLine($"  Satellites: {SatellitesInUse}");
         sb.AppendLine($"  HDOP: {HDOP}");
         sb.AppendLine($"  Altitude: {Altitude} {AltitudeUnit}");
         sb.AppendLine($"  Geoid Separation: {GeoidSeparation} {GeoidSeparationUnit}");

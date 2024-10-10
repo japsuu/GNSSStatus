@@ -7,8 +7,8 @@ public readonly struct GSAData
 {
     public const int LENGTH = 17;
     
-    public readonly string Mode;
-    public readonly string Fix;
+    public readonly string OperationMode;
+    public readonly string NavigationMode;
     public readonly string[] PRNs;
     public readonly string PDOP;
     public readonly string HDOP;
@@ -34,8 +34,8 @@ public readonly struct GSAData
         string hDop = sentence.Parts[16];
         string vDop = sentence.Parts[17];
         
-        Mode = mode;
-        Fix = fix;
+        OperationMode = mode;
+        NavigationMode = fix;
         PRNs = prns;
         PDOP = pDop;
         HDOP = hDop;
@@ -48,8 +48,8 @@ public readonly struct GSAData
         StringBuilder sb = new();
         
         sb.AppendLine("GSA Data:");
-        sb.AppendLine($"  Mode: {Mode}");
-        sb.AppendLine($"  Fix: {Fix}");
+        sb.AppendLine($"  Mode: {OperationMode}");
+        sb.AppendLine($"  Fix: {NavigationMode}");
         sb.AppendLine("  PRNs:");
         if (PRNs != null)
         {
