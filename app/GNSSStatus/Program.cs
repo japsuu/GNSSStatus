@@ -1,6 +1,7 @@
 #define MQTT_ENABLE
 
 using System.Globalization;
+using System.Text;
 using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
 using GNSSStatus.Networking;
@@ -56,7 +57,6 @@ internal static class Program
                 continue;
             
             GNSSPayload payload = LatestData.GetPayload();
-            Console.WriteLine(payload.ToJson());
             await SendMqttMessage(mqttClient, payload.ToJson());
             
             lastSendTime = TimeUtils.GetTimeMillis();
@@ -208,7 +208,9 @@ internal static class Program
 
         await mqttClient.PublishAsync(message, CancellationToken.None);
         
-        Logger.LogInfo($"Sent MQTT message: {payload}");
+        int bytes = Encoding.UTF8.GetByteCount(payload);
+        
+        Logger.LogInfo($"Sent MQTT message ({bytes} bytes): {payload}");
     }
 
 #endregion
