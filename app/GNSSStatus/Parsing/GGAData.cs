@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
 using GNSSStatus.Networking;
 
@@ -9,6 +10,9 @@ public readonly struct GGAData
     public const int LENGTH = 14;
 
     public readonly GKCoordinate GKCoordinate;
+    public readonly double DeltaX;
+    public readonly double DeltaY;
+    public readonly double DeltaZ;
     public readonly string UtcTime;
     public readonly string Latitude;
     public readonly string DirectionLatitude;
@@ -93,7 +97,11 @@ public readonly struct GGAData
         AgeOfDifferentialData = ageOfDifferentialData;
         DifferentialReferenceStationID = differentialReferenceStationID;
 
-        GKCoordinate = CoordinateConverter.ConvertToGk(latitude, longitude, directionLatitude, directionLongitude, 21, altitude);
+        GKCoordinate = CoordinateConverter.ConvertToGk(latitude, longitude, directionLatitude, directionLongitude, ConfigManager.CurrentConfiguration.GkSystemNumber, altitude);
+
+        DeltaX = GKCoordinate.N - ConfigManager.CurrentConfiguration.BaseLocationX;
+        DeltaY = GKCoordinate.E - ConfigManager.CurrentConfiguration.BaseLocationY;
+        DeltaZ = GKCoordinate.Z - ConfigManager.CurrentConfiguration.BaseLocationZ;
     }
 
 
