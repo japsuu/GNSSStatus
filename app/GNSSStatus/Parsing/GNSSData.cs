@@ -20,7 +20,7 @@ public class GNSSData
         {
             TimeUtc = GGA.UtcTime,
             FixType = GGA.Quality,
-            SatellitesInUse = GGA.SatellitesInUse,
+            SatellitesInUse = GGA.TotalSatellitesInUse,
             SatellitesInView = GSV.TotalSatellitesVisible,
             PDop = GSA.PDOP,
             HDop = GSA.HDOP,
