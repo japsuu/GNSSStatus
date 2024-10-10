@@ -18,6 +18,8 @@
         </Content>
     </ItemGroup>
 
+
+
     <!-- Debug configuration -->
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
         <Optimize>false</Optimize>
