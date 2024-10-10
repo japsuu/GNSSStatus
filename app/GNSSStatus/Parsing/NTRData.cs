@@ -18,15 +18,4 @@ public readonly struct NTRData
         
         DistanceBetweenBaseAndRover = distanceBetweenBaseAndRover;
     }
-    
-    
-    public override string ToString()
-    {
-        StringBuilder sb = new();
-        
-        sb.AppendLine("NTR Data:");
-        sb.AppendLine($"  Distance Between Base And Rover: {DistanceBetweenBaseAndRover}");
-        
-        return sb.ToString();
-    }
 }

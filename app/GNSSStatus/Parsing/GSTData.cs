@@ -54,22 +54,4 @@ public readonly struct GSTData
         LongitudeError = lonError;
         AltitudeError = altError;
     }
-
-
-    public override string ToString()
-    {
-        StringBuilder sb = new();
-
-        sb.AppendLine("GST Data:");
-        sb.AppendLine($"  UTC Time: {UtcTime}");
-        sb.AppendLine($"  RMS: {Rms}");
-        sb.AppendLine($"  Major Semi Axis: {MajorSemiAxis}");
-        sb.AppendLine($"  Minor Semi Axis: {MinorSemiAxis}");
-        sb.AppendLine($"  Orientation: {Orientation}");
-        sb.AppendLine($"  Latitude Error: {LatitudeError}");
-        sb.AppendLine($"  Longitude Error: {LongitudeError}");
-        sb.AppendLine($"  Altitude Error: {AltitudeError}");
-
-        return sb.ToString();
-    }
 }

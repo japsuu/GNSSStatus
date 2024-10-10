@@ -28,17 +28,4 @@ public readonly struct GSVData
         MessageNumber = messageNumber;
         TotalSatellitesVisible = totalSatellitesVisible;
     }
-    
-    
-    public override string ToString()
-    {
-        StringBuilder sb = new();
-        
-        sb.AppendLine("GSV Data:");
-        sb.AppendLine($"  Total Messages: {TotalMessages}");
-        sb.AppendLine($"  Message Number: {MessageNumber}");
-        sb.AppendLine($"  Total Satellites Visible: {TotalSatellitesVisible}");
-        
-        return sb.ToString();
-    }
 }

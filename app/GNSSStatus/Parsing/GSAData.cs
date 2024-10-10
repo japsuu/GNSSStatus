@@ -41,29 +41,4 @@ public readonly struct GSAData
         HDOP = hDop;
         VDOP = vDop;
     }
-    
-    
-    public override string ToString()
-    {
-        StringBuilder sb = new();
-        
-        sb.AppendLine("GSA Data:");
-        sb.AppendLine($"  Mode: {OperationMode}");
-        sb.AppendLine($"  Fix: {NavigationMode}");
-        sb.AppendLine("  PRNs:");
-        if (PRNs != null)
-        {
-            foreach (string prn in PRNs)
-            {
-                if (string.IsNullOrWhiteSpace(prn))
-                    continue;
-                sb.AppendLine($"    {prn}");
-            }
-        }
-        sb.AppendLine($"  PDOP: {PDOP}");
-        sb.AppendLine($"  HDOP: {HDOP}");
-        sb.AppendLine($"  VDOP: {VDOP}");
-        
-        return sb.ToString();
-    }
 }

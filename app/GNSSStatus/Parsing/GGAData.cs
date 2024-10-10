@@ -103,26 +103,4 @@ public readonly struct GGAData
         DeltaY = GKCoordinate.E - ConfigManager.CurrentConfiguration.RoverLocationY;
         DeltaZ = GKCoordinate.Z - ConfigManager.CurrentConfiguration.RoverLocationZ;
     }
-
-
-    public override string ToString()
-    {
-        StringBuilder sb = new();
-
-        sb.AppendLine("GGA Data:");
-        sb.AppendLine($"  UTC Time: {UtcTime}");
-        sb.AppendLine($"  Latitude: {Latitude} {DirectionLatitude}");
-        sb.AppendLine($"  Longitude: {Longitude} {DirectionLongitude}");
-        sb.AppendLine($"  Quality: {Quality}");
-        sb.AppendLine($"  Satellites: {TotalSatellitesInUse}");
-        sb.AppendLine($"  HDOP: {HDOP}");
-        sb.AppendLine($"  Altitude: {Altitude} {AltitudeUnit}");
-        sb.AppendLine($"  Geoid Separation: {GeoidSeparation} {GeoidSeparationUnit}");
-        sb.AppendLine($"  Age of Differential Data: {AgeOfDifferentialData}");
-        sb.AppendLine($"  Differential Reference Station ID: {DifferentialReferenceStationID}");
-        sb.AppendLine($"  GK Coordinate: {GKCoordinate}");
-        sb.AppendLine($"  Deltas: X={DeltaX}, Y={DeltaY}, Z={DeltaZ}");
-
-        return sb.ToString();
-    }
 }
