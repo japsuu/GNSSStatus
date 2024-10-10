@@ -3,6 +3,7 @@
 public readonly struct Nmea0183Sentence
 {
     public readonly Nmea0183SentenceType Type;
+    public readonly string TypeRaw;
     public readonly string Data;
     public readonly string[] Parts;
 
@@ -12,7 +13,8 @@ public readonly struct Nmea0183Sentence
         if (!data.StartsWith('$'))
             throw new ArgumentException("NMEA0183 sentences must start with a '$' character.");
         
-        Type = ParseType(data.Substring(3, 3));
+        TypeRaw = data.Substring(3, 3);
+        Type = ParseType(TypeRaw);
         Data = data;
         Parts = data.Split(',');
     }
