@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using GNSSStatus.Networking;
 
 namespace GNSSStatus.Parsing;
 
@@ -20,11 +21,31 @@ public class GNSSData
     public string LatitudeError => GST.LatitudeError;
     public string LongitudeError => GST.LongitudeError;
     public string AltitudeError => GST.AltitudeError;
-    public string HorizontalAccuracy => throw new NotImplementedException();
-    public string VerticalAccuracy => throw new NotImplementedException();
     public string AgeOfDifferentialData => GGA.AgeOfDifferentialData;
     public string ReferenceStationId => GGA.DifferentialReferenceStationID;
     public string DistanceBetweenBaseAndRover => NTR.DistanceBetweenBaseAndRover;
+    //public string HorizontalAccuracy => throw new NotImplementedException();
+    //public string VerticalAccuracy => throw new NotImplementedException();
+    
+    
+    public GNSSPayload GetPayload()
+    {
+        GNSSPayload payload = new()
+        {
+            Utc = Utc,
+            FixType = FixType,
+            SatellitesInUse = SatellitesInUse,
+            SatellitesInView = SatellitesInView,
+            PDop = PDop,
+            HDop = HDop,
+            VDop = VDop,
+            LatitudeError = LatitudeError,
+            LongitudeError = LongitudeError,
+            AltitudeError = AltitudeError
+        };
+        
+        return payload;
+    }
     
     
     public override string ToString()

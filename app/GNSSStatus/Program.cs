@@ -49,14 +49,16 @@ internal static class Program
         foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentence())
         {
             HandleSentence(sentence);
-                
+            
+            Console.Clear();
             Logger.LogInfo(LatestData.ToString());
             
             double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
             if (timeSinceLastSend < MQTT_SEND_INTERVAL_MILLIS)
                 continue;
             
-            await SendMqttMessage(mqttClient, LatestData.ToString());
+            GNSSPayload payload = LatestData.GetPayload();
+            await SendMqttMessage(mqttClient, payload.ToJson());
             
             lastSendTime = TimeUtils.GetTimeMillis();
         }
