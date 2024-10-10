@@ -2,14 +2,20 @@
 
 public static class Logger
 {
-    private enum LogLevel
+    public enum LogLevel : byte
     {
-        DEBUG,
-        INFO,
-        WARNING,
-        ERROR,
-        FATAL
+        INFO = 0,
+        WARNING = 1,
+        ERROR = 2,
+        FATAL = 3,
+        DEBUG = 255
     }
+    
+    /// <summary>
+    /// The current log level threshold.
+    /// The lower the level, the more messages are logged.
+    /// </summary>
+    public static LogLevel CurrentLogLevel { get; set; } = LogLevel.INFO;
     
     
     public static void LogDebug(string message)
@@ -49,6 +55,9 @@ public static class Logger
 
     private static void WriteColored(LogLevel level, string message, ConsoleColor foregroundColor, ConsoleColor backgroundColor)
     {
+        if (level < CurrentLogLevel)
+            return;
+        
         ConsoleColor fgCache = Console.ForegroundColor;
         ConsoleColor bgCache = Console.BackgroundColor;
         Console.ForegroundColor = foregroundColor;
