@@ -15,7 +15,7 @@ public enum Nmea0183SentenceType
     /// <summary>
     /// Fix Data.
     /// </summary>
-    GNGGA,
+    GGA,
     
     /// <summary>
     /// Geographic Position: Latitude/Longitude.
@@ -66,5 +66,5 @@ public enum Nmea0183SentenceType
     /// 8 *xx Check sum
     /// 9 [CR][LF] Sentence terminator
     /// </summary>
-    GPNTR,
+    NTR,
 }
