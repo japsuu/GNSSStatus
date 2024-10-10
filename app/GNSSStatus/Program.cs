@@ -55,6 +55,11 @@ internal static class Program
                 continue;
             
             string payload = SentenceParser.ParsedData.GetPayloadJson();
+            
+            // Replace all double quotes with pipes,
+            // otherwise the JSON may be escaped incorrectly.
+            payload = payload.Replace("\"", "|");
+            
             await SendMqttMessage(mqttClient, payload);
             
             lastSendTime = TimeUtils.GetTimeMillis();

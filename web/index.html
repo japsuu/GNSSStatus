@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <title>GNSS Status</title>
   <link rel="stylesheet" href="css/style.css">
   <meta name="description" content="">
 
@@ -20,12 +20,31 @@
 
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#fafafa">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
-  <!-- Add your site or application content here -->
-  <p>Hello world! This is HTML5 Boilerplate.</p>
+  <div class="container">
+    <h1>GNSS Data</h1>
+
+    <div class="chart-container">
+      <canvas id="deltaZChart"></canvas>
+    </div>
+
+    <div id="gnss-data">
+      <h3>Current GNSS Data</h3>
+      <p><strong>Time:</strong> <span id="TimeUtc">Loading...</span></p>
+      <p><strong>Fix Type:</strong> <span id="FixType">Loading...</span></p>
+      <p><strong>Satellites in Use:</strong> <span id="SatellitesInUse">Loading...</span></p>
+      <p><strong>PDop:</strong> <span id="PDop">Loading...</span></p>
+      <p><strong>Error Latitude:</strong> <span id="ErrorLatitude">Loading...</span></p>
+      <p><strong>Error Longitude:</strong> <span id="ErrorLongitude">Loading...</span></p>
+      <p><strong>Error Altitude:</strong> <span id="ErrorAltitude">Loading...</span></p>
+    </div>
+  </div>
+
   <script src="js/app.js"></script>
 
 </body>
