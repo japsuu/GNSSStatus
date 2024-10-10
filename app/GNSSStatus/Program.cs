@@ -56,6 +56,7 @@ internal static class Program
                 continue;
             
             GNSSPayload payload = LatestData.GetPayload();
+            Console.WriteLine(payload.ToJson());
             await SendMqttMessage(mqttClient, payload.ToJson());
             
             lastSendTime = TimeUtils.GetTimeMillis();
