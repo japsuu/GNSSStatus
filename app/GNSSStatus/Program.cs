@@ -74,7 +74,7 @@ internal static class Program
             {
                 if (sentence.Parts.Length < GGAData.LENGTH)
                 {
-                    Logger.LogWarning("Invalid GGA sentence received.");
+                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
                     return;
                 }
                 
@@ -85,7 +85,7 @@ internal static class Program
             {
                 if (sentence.Parts.Length < GSAData.LENGTH)
                 {
-                    Logger.LogWarning("Invalid GSA sentence received.");
+                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
                     return;
                 }
             
@@ -96,7 +96,7 @@ internal static class Program
             {
                 if (sentence.Parts.Length < GSTData.LENGTH)
                 {
-                    Logger.LogWarning("Invalid GST sentence received.");
+                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
                     return;
                 }
             
@@ -107,7 +107,7 @@ internal static class Program
             {
                 if (sentence.Parts.Length < GSVData.LENGTH)
                 {
-                    Logger.LogWarning("Invalid GSV sentence received.");
+                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
                     return;
                 }
             
@@ -118,7 +118,7 @@ internal static class Program
             {
                 if (sentence.Parts.Length < NTRData.LENGTH)
                 {
-                    Logger.LogWarning("Invalid NTR sentence received.");
+                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
                     return;
                 }
             
