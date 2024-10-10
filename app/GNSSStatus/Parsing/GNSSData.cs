@@ -19,6 +19,8 @@ public class GNSSData
         string payload = JsonSerializer.Serialize(new
         {
             TimeUtc = GGA.UtcTime,
+            DeltaXY = GGA.DeltaXY,
+            DeltaZ = GGA.DeltaZ,
             FixType = GGA.Quality,
             SatellitesInUse = GGA.TotalSatellitesInUse,
             SatellitesInView = GSV.TotalSatellitesVisible,
