@@ -16,8 +16,6 @@ internal static class Program
 {
     private const int MQTT_SEND_INTERVAL_MILLIS = 15000;    // 15 seconds.
     
-    private static readonly GNSSData LatestData = new();
-    
     
     private static async Task Main(string[] args)
     {
@@ -50,101 +48,18 @@ internal static class Program
         // Read the latest received NMEA sentence from the server.
         foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentence())
         {
-            HandleSentence(sentence);
+            SentenceParser.Parse(sentence);
             
             double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
             if (timeSinceLastSend < MQTT_SEND_INTERVAL_MILLIS)
                 continue;
             
-            GNSSPayload payload = LatestData.GetPayload();
+            GNSSPayload payload = SentenceParser.ParsedData.GetPayload();
             await SendMqttMessage(mqttClient, payload.ToJson());
             
             lastSendTime = TimeUtils.GetTimeMillis();
         }
     }
-
-
-#region Sentence Processing
-
-    private static void HandleSentence(Nmea0183Sentence sentence)
-    {
-        switch (sentence.Type)
-        {
-            case Nmea0183SentenceType.GGA:
-            {
-                if (sentence.Parts.Length < GGAData.LENGTH)
-                {
-                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
-                    return;
-                }
-                
-                LatestData.GGA = new GGAData(sentence);
-                break;
-            }
-            case Nmea0183SentenceType.GSA:
-            {
-                if (sentence.Parts.Length < GSAData.LENGTH)
-                {
-                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
-                    return;
-                }
-            
-                LatestData.GSA = new GSAData(sentence);
-                break;
-            }
-            case Nmea0183SentenceType.GST:
-            {
-                if (sentence.Parts.Length < GSTData.LENGTH)
-                {
-                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
-                    return;
-                }
-            
-                LatestData.GST = new GSTData(sentence);
-                break;
-            }
-            case Nmea0183SentenceType.GSV:
-            {
-                if (sentence.Parts.Length < GSVData.LENGTH)
-                {
-                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
-                    return;
-                }
-            
-                LatestData.GSV = new GSVData(sentence);
-                break;
-            }
-            case Nmea0183SentenceType.NTR:
-            {
-                if (sentence.Parts.Length < NTRData.LENGTH)
-                {
-                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
-                    return;
-                }
-            
-                LatestData.NTR = new NTRData(sentence);
-                break;
-            }
-            case Nmea0183SentenceType.GBS:
-                break;
-            case Nmea0183SentenceType.GLL:
-                break;
-            case Nmea0183SentenceType.RMC:
-                break;
-            case Nmea0183SentenceType.VTG:
-                break;
-            case Nmea0183SentenceType.ZDA:
-                break;
-            case Nmea0183SentenceType.UNKNOWN:
-            default:
-            {
-                Logger.LogWarning($"Unknown sentence type ({sentence.TypeRaw}) received.");
-                break;
-            }
-        }
-    }
-
-#endregion
 
 
 #region MQTT
