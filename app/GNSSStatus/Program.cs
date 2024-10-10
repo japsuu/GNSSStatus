@@ -125,6 +125,22 @@ internal static class Program
                 LatestData.NTR = new NTRData(sentence);
                 break;
             }
+            case Nmea0183SentenceType.GBS:
+                break;
+            case Nmea0183SentenceType.GLL:
+                break;
+            case Nmea0183SentenceType.RMC:
+                break;
+            case Nmea0183SentenceType.VTG:
+                break;
+            case Nmea0183SentenceType.ZDA:
+                break;
+            case Nmea0183SentenceType.UNKNOWN:
+            default:
+            {
+                Logger.LogWarning($"Unknown sentence type ({sentence.TypeRaw}) received.");
+                break;
+            }
         }
     }
 
