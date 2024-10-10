@@ -99,9 +99,9 @@ public readonly struct GGAData
 
         GKCoordinate = CoordinateConverter.ConvertToGk(latitude, longitude, directionLatitude, directionLongitude, ConfigManager.CurrentConfiguration.GkSystemNumber, altitude);
 
-        DeltaX = GKCoordinate.N - ConfigManager.CurrentConfiguration.BaseLocationX;
-        DeltaY = GKCoordinate.E - ConfigManager.CurrentConfiguration.BaseLocationY;
-        DeltaZ = GKCoordinate.Z - ConfigManager.CurrentConfiguration.BaseLocationZ;
+        DeltaX = GKCoordinate.N - ConfigManager.CurrentConfiguration.RoverLocationX;
+        DeltaY = GKCoordinate.E - ConfigManager.CurrentConfiguration.RoverLocationY;
+        DeltaZ = GKCoordinate.Z - ConfigManager.CurrentConfiguration.RoverLocationZ;
     }
 
 

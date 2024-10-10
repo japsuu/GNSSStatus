@@ -10,9 +10,9 @@ public class ConfigurationData
     public required int GkSystemNumber { get; set; }
     
     // Static rover antenna base point
-    public required double BaseLocationX { get; set; }
-    public required double BaseLocationY { get; set; }
-    public required double BaseLocationZ { get; set; }
+    public required double RoverLocationX { get; set; }
+    public required double RoverLocationY { get; set; }
+    public required double RoverLocationZ { get; set; }
     
     // MQTT
     public required string MqttBrokerAddress { get; set; }
