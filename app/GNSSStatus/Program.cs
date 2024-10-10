@@ -1,4 +1,4 @@
-// #define MQTT_ENABLE
+#define MQTT_ENABLE
 
 using System.Globalization;
 using GNSSStatus.Configuration;
@@ -187,7 +187,7 @@ internal static class Program
         return;
 #endif
         MqttApplicationMessage message = new MqttApplicationMessageBuilder()
-            .WithTopic(ConfigManager.CurrentConfiguration.MqttBrokerChannelAltitude)
+            .WithTopic(ConfigManager.CurrentConfiguration.MqttBrokerTopic)
             .WithPayload(payload)
             .Build();
 
