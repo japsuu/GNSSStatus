@@ -1,6 +1,7 @@
 const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
 const channelId = "2691494"; // ThingSpeak channel ID
 const maxResults = 288; // 15 sec intervals over 24 hours: 24 * 60 * 60 / 15
+const refreshInterval = 15000; // 15 seconds
 
 const deltaZChartCtx = document.getElementById('deltaZChart').getContext('2d');
 
@@ -27,6 +28,7 @@ const deltaZChart = new Chart(deltaZChartCtx, {
 });
 
 let lastDataFetchTime;
+let lastNewDataReceiveTime;
 
 // Fetch data from ThingSpeak and update UI
 async function fetchData() {
@@ -51,14 +53,24 @@ async function fetchData() {
         const timeUtc = gnssData.TimeUtc;
         const time = `${timeUtc.slice(0, 2)}:${timeUtc.slice(2, 4)}:${timeUtc.slice(4, 6)}`;
 
+        // Construct a proper Date object from the TimeUtc string
+        let datetime = new Date();
+        let [hours, minutes, seconds] = time.split(':');
+        datetime.setUTCHours(hours);
+        datetime.setUTCMinutes(minutes);
+        datetime.setUTCSeconds(seconds);
+
         return {
           gnss: gnssData,
           time: time,
+          datetime: datetime
         }
       })
     };
     console.log('Data:', data);
 
+    const lastEntry = data.feeds[data.feeds.length - 1];
+    lastNewDataReceiveTime = lastEntry.datetime;
 
     updateGraph(data);
     updateTextData(data);
@@ -86,32 +98,54 @@ function updateGraph(data) {
   deltaZChart.update();
 }
 
-// Update text data
 function updateTextData(data) {
   const latestFeed = data.feeds[data.feeds.length - 1];
 
-  document.getElementById('TimeUtc').textContent = latestFeed.time;
+  document.getElementById('TimeUtc').textContent = latestFeed.datetime.toTimeString();
   document.getElementById('FixType').textContent = latestFeed.gnss.FixType;
   document.getElementById('SatellitesInUse').textContent = latestFeed.gnss.SatellitesInUse;
+  document.getElementById('SatellitesInView').textContent = latestFeed.gnss.SatellitesInView;
   document.getElementById('PDop').textContent = latestFeed.gnss.PDop;
+  document.getElementById('HDop').textContent = latestFeed.gnss.HDop;
+  document.getElementById('VDop').textContent = latestFeed.gnss.VDop;
   document.getElementById('ErrorLatitude').textContent = latestFeed.gnss.ErrorLatitude;
   document.getElementById('ErrorLongitude').textContent = latestFeed.gnss.ErrorLongitude;
   document.getElementById('ErrorAltitude').textContent = latestFeed.gnss.ErrorAltitude;
 }
 
-function updateTimeAgo() {
-  if (!lastDataFetchTime) return;
+function updateTimeToRefresh() {
+  if (!lastDataFetchTime)
+    return;
 
   const now = new Date();
-  const secondsAgo = Math.floor((now - lastDataFetchTime) / 1000);
-  const timeElement = document.getElementById('TimeUtc');
-  const timeText = timeElement.textContent.split(' ')[0]; // Extract the time part
+  const refreshIn = Math.round((lastDataFetchTime.getTime() + refreshInterval - now.getTime()) / 1000);
+  const timeElement = document.getElementById('TimeToNextRefresh');
 
-  timeElement.textContent = `${timeText} (${secondsAgo} seconds ago)`;
+  timeElement.textContent = `Refreshing in ${refreshIn}...`;
 }
 
-setInterval(updateTimeAgo, 1000);
+function updateTimeAgo() {
+  if (!lastNewDataReceiveTime)
+    return;
 
-// Fetch data every 15 seconds without refreshing the page
-setInterval(fetchData, 15000);
+  const now = new Date();
+  const secondsAgo = Math.floor((now - lastNewDataReceiveTime) / 1000);
+  const timeElement = document.getElementById('TimeUtc');
+  const warningPopup = document.getElementById('warning-popup');
+
+  // Extract the original time text
+  const timeText = timeElement.textContent.split('|')[0].trim();
+
+  timeElement.textContent = `${timeText} | ${secondsAgo} seconds ago`;
+
+  if (secondsAgo > 30) {
+    warningPopup.classList.remove('hidden');
+  } else {
+    warningPopup.classList.add('hidden');
+  }
+}
+
+setInterval(updateTimeToRefresh, 1000);
+setInterval(updateTimeAgo, 1000);
+setInterval(fetchData, refreshInterval);
 fetchData();
