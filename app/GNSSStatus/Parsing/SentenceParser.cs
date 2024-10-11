@@ -83,7 +83,6 @@ public static class SentenceParser
             case Nmea0183SentenceType.UNKNOWN:
             default:
             {
-                Logger.LogWarning($"Unknown sentence type ({sentence.TypeRaw}) received.");
                 break;
             }
         }
