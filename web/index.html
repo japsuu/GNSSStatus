@@ -18,7 +18,7 @@
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.png">
 
-  <link rel="manifest" href="/site.webmanifest">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#fafafa">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -29,12 +29,16 @@
   <div class="container">
     <h1>GNSS Data</h1>
 
+    <div id="warning-popup" class="hidden">
+      <p>Warning: The most recent data is over 60 seconds old!</p>
+    </div>
+
     <div class="chart-container">
       <canvas id="deltaZChart"></canvas>
     </div>
 
-    <div id="warning-popup" class="hidden">
-      <p>Warning: The most recent data is over 30 seconds old!</p>
+    <div class="chart-container">
+      <canvas id="deltaXYChart"></canvas>
     </div>
 
     <div id="gnss-data">
@@ -50,6 +54,18 @@
       <p><strong>Error Latitude:</strong> <span id="ErrorLatitude">Loading...</span></p>
       <p><strong>Error Longitude:</strong> <span id="ErrorLongitude">Loading...</span></p>
       <p><strong>Error Altitude:</strong> <span id="ErrorAltitude">Loading...</span></p>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="fixTypeChart"></canvas>
+    </div>
+
+    <div>
+      <h3>Ionosphere Data</h3>
+      <!-- Credit to the National Land Survey of Finland for Ionosphere data -->
+      <p>Provided by the National Land Survey of Finland <a href="https://finpos.nls.fi/iono/">(link)</a></p>
+      <!-- Link to FinPos iono graph image -->
+      <img src="https://finpos.nls.fi/iono/ir_ipi_ip0/PROD_seven2three_IPI.png" alt="Ionosphere Graph", width="100%">
     </div>
   </div>
 
