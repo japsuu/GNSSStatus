@@ -138,7 +138,7 @@ function updateGraph(data, dataKey, chart) {
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
       dataPoints.push(feed.gnss[dataKey]);
-      pointLabels.push(feed.time);
+      pointLabels.push(feed.datetime.toTimeString().slice(0, 8));
       pointColors.push(getPointColor(feed.gnss.FixType));
     }
   });
