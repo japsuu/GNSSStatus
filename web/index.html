@@ -29,16 +29,16 @@
   <div class="container">
     <h1>GNSS Data</h1>
 
+    <div id="warning-popup" class="hidden">
+      <p>Warning: The most recent data is over 60 seconds old!</p>
+    </div>
+
     <div class="chart-container">
       <canvas id="deltaZChart"></canvas>
     </div>
 
     <div class="chart-container">
       <canvas id="deltaXYChart"></canvas>
-    </div>
-
-    <div id="warning-popup" class="hidden">
-      <p>Warning: The most recent data is over 60 seconds old!</p>
     </div>
 
     <div id="gnss-data">
