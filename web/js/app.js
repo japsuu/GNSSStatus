@@ -17,9 +17,12 @@ const deltaZChart = new Chart(deltaZChartCtx, {
       label: 'DeltaZ',
       data: [],
       pointBackgroundColor: [],
-      borderColor: [],
-      //borderColor: 'rgba(75, 192, 192, 1)',
+      borderColor: 'black',
+      backgroundColor: 'black',
       borderWidth: 2,
+      pointBorderWidth: 0,
+      pointRadius: 5,
+      pointHitRadius: 10,
       fill: false
     }]
   },
@@ -84,36 +87,56 @@ async function fetchData() {
 
 function updateDeltaZGraph(data) {
   const feeds = data.feeds;
-  const deltaZData = [];
-  const labels = [];
+  const interval = 15 * 60 * 1000; // 15 minutes in milliseconds
+  const dataPoints = [];
+  const pointLabels = [];
   const pointColors = [];
 
-  feeds.forEach(feed => {
+  let intervalStart = feeds[0].datetime.getTime();
+  let intervalEnd = intervalStart + interval;
+  let intervalData = [];
+  let intervalFixTypes = new Set();
 
-    if (feed.gnss.DeltaZ !== undefined) {
-      deltaZData.push(feed.gnss.DeltaZ);
-      labels.push(feed.time);
-      pointColors.push(getPointColor(feed.gnss));
+  feeds.forEach(feed => {
+    const feedTime = feed.datetime.getTime();
+
+    if (feedTime >= intervalStart && feedTime < intervalEnd) {
+      intervalData.push(feed.gnss.DeltaZ);
+      intervalFixTypes.add(feed.gnss.FixType);
+    } else {
+      if (intervalData.length > 0) {
+        const avgDeltaZ = intervalData.reduce((sum, value) => sum + value, 0) / intervalData.length;
+        dataPoints.push(avgDeltaZ);
+
+        const startDate = new Date(intervalStart).toISOString().slice(11, 16); // HH:mm format
+        const endDate = new Date(intervalEnd).toISOString().slice(11, 16); // HH:mm format
+        pointLabels.push(`${startDate} - ${endDate}`);
+        pointColors.push(determineIntervalColor(intervalFixTypes));
+      }
+
+      intervalStart = intervalEnd;
+      intervalEnd = intervalStart + interval;
+      intervalData = [feed.gnss.DeltaZ];
+      intervalFixTypes = new Set([feed.gnss.FixType]);
     }
   });
 
-  deltaZChart.data.labels = labels;
-  deltaZChart.data.datasets[0].data = deltaZData;
+  // Handle the last interval
+  if (intervalData.length > 0) {
+    const avgDeltaZ = intervalData.reduce((sum, value) => sum + value, 0) / intervalData.length;
+    dataPoints.push(avgDeltaZ);
+
+    const startDate = new Date(intervalStart).toISOString().slice(11, 16); // HH:mm format
+    // Cannot use intervalEnd, as it might be past the last feed's time
+    const endDate = new Date(feeds[feeds.length - 1].datetime).toISOString().slice(11, 16); // HH:mm format
+    pointLabels.push(`${startDate} - ${endDate}`);
+    pointColors.push(determineIntervalColor(intervalFixTypes));
+  }
+
+  deltaZChart.data.labels = pointLabels;
+  deltaZChart.data.datasets[0].data = dataPoints;
   deltaZChart.data.datasets[0].pointBackgroundColor = pointColors;
-  deltaZChart.data.datasets[0].borderColor = pointColors;
   deltaZChart.update();
-}
-
-function getPointColor(gnss){
-  // Quality 4 = green, 5 = yellow, others = red
-  if (gnss.FixType === 4) {
-    return 'green';
-  }
-  if (gnss.FixType === 5) {
-    return 'yellow';
-  }
-
-  return 'red';
 }
 
 function updateTextData(data) {
@@ -155,6 +178,16 @@ function updateTimeAgo() {
   } else {
     warningPopup.classList.add('hidden');
   }
+}
+
+function determineIntervalColor(fixTypes) {
+  if (fixTypes.size === 1) {
+    const fixType = [...fixTypes][0];
+    if (fixType === 4) return 'green';
+    if (fixType === 5) return 'yellow';
+    return 'red';
+  }
+  return 'blue';
 }
 
 setInterval(updateTimeToRefresh, 1000);
