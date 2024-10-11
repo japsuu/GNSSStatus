@@ -7,8 +7,6 @@ const refreshInterval = 15000; // milliseconds
 const oldDataWarningThreshold = 60; // seconds
 
 const deltaZChartCtx = document.getElementById('deltaZChart').getContext('2d');
-
-// Set up Chart.js for DeltaZ graph
 const deltaZChart = new Chart(deltaZChartCtx, {
   type: 'line',
   data: {
@@ -31,6 +29,33 @@ const deltaZChart = new Chart(deltaZChartCtx, {
     scales: {
       x: {display: true, title: {display: true, text: 'Time (UTC)'}},
       y: {display: true, title: {display: true, text: 'DeltaZ (m)'}}
+    }
+  }
+});
+
+const deltaXYChartCtx = document.getElementById('deltaXYChart').getContext('2d');
+const deltaXYChart = new Chart(deltaXYChartCtx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'DeltaXY',
+      data: [],
+      pointBackgroundColor: [],
+      borderColor: 'black',
+      backgroundColor: 'black',
+      borderWidth: 2,
+      pointBorderWidth: 0,
+      pointRadius: 5,
+      pointHitRadius: 10,
+      fill: false
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      x: {display: true, title: {display: true, text: 'Time (UTC)'}},
+      y: {display: true, min:0, title: {display: true, text: 'DeltaXY (m)'}}
     }
   }
 });
@@ -78,14 +103,15 @@ async function fetchData() {
     const lastEntry = data.feeds[data.feeds.length - 1];
     lastNewDataReceiveTime = lastEntry.datetime;
 
-    updateDeltaZGraph(data);
+    updateGraph(data, 'DeltaZ', deltaZChart);
+    updateGraph(data, 'DeltaXY', deltaXYChart);
     updateTextData(data);
   } catch (error) {
     console.error('Error fetching data:', error);
   }
 }
 
-function updateDeltaZGraph(data) {
+function updateGraph(data, dataKey, chart) {
   const feeds = data.feeds;
   const interval = 15 * 60 * 1000; // 15 minutes in milliseconds
   const dataPoints = [];
@@ -101,12 +127,12 @@ function updateDeltaZGraph(data) {
     const feedTime = feed.datetime.getTime();
 
     if (feedTime >= intervalStart && feedTime < intervalEnd) {
-      intervalData.push(feed.gnss.DeltaZ);
+      intervalData.push(feed.gnss[dataKey]);
       intervalFixTypes.add(feed.gnss.FixType);
     } else {
       if (intervalData.length > 0) {
-        const avgDeltaZ = intervalData.reduce((sum, value) => sum + value, 0) / intervalData.length;
-        dataPoints.push(avgDeltaZ);
+        const avgValue = intervalData.reduce((sum, value) => sum + value, 0) / intervalData.length;
+        dataPoints.push(avgValue);
 
         const startDate = new Date(intervalStart).toISOString().slice(11, 16); // HH:mm format
         const endDate = new Date(intervalEnd).toISOString().slice(11, 16); // HH:mm format
@@ -116,15 +142,15 @@ function updateDeltaZGraph(data) {
 
       intervalStart = intervalEnd;
       intervalEnd = intervalStart + interval;
-      intervalData = [feed.gnss.DeltaZ];
+      intervalData = [feed.gnss[dataKey]];
       intervalFixTypes = new Set([feed.gnss.FixType]);
     }
   });
 
   // Handle the last interval
   if (intervalData.length > 0) {
-    const avgDeltaZ = intervalData.reduce((sum, value) => sum + value, 0) / intervalData.length;
-    dataPoints.push(avgDeltaZ);
+    const avgValue = intervalData.reduce((sum, value) => sum + value, 0) / intervalData.length;
+    dataPoints.push(avgValue);
 
     const startDate = new Date(intervalStart).toISOString().slice(11, 16); // HH:mm format
     // Cannot use intervalEnd, as it might be past the last feed's time
@@ -133,10 +159,10 @@ function updateDeltaZGraph(data) {
     pointColors.push(determineIntervalColor(intervalFixTypes));
   }
 
-  deltaZChart.data.labels = pointLabels;
-  deltaZChart.data.datasets[0].data = dataPoints;
-  deltaZChart.data.datasets[0].pointBackgroundColor = pointColors;
-  deltaZChart.update();
+  chart.data.labels = pointLabels;
+  chart.data.datasets[0].data = dataPoints;
+  chart.data.datasets[0].pointBackgroundColor = pointColors;
+  chart.update();
 }
 
 function updateTextData(data) {
