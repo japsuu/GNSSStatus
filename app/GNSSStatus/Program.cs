@@ -15,9 +15,6 @@ namespace GNSSStatus;
 
 internal static class Program
 {
-    private const int MQTT_SEND_INTERVAL_MILLIS = 15000;    // 15 seconds.
-    
-    
     private static async Task Main(string[] args)
     {
         InitializeThreadCultureInfo();
@@ -52,10 +49,16 @@ internal static class Program
             SentenceParser.Parse(sentence);
             
             double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
-            if (timeSinceLastSend < MQTT_SEND_INTERVAL_MILLIS)
+            if (timeSinceLastSend < ConfigManager.MQTT_SEND_INTERVAL_MILLIS)
                 continue;
             
             string payload = SentenceParser.ParsedData.GetPayloadJson();
+            
+            if (string.IsNullOrEmpty(payload))
+            {
+                Logger.LogWarning("Empty payload received. Skipping MQTT send.");
+                continue;
+            }
             
             await SendMqttMessage(mqttClient, payload);
             
@@ -122,14 +125,20 @@ internal static class Program
         // Percent-encode the payload.
         payload = WebUtility.UrlEncode(payload);
         
+        int bytes = Encoding.UTF8.GetByteCount(payload);
+        
+        if (bytes > ConfigManager.MQTT_MAX_PAYLOAD_SIZE_BYTES)
+        {
+            Logger.LogWarning($"Payload exceeds max supported byte size ({bytes}/{ConfigManager.MQTT_MAX_PAYLOAD_SIZE_BYTES}). Skipping.");
+            return;
+        }
+        
         MqttApplicationMessage message = new MqttApplicationMessageBuilder()
             .WithTopic(ConfigManager.CurrentConfiguration.MqttBrokerTopic)
             .WithPayload(payload)
             .Build();
 
         await mqttClient.PublishAsync(message, CancellationToken.None);
-        
-        int bytes = Encoding.UTF8.GetByteCount(payload);
         
         Logger.LogInfo($"Sent MQTT message ({bytes} bytes): {payload}");
     }

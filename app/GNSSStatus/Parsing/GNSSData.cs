@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using GNSSStatus.Configuration;
+using GNSSStatus.Utils;
 
 namespace GNSSStatus.Parsing;
 
@@ -34,6 +36,12 @@ public class GNSSData
             ReferenceStationId = GGA.DifferentialReferenceStationID,
             BaseRoverDistance = NTR.DistanceBetweenBaseAndRover
         });
+
+        if (payload.Length >= ConfigManager.MAX_JSON_PAYLOAD_LENGTH)
+        {
+            Logger.LogWarning($"Payload exceeds max supported character count ({ConfigManager.MAX_JSON_PAYLOAD_LENGTH}). Returning empty payload.");
+            return string.Empty;
+        }
         
         return payload;
     }
