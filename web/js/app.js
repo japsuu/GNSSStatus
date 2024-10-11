@@ -60,31 +60,50 @@ const deltaXYChart = new Chart(deltaXYChartCtx, {
   }
 });
 
+const fixTypeChartCtx = document.getElementById('fixTypeChart').getContext('2d');
+const fixTypeChart = new Chart(fixTypeChartCtx, {
+  type: 'pie',
+  data: {
+    labels: ['No Fix', '2D Fix', '3D Fix', 'DGPS Fix', 'RTK Fix'],
+    datasets: [{
+      data: [],
+      backgroundColor: ['red', 'orange', 'yellow', 'green', 'blue']
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'GNSS Fix Types Duration'
+      }
+    }
+  }
+});
+
 let lastDataFetchTime;
 let lastNewDataReceiveTime;
 
 async function fetchData() {
-
   try {
     const response = await fetch(dataFetchUrl);
     const json = await response.json();
     lastDataFetchTime = new Date();
 
-    // Construct an array of GNSS data from the JSON response
     const data = {
       feeds: json.feeds.map(feed => {
-        // The data is stored in multiple fields, so we need to combine them into one JSON object
         const f1 = feed.field1;
         const f2 = feed.field2;
         const f3 = feed.field3;
         const f4 = feed.field4;
         const gnssData = Object.assign({}, JSON.parse(f1), JSON.parse(f2), JSON.parse(f3), JSON.parse(f4));
 
-        // Convert the hhmmss.ss(ss) TimeUtc to hh:mm:ss
         const timeUtc = gnssData.TimeUtc;
         const time = `${timeUtc.slice(0, 2)}:${timeUtc.slice(2, 4)}:${timeUtc.slice(4, 6)}`;
 
-        // Construct a proper Date object from the TimeUtc string
         let datetime = new Date();
         let [hours, minutes, seconds] = time.split(':');
         datetime.setUTCHours(hours);
@@ -98,7 +117,6 @@ async function fetchData() {
         }
       })
     };
-    console.log('Data:', data);
 
     const lastEntry = data.feeds[data.feeds.length - 1];
     lastNewDataReceiveTime = lastEntry.datetime;
@@ -106,6 +124,7 @@ async function fetchData() {
     updateGraph(data, 'DeltaZ', deltaZChart);
     updateGraph(data, 'DeltaXY', deltaXYChart);
     updateTextData(data);
+    updateFixTypeChart(data);
   } catch (error) {
     console.error('Error fetching data:', error);
   }
@@ -163,6 +182,31 @@ function updateGraph(data, dataKey, chart) {
   chart.data.datasets[0].data = dataPoints;
   chart.data.datasets[0].pointBackgroundColor = pointColors;
   chart.update();
+}
+
+function updateFixTypeChart(data) {
+  const feeds = data.feeds;
+  const fixTypeDurations = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+  for (let i = 1; i < feeds.length; i++) {
+    const currentFeed = feeds[i];
+    const previousFeed = feeds[i - 1];
+    const duration = (currentFeed.datetime - previousFeed.datetime) / 1000; // duration in seconds
+    const fixType = previousFeed.gnss.FixType;
+
+    if (fixTypeDurations[fixType] !== undefined) {
+      fixTypeDurations[fixType] += duration;
+    }
+  }
+
+  fixTypeChart.data.datasets[0].data = [
+    fixTypeDurations[1],
+    fixTypeDurations[2],
+    fixTypeDurations[3],
+    fixTypeDurations[4],
+    fixTypeDurations[5]
+  ];
+  fixTypeChart.update();
 }
 
 function updateTextData(data) {
