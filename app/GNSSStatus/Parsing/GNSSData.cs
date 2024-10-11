@@ -18,31 +18,49 @@ public class GNSSData
     public string GetPayloadJson()
     {
         // Manually serialize relevant properties to JSON.
-        string payload = JsonSerializer.Serialize(new
+        string p1 = VerifyPayload(JsonSerializer.Serialize(new
         {
             TimeUtc = GGA.UtcTime,
-            DeltaXY = GGA.DeltaXY,
-            DeltaZ = GGA.DeltaZ,
             FixType = GGA.Quality,
             SatellitesInUse = GGA.TotalSatellitesInUse,
             SatellitesInView = GSV.TotalSatellitesVisible,
+            DeltaXY = GGA.DeltaXY,
+            DeltaZ = GGA.DeltaZ,
             PDop = GSA.PDOP,
             HDop = GSA.HDOP,
-            VDop = GSA.VDOP,
+            VDop = GSA.VDOP
+        }));
+        Logger.LogDebug($"payload1 length: {p1.Length}");
+        
+        string p2 = VerifyPayload(JsonSerializer.Serialize(new
+        {
             ErrorLatitude = GST.LatitudeError,
             ErrorLongitude = GST.LongitudeError,
             ErrorAltitude = GST.AltitudeError,
             DifferentialDataAge = GGA.AgeOfDifferentialData,
             ReferenceStationId = GGA.DifferentialReferenceStationID,
             BaseRoverDistance = NTR.DistanceBetweenBaseAndRover
-        });
+        }));
+        Logger.LogDebug($"payload2 length: {p2.Length}");
+        
+        return $"field1={p1}&field2={p2}";
+    }
+    
+    
+    private string VerifyPayload(string payload)
+    {
+        if (string.IsNullOrEmpty(payload))
+        {
+            Logger.LogWarning("An empty payload was generated.");
+            return payload;
+        }
 
         if (payload.Length >= ConfigManager.MAX_JSON_PAYLOAD_LENGTH)
         {
             Logger.LogWarning($"Payload exceeds max supported character count ({ConfigManager.MAX_JSON_PAYLOAD_LENGTH}). Returning empty payload.");
             return string.Empty;
         }
-        
+
         return payload;
     }
     
