@@ -1,7 +1,8 @@
 const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
 const channelId = "2691494"; // ThingSpeak channel ID
 const maxResults = 288; // 15 sec intervals over 24 hours: 24 * 60 * 60 / 15
-const refreshInterval = 15000; // 15 seconds
+const refreshInterval = 15000; // milliseconds
+const oldDataWarningThreshold = 60; // seconds
 
 const deltaZChartCtx = document.getElementById('deltaZChart').getContext('2d');
 
@@ -13,7 +14,9 @@ const deltaZChart = new Chart(deltaZChartCtx, {
     datasets: [{
       label: 'DeltaZ',
       data: [],
-      borderColor: 'rgba(75, 192, 192, 1)',
+      pointBackgroundColor: [],
+      borderColor: [],
+      //borderColor: 'rgba(75, 192, 192, 1)',
       borderWidth: 2,
       fill: false
     }]
@@ -30,7 +33,6 @@ const deltaZChart = new Chart(deltaZChartCtx, {
 let lastDataFetchTime;
 let lastNewDataReceiveTime;
 
-// Fetch data from ThingSpeak and update UI
 async function fetchData() {
   const url = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=${maxResults}`;
 
@@ -72,30 +74,45 @@ async function fetchData() {
     const lastEntry = data.feeds[data.feeds.length - 1];
     lastNewDataReceiveTime = lastEntry.datetime;
 
-    updateGraph(data);
+    updateDeltaZGraph(data);
     updateTextData(data);
   } catch (error) {
     console.error('Error fetching data:', error);
   }
 }
 
-// Update DeltaZ graph
-function updateGraph(data) {
+function updateDeltaZGraph(data) {
   const feeds = data.feeds;
   const deltaZData = [];
   const labels = [];
+  const pointColors = [];
 
   feeds.forEach(feed => {
 
     if (feed.gnss.DeltaZ !== undefined) {
       deltaZData.push(feed.gnss.DeltaZ);
       labels.push(feed.time);
+      pointColors.push(getPointColor(feed.gnss));
     }
   });
 
   deltaZChart.data.labels = labels;
   deltaZChart.data.datasets[0].data = deltaZData;
+  deltaZChart.data.datasets[0].pointBackgroundColor = pointColors;
+  deltaZChart.data.datasets[0].borderColor = pointColors;
   deltaZChart.update();
+}
+
+function getPointColor(gnss){
+  // Quality 4 = green, 5 = yellow, others = red
+  if (gnss.FixType === 4) {
+    return 'green';
+  }
+  if (gnss.FixType === 5) {
+    return 'yellow';
+  }
+
+  return 'red';
 }
 
 function updateTextData(data) {
@@ -130,15 +147,9 @@ function updateTimeAgo() {
 
   const now = new Date();
   const secondsAgo = Math.floor((now - lastNewDataReceiveTime) / 1000);
-  const timeElement = document.getElementById('TimeUtc');
   const warningPopup = document.getElementById('warning-popup');
 
-  // Extract the original time text
-  const timeText = timeElement.textContent.split('|')[0].trim();
-
-  timeElement.textContent = `${timeText} | ${secondsAgo} seconds ago`;
-
-  if (secondsAgo > 30) {
+  if (secondsAgo > oldDataWarningThreshold) {
     warningPopup.classList.remove('hidden');
   } else {
     warningPopup.classList.add('hidden');
