@@ -64,7 +64,7 @@ const fixTypeChartCtx = document.getElementById('fixTypeChart').getContext('2d')
 const fixTypeChart = new Chart(fixTypeChartCtx, {
   type: 'pie',
   data: {
-    labels: ['No Fix', '2D Fix', '3D Fix', 'DGPS Fix', 'RTK Fix'],
+    labels: ['No Fix', 'GPS Fix', 'Differential GPS Fix', 'Not Applicable', 'RTK Fix', 'RTK Float', 'INS Dead Reckoning'],
     datasets: [{
       data: [],
       backgroundColor: ['red', 'orange', 'yellow', 'green', 'blue']
@@ -78,7 +78,7 @@ const fixTypeChart = new Chart(fixTypeChartCtx, {
       },
       title: {
         display: true,
-        text: 'GNSS Fix Types Duration'
+        text: 'GNSS Fix Types Duration (seconds)'
       }
     }
   }
@@ -186,7 +186,7 @@ function updateGraph(data, dataKey, chart) {
 
 function updateFixTypeChart(data) {
   const feeds = data.feeds;
-  const fixTypeDurations = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  const fixTypeDurations = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
 
   for (let i = 1; i < feeds.length; i++) {
     const currentFeed = feeds[i];
@@ -200,11 +200,13 @@ function updateFixTypeChart(data) {
   }
 
   fixTypeChart.data.datasets[0].data = [
+    fixTypeDurations[0],
     fixTypeDurations[1],
     fixTypeDurations[2],
     fixTypeDurations[3],
     fixTypeDurations[4],
-    fixTypeDurations[5]
+    fixTypeDurations[5],
+    fixTypeDurations[6]
   ];
   fixTypeChart.update();
 }
