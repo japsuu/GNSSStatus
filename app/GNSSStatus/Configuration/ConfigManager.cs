@@ -51,22 +51,7 @@ public static class ConfigManager
 
     private static void CreateDefaultConfiguration()
     {
-        ConfigurationData defaultConfig = new()
-        {
-            ServerAddress = "192.168.1.42",
-            ServerPort = 2999,
-            GkSystemNumber = 21,
-            RoverLocationX = 6996389.622,
-            RoverLocationY = 21533297.613,
-            RoverLocationZ = 12.220,
-            MqttBrokerAddress = "mqtt3.thingspeak.com",
-            MqttBrokerPort = 1883,
-            MqttBrokerTopic = "channels/2688542/publish/fields/field1",
-            MqttClientId = "clientID",
-            MqttUsername = "username",
-            MqttPassword = "password",
-            UseTls = false
-        };
+        ConfigurationData defaultConfig = ConfigurationData.GetDefault();
         
         ISerializer serializer = new SerializerBuilder()
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
