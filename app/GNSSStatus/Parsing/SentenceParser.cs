@@ -24,6 +24,8 @@ public static class SentenceParser
                 }
                 
                 ParsedData.GGA = new GGAData(sentence);
+                ParsedData.DeltaXYCache.Add(ParsedData.GGA.DeltaXY);
+                ParsedData.DeltaZCache.Add(ParsedData.GGA.DeltaZ);
                 break;
             }
             case Nmea0183SentenceType.GSA:

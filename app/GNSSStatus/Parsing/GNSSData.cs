@@ -5,6 +5,9 @@ namespace GNSSStatus.Parsing;
 
 public class GNSSData
 {
+    public List<double> DeltaZCache;
+    public List<double> DeltaXYCache;
+    
     public GGAData GGA { get; set; }
     public GSAData GSA { get; set; }
     public GSTData GST { get; set; }
@@ -15,6 +18,11 @@ public class GNSSData
     public string GetPayloadJson()
     {
         JsonPayloadBuilder builder = new();
+        
+        double deltaZAverage = DeltaZCache.Count > 0 ? DeltaZCache.Average() : 0;
+        double deltaXYAverage = DeltaXYCache.Count > 0 ? DeltaXYCache.Average() : 0;
+        DeltaZCache.Clear();
+        DeltaXYCache.Clear();
         
         // Manually serialize relevant properties.
         builder.AddPayload(new
@@ -27,8 +35,8 @@ public class GNSSData
         
         builder.AddPayload(new
         {
-            DeltaXY = GGA.DeltaXY,
-            DeltaZ = GGA.DeltaZ,
+            DeltaXY = deltaXYAverage,
+            DeltaZ = deltaZAverage,
             PDop = GSA.PDOP,
             HDop = GSA.HDOP,
             VDop = GSA.VDOP
