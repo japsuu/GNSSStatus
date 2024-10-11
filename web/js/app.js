@@ -112,7 +112,6 @@ async function fetchData() {
 
         return {
           gnss: gnssData,
-          time: time,
           datetime: datetime
         }
       })
@@ -132,51 +131,17 @@ async function fetchData() {
 
 function updateGraph(data, dataKey, chart) {
   const feeds = data.feeds;
-  const interval = 15 * 60 * 1000; // 15 minutes in milliseconds
   const dataPoints = [];
   const pointLabels = [];
   const pointColors = [];
 
-  let intervalStart = feeds[0].datetime.getTime();
-  let intervalEnd = intervalStart + interval;
-  let intervalData = [];
-  let intervalFixTypes = new Set();
-
   feeds.forEach(feed => {
-    const feedTime = feed.datetime.getTime();
-
-    if (feedTime >= intervalStart && feedTime < intervalEnd) {
-      intervalData.push(feed.gnss[dataKey]);
-      intervalFixTypes.add(feed.gnss.FixType);
-    } else {
-      if (intervalData.length > 0) {
-        const avgValue = intervalData.reduce((sum, value) => sum + value, 0) / intervalData.length;
-        dataPoints.push(avgValue);
-
-        const startDate = new Date(intervalStart).toISOString().slice(11, 16); // HH:mm format
-        const endDate = new Date(intervalEnd).toISOString().slice(11, 16); // HH:mm format
-        pointLabels.push(`${startDate} - ${endDate}`);
-        pointColors.push(determineIntervalColor(intervalFixTypes));
-      }
-
-      intervalStart = intervalEnd;
-      intervalEnd = intervalStart + interval;
-      intervalData = [feed.gnss[dataKey]];
-      intervalFixTypes = new Set([feed.gnss.FixType]);
+    if (feed.gnss[dataKey] !== undefined) {
+      dataPoints.push(feed.gnss[dataKey]);
+      pointLabels.push(feed.time);
+      pointColors.push(getPointColor(feed.gnss.FixType));
     }
   });
-
-  // Handle the last interval
-  if (intervalData.length > 0) {
-    const avgValue = intervalData.reduce((sum, value) => sum + value, 0) / intervalData.length;
-    dataPoints.push(avgValue);
-
-    const startDate = new Date(intervalStart).toISOString().slice(11, 16); // HH:mm format
-    // Cannot use intervalEnd, as it might be past the last feed's time
-    const endDate = new Date(feeds[feeds.length - 1].datetime).toISOString().slice(11, 16); // HH:mm format
-    pointLabels.push(`${startDate} - ${endDate}`);
-    pointColors.push(determineIntervalColor(intervalFixTypes));
-  }
 
   chart.data.labels = pointLabels;
   chart.data.datasets[0].data = dataPoints;
@@ -252,14 +217,16 @@ function updateTimeAgo() {
   }
 }
 
-function determineIntervalColor(fixTypes) {
-  if (fixTypes.size === 1) {
-    const fixType = [...fixTypes][0];
-    if (fixType === 4) return 'green';
-    if (fixType === 5) return 'yellow';
-    return 'red';
+function getPointColor(fixType){
+  // Quality 4 = green, 5 = yellow, others = red
+  if (fixType === 4) {
+    return 'green';
   }
-  return 'blue';
+  if (fixType === 5) {
+    return 'yellow';
+  }
+
+  return 'red';
 }
 
 setInterval(updateTimeToRefresh, 1000);
