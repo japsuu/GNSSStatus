@@ -64,7 +64,7 @@ const fixTypeChartCtx = document.getElementById('fixTypeChart').getContext('2d')
 const fixTypeChart = new Chart(fixTypeChartCtx, {
   type: 'pie',
   data: {
-    labels: ['No Fix', 'GPS Fix', 'Differential GPS Fix', 'Not Applicable', 'RTK Fix', 'RTK Float', 'INS Dead Reckoning'],
+    labels: [getFixTypeName(0), getFixTypeName(1), getFixTypeName(2), getFixTypeName(3), getFixTypeName(4), getFixTypeName(5), getFixTypeName(6)],
     datasets: [{
       data: [],
       backgroundColor: ['red', 'orange', 'yellow', 'green', 'blue']
@@ -180,7 +180,7 @@ function updateTextData(data) {
   const latestFeed = data.feeds[data.feeds.length - 1];
 
   document.getElementById('TimeUtc').textContent = latestFeed.datetime.toTimeString();
-  document.getElementById('FixType').textContent = latestFeed.gnss.FixType;
+  document.getElementById('FixType').textContent = getFixTypeName(latestFeed.gnss.FixType);
   document.getElementById('SatellitesInUse').textContent = latestFeed.gnss.SatellitesInUse;
   document.getElementById('SatellitesInView').textContent = latestFeed.gnss.SatellitesInView;
   document.getElementById('PDop').textContent = latestFeed.gnss.PDop;
@@ -189,6 +189,7 @@ function updateTextData(data) {
   document.getElementById('ErrorLatitude').textContent = latestFeed.gnss.ErrorLatitude;
   document.getElementById('ErrorLongitude').textContent = latestFeed.gnss.ErrorLongitude;
   document.getElementById('ErrorAltitude').textContent = latestFeed.gnss.ErrorAltitude;
+  document.getElementById('BaseRoverDistance').textContent = `${latestFeed.gnss.BaseRoverDistance} m`;
 }
 
 function updateTimeToRefresh() {
@@ -227,6 +228,30 @@ function getPointColor(fixType){
   }
 
   return 'red';
+}
+
+function getFixTypeName(fixType) {
+
+  fixType = parseInt(fixType);
+
+  switch (fixType) {
+    case 0:
+      return 'No Fix';
+    case 1:
+      return 'GPS Fix';
+    case 2:
+      return 'Differential GPS Fix';
+    case 3:
+      return 'Not Applicable';
+    case 4:
+      return 'RTK Fix';
+    case 5:
+      return 'RTK Float';
+    case 6:
+      return 'INS Dead Reckoning';
+    default:
+      return 'Unknown';
+  }
 }
 
 setInterval(updateTimeToRefresh, 1000);
