@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using GNSSStatus.Configuration;
@@ -18,7 +19,7 @@ public class GNSSData
     public string GetPayloadJson()
     {
         // Manually serialize relevant properties to JSON.
-        string p1 = VerifyPayload(JsonSerializer.Serialize(new
+        string p1 = PostProcessPayload(JsonSerializer.Serialize(new
         {
             TimeUtc = GGA.UtcTime,
             FixType = GGA.Quality,
@@ -32,7 +33,7 @@ public class GNSSData
         }));
         Logger.LogDebug($"payload1 length: {p1.Length}");
         
-        string p2 = VerifyPayload(JsonSerializer.Serialize(new
+        string p2 = PostProcessPayload(JsonSerializer.Serialize(new
         {
             ErrorLatitude = GST.LatitudeError,
             ErrorLongitude = GST.LongitudeError,
@@ -47,20 +48,23 @@ public class GNSSData
     }
     
     
-    private string VerifyPayload(string payload)
+    private static string PostProcessPayload(string payload)
     {
         if (string.IsNullOrEmpty(payload))
         {
             Logger.LogWarning("An empty payload was generated.");
             return payload;
         }
+            
+        // Percent-encode the payload.
+        payload = WebUtility.UrlEncode(payload);
 
         if (payload.Length >= ConfigManager.MAX_JSON_PAYLOAD_LENGTH)
         {
             Logger.LogWarning($"Payload exceeds max supported character count ({ConfigManager.MAX_JSON_PAYLOAD_LENGTH}). Returning empty payload.");
             return string.Empty;
         }
-
+        
         return payload;
     }
     

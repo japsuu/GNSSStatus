@@ -121,9 +121,6 @@ internal static class Program
 #if !MQTT_ENABLE
         return;
 #endif
-            
-        // Percent-encode the payload.
-        payload = WebUtility.UrlEncode(payload);
         
         int bytes = Encoding.UTF8.GetByteCount(payload);
         
