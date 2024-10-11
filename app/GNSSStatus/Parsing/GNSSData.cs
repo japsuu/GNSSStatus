@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Text;
-using System.Text.Json;
 
 namespace GNSSStatus.Parsing;
 
@@ -15,25 +14,41 @@ public class GNSSData
     
     public string GetPayloadJson()
     {
-        // Manually serialize relevant properties to JSON.
-        string payload = JsonSerializer.Serialize(new
+        JsonPayloadBuilder builder = new();
+        
+        // Manually serialize relevant properties.
+        builder.AddPayload(new
         {
             TimeUtc = GGA.UtcTime,
             FixType = GGA.Quality,
             SatellitesInUse = GGA.TotalSatellitesInUse,
-            SatellitesInView = GSV.TotalSatellitesVisible,
+            SatellitesInView = GSV.TotalSatellitesVisible
+        });
+        
+        builder.AddPayload(new
+        {
+            DeltaXY = GGA.DeltaXY,
+            DeltaZ = GGA.DeltaZ,
             PDop = GSA.PDOP,
             HDop = GSA.HDOP,
-            VDop = GSA.VDOP,
+            VDop = GSA.VDOP
+        });
+        
+        builder.AddPayload(new
+        {
             ErrorLatitude = GST.LatitudeError,
             ErrorLongitude = GST.LongitudeError,
-            ErrorAltitude = GST.AltitudeError,
+            ErrorAltitude = GST.AltitudeError
+        });
+        
+        builder.AddPayload(new
+        {
             DifferentialDataAge = GGA.AgeOfDifferentialData,
             ReferenceStationId = GGA.DifferentialReferenceStationID,
             BaseRoverDistance = NTR.DistanceBetweenBaseAndRover
         });
         
-        return payload;
+        return builder.Build(true);
     }
     
     

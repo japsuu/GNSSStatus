@@ -1,6 +1,7 @@
 ﻿using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
 using GNSSStatus.Networking;
+using GNSSStatus.Utils;
 
 namespace GNSSStatus.Parsing;
 
@@ -9,6 +10,7 @@ public readonly struct GGAData
     public const int LENGTH = 14;
 
     public readonly GKCoordinate GKCoordinate;
+    public readonly double DeltaXY;
     public readonly double DeltaX;
     public readonly double DeltaY;
     public readonly double DeltaZ;
@@ -98,6 +100,7 @@ public readonly struct GGAData
 
         GKCoordinate = CoordinateConverter.ConvertToGk(latitude, longitude, directionLatitude, directionLongitude, ConfigManager.CurrentConfiguration.GkSystemNumber, altitude);
 
+        DeltaXY = MathUtils.Distance(GKCoordinate.N, GKCoordinate.E, ConfigManager.CurrentConfiguration.RoverLocationX, ConfigManager.CurrentConfiguration.RoverLocationY);
         DeltaX = GKCoordinate.N - ConfigManager.CurrentConfiguration.RoverLocationX;
         DeltaY = GKCoordinate.E - ConfigManager.CurrentConfiguration.RoverLocationY;
         DeltaZ = GKCoordinate.Z - ConfigManager.CurrentConfiguration.RoverLocationZ;

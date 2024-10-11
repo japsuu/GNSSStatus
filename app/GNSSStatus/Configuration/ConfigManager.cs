@@ -9,6 +9,11 @@ public static class ConfigManager
     private const string CONFIG_PATH = "assets/config.yaml";
     private static bool createdDefaultConfiguration = false;
 
+    public const int MAX_JSON_PAYLOAD_LENGTH = 255;
+    public const int MAX_COMBINED_PAYLOAD_COUNT = 8;
+    public const int MQTT_SEND_INTERVAL_MILLIS = 15000;    // 15 seconds.
+    public const int MQTT_MAX_PAYLOAD_SIZE_BYTES = 2999;
+
     public static ConfigurationData CurrentConfiguration { get; private set; } = null!;
 
 
@@ -47,22 +52,7 @@ public static class ConfigManager
 
     private static void CreateDefaultConfiguration()
     {
-        ConfigurationData defaultConfig = new()
-        {
-            ServerAddress = "192.168.1.42",
-            ServerPort = 2999,
-            GkSystemNumber = 21,
-            RoverLocationX = 6996389.622,
-            RoverLocationY = 21533297.613,
-            RoverLocationZ = 12.220,
-            MqttBrokerAddress = "mqtt3.thingspeak.com",
-            MqttBrokerPort = 1883,
-            MqttBrokerTopic = "channels/2688542/publish/fields/field1",
-            MqttClientId = "clientID",
-            MqttUsername = "username",
-            MqttPassword = "password",
-            UseTls = false
-        };
+        ConfigurationData defaultConfig = ConfigurationData.GetDefault();
         
         ISerializer serializer = new SerializerBuilder()
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
