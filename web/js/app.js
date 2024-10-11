@@ -26,6 +26,8 @@ const deltaZChart = new Chart(deltaZChartCtx, {
   }
 });
 
+let lastDataFetchTime;
+
 // Fetch data from ThingSpeak and update UI
 async function fetchData() {
   const url = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=${maxResults}`;
@@ -33,6 +35,7 @@ async function fetchData() {
   try {
     const response = await fetch(url);
     const json = await response.json();
+    lastDataFetchTime = new Date();
 
     // Construct an array of GNSS data from the JSON response
     const data = { feeds: json.feeds.map(feed => {
@@ -93,6 +96,19 @@ function updateTextData(data) {
   document.getElementById('ErrorLongitude').textContent = latestFeed.gnss.ErrorLongitude;
   document.getElementById('ErrorAltitude').textContent = latestFeed.gnss.ErrorAltitude;
 }
+
+function updateTimeAgo() {
+  if (!lastDataFetchTime) return;
+
+  const now = new Date();
+  const secondsAgo = Math.floor((now - lastDataFetchTime) / 1000);
+  const timeElement = document.getElementById('TimeUtc');
+  const timeText = timeElement.textContent.split(' ')[0]; // Extract the time part
+
+  timeElement.textContent = `${timeText} (${secondsAgo} seconds ago)`;
+}
+
+setInterval(updateTimeAgo, 1000);
 
 // Fetch data every 15 seconds without refreshing the page
 setInterval(fetchData, 15000);
