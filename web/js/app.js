@@ -20,8 +20,8 @@ const deltaZChart = new Chart(deltaZChartCtx, {
   options: {
     responsive: true,
     scales: {
-      x: { display: true, title: { display: true, text: 'Time (UTC)' } },
-      y: { display: true, title: { display: true, text: 'DeltaZ (m)' } }
+      x: {display: true, title: {display: true, text: 'Time (UTC)'}},
+      y: {display: true, title: {display: true, text: 'DeltaZ (m)'}}
     }
   }
 });
@@ -38,7 +38,8 @@ async function fetchData() {
     lastDataFetchTime = new Date();
 
     // Construct an array of GNSS data from the JSON response
-    const data = { feeds: json.feeds.map(feed => {
+    const data = {
+      feeds: json.feeds.map(feed => {
         // The data is stored in multiple fields, so we need to combine them into one JSON object
         const f1 = feed.field1;
         const f2 = feed.field2;
@@ -54,7 +55,8 @@ async function fetchData() {
           gnss: gnssData,
           time: time,
         }
-    })};
+      })
+    };
     console.log('Data:', data);
 
 
