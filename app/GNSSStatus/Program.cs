@@ -1,6 +1,7 @@
 #define MQTT_ENABLE
 
 using System.Globalization;
+using System.Net;
 using System.Text;
 using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
@@ -55,10 +56,6 @@ internal static class Program
                 continue;
             
             string payload = SentenceParser.ParsedData.GetPayloadJson();
-            
-            // Replace all double quotes with pipes,
-            // otherwise the JSON may be escaped incorrectly.
-            payload = payload.Replace("\"", "|");
             
             await SendMqttMessage(mqttClient, payload);
             
@@ -121,6 +118,10 @@ internal static class Program
 #if !MQTT_ENABLE
         return;
 #endif
+            
+        // Percent-encode the payload.
+        payload = WebUtility.UrlEncode(payload);
+        
         MqttApplicationMessage message = new MqttApplicationMessageBuilder()
             .WithTopic(ConfigManager.CurrentConfiguration.MqttBrokerTopic)
             .WithPayload(payload)
