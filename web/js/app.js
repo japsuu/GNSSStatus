@@ -1,6 +1,7 @@
 const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
 const channelId = "2691494"; // ThingSpeak channel ID
 const maxResults = 288; // 15 sec intervals over 24 hours: 24 * 60 * 60 / 15
+const refreshInterval = 15000; // 15 seconds
 
 const deltaZChartCtx = document.getElementById('deltaZChart').getContext('2d');
 
@@ -20,11 +21,14 @@ const deltaZChart = new Chart(deltaZChartCtx, {
   options: {
     responsive: true,
     scales: {
-      x: { display: true, title: { display: true, text: 'Time (UTC)' } },
-      y: { display: true, title: { display: true, text: 'DeltaZ (m)' } }
+      x: {display: true, title: {display: true, text: 'Time (UTC)'}},
+      y: {display: true, title: {display: true, text: 'DeltaZ (m)'}}
     }
   }
 });
+
+let lastDataFetchTime;
+let lastNewDataReceiveTime;
 
 // Fetch data from ThingSpeak and update UI
 async function fetchData() {
@@ -33,9 +37,11 @@ async function fetchData() {
   try {
     const response = await fetch(url);
     const json = await response.json();
+    lastDataFetchTime = new Date();
 
     // Construct an array of GNSS data from the JSON response
-    const data = { feeds: json.feeds.map(feed => {
+    const data = {
+      feeds: json.feeds.map(feed => {
         // The data is stored in multiple fields, so we need to combine them into one JSON object
         const f1 = feed.field1;
         const f2 = feed.field2;
@@ -47,13 +53,24 @@ async function fetchData() {
         const timeUtc = gnssData.TimeUtc;
         const time = `${timeUtc.slice(0, 2)}:${timeUtc.slice(2, 4)}:${timeUtc.slice(4, 6)}`;
 
+        // Construct a proper Date object from the TimeUtc string
+        let datetime = new Date();
+        let [hours, minutes, seconds] = time.split(':');
+        datetime.setUTCHours(hours);
+        datetime.setUTCMinutes(minutes);
+        datetime.setUTCSeconds(seconds);
+
         return {
           gnss: gnssData,
           time: time,
+          datetime: datetime
         }
-    })};
+      })
+    };
     console.log('Data:', data);
 
+    const lastEntry = data.feeds[data.feeds.length - 1];
+    lastNewDataReceiveTime = lastEntry.datetime;
 
     updateGraph(data);
     updateTextData(data);
@@ -81,19 +98,54 @@ function updateGraph(data) {
   deltaZChart.update();
 }
 
-// Update text data
 function updateTextData(data) {
   const latestFeed = data.feeds[data.feeds.length - 1];
 
-  document.getElementById('TimeUtc').textContent = latestFeed.time;
+  document.getElementById('TimeUtc').textContent = latestFeed.datetime.toTimeString();
   document.getElementById('FixType').textContent = latestFeed.gnss.FixType;
   document.getElementById('SatellitesInUse').textContent = latestFeed.gnss.SatellitesInUse;
+  document.getElementById('SatellitesInView').textContent = latestFeed.gnss.SatellitesInView;
   document.getElementById('PDop').textContent = latestFeed.gnss.PDop;
+  document.getElementById('HDop').textContent = latestFeed.gnss.HDop;
+  document.getElementById('VDop').textContent = latestFeed.gnss.VDop;
   document.getElementById('ErrorLatitude').textContent = latestFeed.gnss.ErrorLatitude;
   document.getElementById('ErrorLongitude').textContent = latestFeed.gnss.ErrorLongitude;
   document.getElementById('ErrorAltitude').textContent = latestFeed.gnss.ErrorAltitude;
 }
 
-// Fetch data every 15 seconds without refreshing the page
-setInterval(fetchData, 15000);
+function updateTimeToRefresh() {
+  if (!lastDataFetchTime)
+    return;
+
+  const now = new Date();
+  const refreshIn = Math.round((lastDataFetchTime.getTime() + refreshInterval - now.getTime()) / 1000);
+  const timeElement = document.getElementById('TimeToNextRefresh');
+
+  timeElement.textContent = `Refreshing in ${refreshIn}...`;
+}
+
+function updateTimeAgo() {
+  if (!lastNewDataReceiveTime)
+    return;
+
+  const now = new Date();
+  const secondsAgo = Math.floor((now - lastNewDataReceiveTime) / 1000);
+  const timeElement = document.getElementById('TimeUtc');
+  const warningPopup = document.getElementById('warning-popup');
+
+  // Extract the original time text
+  const timeText = timeElement.textContent.split('|')[0].trim();
+
+  timeElement.textContent = `${timeText} | ${secondsAgo} seconds ago`;
+
+  if (secondsAgo > 30) {
+    warningPopup.classList.remove('hidden');
+  } else {
+    warningPopup.classList.add('hidden');
+  }
+}
+
+setInterval(updateTimeToRefresh, 1000);
+setInterval(updateTimeAgo, 1000);
+setInterval(fetchData, refreshInterval);
 fetchData();
