@@ -1,5 +1,5 @@
-const apiKey = "WQNA71V5DYQRO3BV"; // Replace with your ThingSpeak API Key
-const channelId = "2691494"; // Replace with your Channel ID
+const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
+const channelId = "2691494"; // ThingSpeak channel ID
 const maxResults = 288; // 15 sec intervals over 24 hours: 24 * 60 * 60 / 15
 
 const deltaZChartCtx = document.getElementById('deltaZChart').getContext('2d');
@@ -32,7 +32,29 @@ async function fetchData() {
 
   try {
     const response = await fetch(url);
-    const data = await response.json();
+    const json = await response.json();
+
+    // Construct an array of GNSS data from the JSON response
+    const data = { feeds: json.feeds.map(feed => {
+        // The data is stored in multiple fields, so we need to combine them into one JSON object
+        const f1 = feed.field1;
+        const f2 = feed.field2;
+        const f3 = feed.field3;
+        const f4 = feed.field4;
+        const gnssData = Object.assign({}, JSON.parse(f1), JSON.parse(f2), JSON.parse(f3), JSON.parse(f4));
+
+        // Convert the hhmmss.ss(ss) TimeUtc to hh:mm:ss
+        const timeUtc = gnssData.TimeUtc;
+        const time = `${timeUtc.slice(0, 2)}:${timeUtc.slice(2, 4)}:${timeUtc.slice(4, 6)}`;
+
+        return {
+          gnss: gnssData,
+          time: time,
+        }
+    })};
+    console.log('Data:', data);
+
+
     updateGraph(data);
     updateTextData(data);
   } catch (error) {
@@ -48,16 +70,9 @@ function updateGraph(data) {
 
   feeds.forEach(feed => {
 
-    // The field1 json data has all double quotes replaced with pipes,
-    // so we need to replace them back before parsing the JSON data
-    const jsonData = feed.field1.replace(/\|/g, '"');
-
-    console.log(jsonData);
-
-    const gnssData = JSON.parse(jsonData);
-    if (gnssData.DeltaZ !== undefined) {
-      deltaZData.push(gnssData.DeltaZ);
-      labels.push(gnssData.TimeUtc);
+    if (feed.gnss.DeltaZ !== undefined) {
+      deltaZData.push(feed.gnss.DeltaZ);
+      labels.push(feed.time);
     }
   });
 
@@ -69,15 +84,14 @@ function updateGraph(data) {
 // Update text data
 function updateTextData(data) {
   const latestFeed = data.feeds[data.feeds.length - 1];
-  const gnssData = JSON.parse(latestFeed.field1);
 
-  document.getElementById('TimeUtc').textContent = gnssData.TimeUtc;
-  document.getElementById('FixType').textContent = gnssData.FixType;
-  document.getElementById('SatellitesInUse').textContent = gnssData.SatellitesInUse;
-  document.getElementById('PDop').textContent = gnssData.PDop;
-  document.getElementById('ErrorLatitude').textContent = gnssData.ErrorLatitude;
-  document.getElementById('ErrorLongitude').textContent = gnssData.ErrorLongitude;
-  document.getElementById('ErrorAltitude').textContent = gnssData.ErrorAltitude;
+  document.getElementById('TimeUtc').textContent = latestFeed.time;
+  document.getElementById('FixType').textContent = latestFeed.gnss.FixType;
+  document.getElementById('SatellitesInUse').textContent = latestFeed.gnss.SatellitesInUse;
+  document.getElementById('PDop').textContent = latestFeed.gnss.PDop;
+  document.getElementById('ErrorLatitude').textContent = latestFeed.gnss.ErrorLatitude;
+  document.getElementById('ErrorLongitude').textContent = latestFeed.gnss.ErrorLongitude;
+  document.getElementById('ErrorAltitude').textContent = latestFeed.gnss.ErrorAltitude;
 }
 
 // Fetch data every 15 seconds without refreshing the page

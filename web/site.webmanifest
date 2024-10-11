@@ -1,6 +1,6 @@
 {
-  "short_name": "",
-  "name": "",
+  "short_name": "GNSS Status",
+  "name": "GNSS Status",
   "icons": [{
     "src": "icon.png",
     "type": "image/png",
