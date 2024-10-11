@@ -10,6 +10,7 @@ public static class ConfigManager
     private static bool createdDefaultConfiguration = false;
 
     public const int MAX_JSON_PAYLOAD_LENGTH = 255;
+    public const int MAX_COMBINED_PAYLOAD_COUNT = 8;
     public const int MQTT_SEND_INTERVAL_MILLIS = 15000;    // 15 seconds.
     public const int MQTT_MAX_PAYLOAD_SIZE_BYTES = 2999;
 

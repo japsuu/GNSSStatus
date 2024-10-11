@@ -1,9 +1,5 @@
-﻿using System.Net;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
-using System.Text.Json;
-using GNSSStatus.Configuration;
-using GNSSStatus.Utils;
 
 namespace GNSSStatus.Parsing;
 
@@ -18,54 +14,41 @@ public class GNSSData
     
     public string GetPayloadJson()
     {
-        // Manually serialize relevant properties to JSON.
-        string p1 = PostProcessPayload(JsonSerializer.Serialize(new
+        JsonPayloadBuilder builder = new();
+        
+        // Manually serialize relevant properties.
+        builder.AddPayload(new
         {
             TimeUtc = GGA.UtcTime,
             FixType = GGA.Quality,
             SatellitesInUse = GGA.TotalSatellitesInUse,
-            SatellitesInView = GSV.TotalSatellitesVisible,
+            SatellitesInView = GSV.TotalSatellitesVisible
+        });
+        
+        builder.AddPayload(new
+        {
             DeltaXY = GGA.DeltaXY,
             DeltaZ = GGA.DeltaZ,
             PDop = GSA.PDOP,
             HDop = GSA.HDOP,
             VDop = GSA.VDOP
-        }));
-        Logger.LogDebug($"payload1 length: {p1.Length}");
+        });
         
-        string p2 = PostProcessPayload(JsonSerializer.Serialize(new
+        builder.AddPayload(new
         {
             ErrorLatitude = GST.LatitudeError,
             ErrorLongitude = GST.LongitudeError,
-            ErrorAltitude = GST.AltitudeError,
+            ErrorAltitude = GST.AltitudeError
+        });
+        
+        builder.AddPayload(new
+        {
             DifferentialDataAge = GGA.AgeOfDifferentialData,
             ReferenceStationId = GGA.DifferentialReferenceStationID,
             BaseRoverDistance = NTR.DistanceBetweenBaseAndRover
-        }));
-        Logger.LogDebug($"payload2 length: {p2.Length}");
+        });
         
-        return $"field1={p1}&field2={p2}";
-    }
-    
-    
-    private static string PostProcessPayload(string payload)
-    {
-        if (string.IsNullOrEmpty(payload))
-        {
-            Logger.LogWarning("An empty payload was generated.");
-            return payload;
-        }
-            
-        // Percent-encode the payload.
-        payload = WebUtility.UrlEncode(payload);
-
-        if (payload.Length >= ConfigManager.MAX_JSON_PAYLOAD_LENGTH)
-        {
-            Logger.LogWarning($"Payload exceeds max supported character count ({ConfigManager.MAX_JSON_PAYLOAD_LENGTH}). Returning empty payload.");
-            return string.Empty;
-        }
-        
-        return payload;
+        return builder.Build(true);
     }
     
     
