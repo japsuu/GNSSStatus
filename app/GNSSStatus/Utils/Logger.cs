@@ -64,7 +64,7 @@ public static class Logger
         Console.BackgroundColor = backgroundColor;
         
         string levelString = level.ToString();
-        Console.WriteLine($"[{levelString}] {message}");
+        Console.WriteLine($"[{levelString} - {DateTime.Now}] {message}");
         
         Console.ForegroundColor = fgCache;
         Console.BackgroundColor = bgCache;
