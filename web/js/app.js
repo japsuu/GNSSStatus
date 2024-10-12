@@ -85,12 +85,16 @@ const fixTypeChart = new Chart(fixTypeChartCtx, {
 
 let lastDataFetchTime;
 let lastNewDataReceiveTime;
+let lastEntryId = 0;
 
 async function fetchData() {
   try {
     const response = await fetch(dataFetchUrl);
     const json = await response.json();
     lastDataFetchTime = new Date();
+    lastEntryId = json.channel.last_entry_id;
+
+    console.log(json);
 
     const data = {
       feeds: json.feeds.map(feed => {
@@ -124,6 +128,42 @@ async function fetchData() {
   }
 
   setTimeout(fetchData, refreshInterval);
+}
+
+function getPointColor(fixType){
+  // Quality 4 = green, 5 = yellow, others = red
+  if (fixType === 4) {
+    return 'green';
+  }
+  if (fixType === 5) {
+    return 'yellow';
+  }
+
+  return 'red';
+}
+
+function getFixTypeName(fixType) {
+
+  fixType = parseInt(fixType);
+
+  switch (fixType) {
+    case 0:
+      return 'No Fix';
+    case 1:
+      return 'GPS Fix';
+    case 2:
+      return 'Differential GPS Fix';
+    case 3:
+      return 'Not Applicable';
+    case 4:
+      return 'RTK Fix';
+    case 5:
+      return 'RTK Float';
+    case 6:
+      return 'INS Dead Reckoning';
+    default:
+      return 'Unknown';
+  }
 }
 
 function updateGraph(data, dataKey, chart) {
@@ -189,7 +229,7 @@ function updateTextData(data) {
   document.getElementById('BaseRoverDistance').textContent = `${latestFeed.gnss.BaseRoverDistance} m`;
 }
 
-function updateTimeToRefresh() {
+/*function updateTimeToRefresh() {
   if (!lastDataFetchTime)
     return;
 
@@ -201,9 +241,9 @@ function updateTimeToRefresh() {
     refreshIn = 0;
 
   timeElement.textContent = `Refreshing in ${refreshIn}...`;
-}
+}*/
 
-function updateOldDataWarning() {
+/*function updateOldDataWarning() {
   if (!lastNewDataReceiveTime)
     return;
 
@@ -216,45 +256,9 @@ function updateOldDataWarning() {
   } else {
     warningPopup.classList.add('hidden');
   }
-}
+}*/
 
-function getPointColor(fixType){
-  // Quality 4 = green, 5 = yellow, others = red
-  if (fixType === 4) {
-    return 'green';
-  }
-  if (fixType === 5) {
-    return 'yellow';
-  }
-
-  return 'red';
-}
-
-function getFixTypeName(fixType) {
-
-  fixType = parseInt(fixType);
-
-  switch (fixType) {
-    case 0:
-      return 'No Fix';
-    case 1:
-      return 'GPS Fix';
-    case 2:
-      return 'Differential GPS Fix';
-    case 3:
-      return 'Not Applicable';
-    case 4:
-      return 'RTK Fix';
-    case 5:
-      return 'RTK Float';
-    case 6:
-      return 'INS Dead Reckoning';
-    default:
-      return 'Unknown';
-  }
-}
-
-setInterval(updateTimeToRefresh, 1000);
-setInterval(updateOldDataWarning, 1000);
+//setInterval(updateTimeToRefresh, 1000);
+//setInterval(updateOldDataWarning, 1000);
 
 fetchData();
