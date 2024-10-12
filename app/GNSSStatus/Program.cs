@@ -15,36 +15,50 @@ namespace GNSSStatus;
 
 internal static class Program
 {
+    public static bool RequestExit { get; set; }
+    
+    
     private static async Task Main(string[] args)
     {
         InitializeThreadCultureInfo();
         ConfigManager.LoadConfiguration();
+        CoordinateConverter.Initialize();
         
-        using IMqttClient mqttClient = CreateMqttClient();
-        using NmeaClient nmeaClient = new(ConfigManager.CurrentConfiguration.ServerAddress, ConfigManager.CurrentConfiguration.ServerPort);
-        
-        // Run the main loop.
-        await Run(nmeaClient, mqttClient);
+        // Run the main loop indefinitely.
+        while (!RequestExit)
+        {
+            try
+            {
+                await Run();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"An unhandled exception occurred ({ex.Message}). Restarting in 5 seconds...");
+                await Task.Delay(5000);
+            }
+        }
     }
 
 
     /// <summary>
     /// The main (infinite) loop of the program.
     /// </summary>
-    /// <param name="nmeaClient">The NMEA client to read data from.</param>
-    /// <param name="mqttClient">The MQTT client to send data to.</param>
-    private static async Task Run(NmeaClient nmeaClient, IMqttClient mqttClient)
+    private static async Task Run()
     {
+        using IMqttClient mqttClient = CreateMqttClient();
+        using NmeaClient nmeaClient = new(ConfigManager.CurrentConfiguration.ServerAddress, ConfigManager.CurrentConfiguration.ServerPort);
+        
+        // Connect to the NMEA server.
+        nmeaClient.Connect();
+        
         // Connect to the MQTT broker.
         await ConnectMqttBroker(mqttClient);
-        
-        CoordinateConverter.create_dem();
         
         // Avoid sending the first message immediately.
         double lastSendTime = TimeUtils.GetTimeMillis() + 5000;
         
         // Read the latest received NMEA sentence from the server.
-        foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentence())
+        foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentences())
         {
             SentenceParser.Parse(sentence);
             
