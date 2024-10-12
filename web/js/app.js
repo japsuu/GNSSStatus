@@ -85,16 +85,25 @@ const fixTypeChart = new Chart(fixTypeChartCtx, {
 
 let lastDataFetchTime;
 let lastNewDataReceiveTime;
-let lastEntryId = 0;
+let latestEntryId = 0;
 
 async function fetchData() {
+  console.log('Fetching data...');
   try {
     const response = await fetch(dataFetchUrl);
     const json = await response.json();
-    lastDataFetchTime = new Date();
-    lastEntryId = json.channel.last_entry_id;
 
-    console.log(json);
+    lastDataFetchTime = new Date();
+    const lastEntryId = json.channel.last_entry_id;
+    console.log('Last entry ID:', lastEntryId);
+    console.log('Latest entry ID:', latestEntryId);
+
+    if (latestEntryId >= lastEntryId) {
+      console.log('No new data received');
+      return;
+    }
+
+    latestEntryId = lastEntryId;
 
     const data = {
       feeds: json.feeds.map(feed => {
@@ -117,6 +126,7 @@ async function fetchData() {
       })
     };
 
+    console.log('New data received:', data);
     lastNewDataReceiveTime = new Date();
 
     updateGraph(data, 'DeltaZ', deltaZChart);
@@ -126,8 +136,6 @@ async function fetchData() {
   } catch (error) {
     console.error('Error fetching data:', error);
   }
-
-  setTimeout(fetchData, refreshInterval);
 }
 
 function getPointColor(fixType){
@@ -262,3 +270,5 @@ function updateTextData(data) {
 //setInterval(updateOldDataWarning, 1000);
 
 fetchData();
+
+setInterval(fetchData, refreshInterval);
