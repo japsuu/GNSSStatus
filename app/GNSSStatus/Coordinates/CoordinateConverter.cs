@@ -136,7 +136,7 @@ public static class CoordinateConverter
     }
 
 
-    public static void create_dem()
+    public static void Initialize()
     {
         int row = 586;
         int col = 1;

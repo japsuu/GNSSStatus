@@ -8,9 +8,10 @@ namespace GNSSStatus.Networking;
 /// </summary>
 public sealed class NmeaClient : IDisposable
 {
-    private readonly TcpClient _tcpClient;
-    private readonly StreamReader _reader;
-    private bool _shouldExit;
+    private readonly string _ipAddress;
+    private readonly int _port;
+    private TcpClient? _tcpClient;
+    private StreamReader? _reader;
     
     public bool IsConnected { get; private set; }
 
@@ -22,35 +23,49 @@ public sealed class NmeaClient : IDisposable
     /// <param name="port">The port number to listen on.</param>
     public NmeaClient(string ipAddress, int port)
     {
-        Logger.LogInfo("Connecting to NMEA server...");
+        _ipAddress = ipAddress;
+        _port = port;
+    }
+
+
+    public void Connect()
+    {
+        if (IsConnected)
+            return;
         
-        _tcpClient = new TcpClient(ipAddress, port);
+        Logger.LogInfo("Connecting to NMEA server...");
+
+        _tcpClient = new TcpClient(_ipAddress, _port);
         _reader = new StreamReader(_tcpClient.GetStream());
         IsConnected = true;
         
-        Logger.LogInfo("Connected to NMEA server, listening for packets");
+        Logger.LogInfo("Connected to NMEA server.");
     }
     
     
     /// <summary>
     /// Reads the latest NMEA sentence from the server.
     /// </summary>
-    public IEnumerable<Nmea0183Sentence> ReadSentence()
+    public IEnumerable<Nmea0183Sentence> ReadSentences()
     {
-        string? data = null;
+        if (!IsConnected)
+        {
+            Logger.LogWarning("Cannot read sentence from server. Not connected.");
+            yield break;
+        }
 
         while (true)
         {
-            if (_shouldExit)
-                break;
-            
+            string? data;
             try
             {
-                data = _reader.ReadLine();
+                data = _reader!.ReadLine();
             }
             catch (Exception ex)
             {
-                Logger.LogException($"A socket error has occurred with the client socket {_tcpClient}", ex);
+                Logger.LogError($"A socket error has occurred with the client socket {_tcpClient}:");
+                Logger.LogError($"{ex}");
+                break;
             }
             
             if (data == null)
@@ -69,9 +84,15 @@ public sealed class NmeaClient : IDisposable
     /// </summary>
     public void Dispose()
     {
-        _shouldExit = true;
-        _tcpClient.Dispose();
-        _reader.Dispose();
+        if (!IsConnected)
+            return;
+        
+        _tcpClient!.Dispose();
+        _reader!.Dispose();
+        _tcpClient = null;
+        _reader = null;
+        
+        IsConnected = false;
         
         Logger.LogInfo("Disconnected from NMEA server");
     }

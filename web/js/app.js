@@ -1,7 +1,6 @@
 const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
 const channelId = "2691494"; // ThingSpeak channel ID
-const maxResults = 288; // 15 sec intervals over 24 hours: 24 * 60 * 60 / 15
-const dataFetchUrl = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=${maxResults}`;
+const dataFetchUrl = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&days=1`;
 
 const refreshInterval = 15000; // milliseconds
 const oldDataWarningThreshold = 60; // seconds
@@ -86,12 +85,25 @@ const fixTypeChart = new Chart(fixTypeChartCtx, {
 
 let lastDataFetchTime;
 let lastNewDataReceiveTime;
+let latestEntryId = 0;
 
 async function fetchData() {
+  console.log('Fetching data...');
   try {
     const response = await fetch(dataFetchUrl);
     const json = await response.json();
+
     lastDataFetchTime = new Date();
+    const lastEntryId = json.channel.last_entry_id;
+    console.log('Last entry ID:', lastEntryId);
+    console.log('Latest entry ID:', latestEntryId);
+
+    if (latestEntryId >= lastEntryId) {
+      console.log('No new data received');
+      return;
+    }
+
+    latestEntryId = lastEntryId;
 
     const data = {
       feeds: json.feeds.map(feed => {
@@ -102,13 +114,10 @@ async function fetchData() {
         const gnssData = Object.assign({}, JSON.parse(f1), JSON.parse(f2), JSON.parse(f3), JSON.parse(f4));
 
         const timeUtc = gnssData.TimeUtc;
+        const date = feed.created_at.split('T')[0]; // Extract the date part from the created_at field
         const time = `${timeUtc.slice(0, 2)}:${timeUtc.slice(2, 4)}:${timeUtc.slice(4, 6)}`;
 
-        let datetime = new Date();
-        let [hours, minutes, seconds] = time.split(':');
-        datetime.setUTCHours(hours);
-        datetime.setUTCMinutes(minutes);
-        datetime.setUTCSeconds(seconds);
+        const datetime = new Date(`${date}T${time}Z`); // Combine date and time and parse as UTC
 
         return {
           gnss: gnssData,
@@ -117,8 +126,8 @@ async function fetchData() {
       })
     };
 
-    const lastEntry = data.feeds[data.feeds.length - 1];
-    lastNewDataReceiveTime = lastEntry.datetime;
+    console.log('New data received:', data);
+    lastNewDataReceiveTime = new Date();
 
     updateGraph(data, 'DeltaZ', deltaZChart);
     updateGraph(data, 'DeltaXY', deltaXYChart);
@@ -126,6 +135,42 @@ async function fetchData() {
     updateFixTypeChart(data);
   } catch (error) {
     console.error('Error fetching data:', error);
+  }
+}
+
+function getPointColor(fixType){
+  // Quality 4 = green, 5 = yellow, others = red
+  if (fixType === 4) {
+    return 'green';
+  }
+  if (fixType === 5) {
+    return 'yellow';
+  }
+
+  return 'red';
+}
+
+function getFixTypeName(fixType) {
+
+  fixType = parseInt(fixType);
+
+  switch (fixType) {
+    case 0:
+      return 'No Fix';
+    case 1:
+      return 'GPS Fix';
+    case 2:
+      return 'Differential GPS Fix';
+    case 3:
+      return 'Not Applicable';
+    case 4:
+      return 'RTK Fix';
+    case 5:
+      return 'RTK Float';
+    case 6:
+      return 'INS Dead Reckoning';
+    default:
+      return 'Unknown';
   }
 }
 
@@ -192,18 +237,21 @@ function updateTextData(data) {
   document.getElementById('BaseRoverDistance').textContent = `${latestFeed.gnss.BaseRoverDistance} m`;
 }
 
-function updateTimeToRefresh() {
+/*function updateTimeToRefresh() {
   if (!lastDataFetchTime)
     return;
 
   const now = new Date();
-  const refreshIn = Math.round((lastDataFetchTime.getTime() + refreshInterval - now.getTime()) / 1000);
+  let refreshIn = Math.round((lastDataFetchTime.getTime() + refreshInterval - now.getTime()) / 1000);
   const timeElement = document.getElementById('TimeToNextRefresh');
 
-  timeElement.textContent = `Refreshing in ${refreshIn}...`;
-}
+  if (refreshIn <= 0)
+    refreshIn = 0;
 
-function updateTimeAgo() {
+  timeElement.textContent = `Refreshing in ${refreshIn}...`;
+}*/
+
+/*function updateOldDataWarning() {
   if (!lastNewDataReceiveTime)
     return;
 
@@ -216,45 +264,11 @@ function updateTimeAgo() {
   } else {
     warningPopup.classList.add('hidden');
   }
-}
+}*/
 
-function getPointColor(fixType){
-  // Quality 4 = green, 5 = yellow, others = red
-  if (fixType === 4) {
-    return 'green';
-  }
-  if (fixType === 5) {
-    return 'yellow';
-  }
+//setInterval(updateTimeToRefresh, 1000);
+//setInterval(updateOldDataWarning, 1000);
 
-  return 'red';
-}
-
-function getFixTypeName(fixType) {
-
-  fixType = parseInt(fixType);
-
-  switch (fixType) {
-    case 0:
-      return 'No Fix';
-    case 1:
-      return 'GPS Fix';
-    case 2:
-      return 'Differential GPS Fix';
-    case 3:
-      return 'Not Applicable';
-    case 4:
-      return 'RTK Fix';
-    case 5:
-      return 'RTK Float';
-    case 6:
-      return 'INS Dead Reckoning';
-    default:
-      return 'Unknown';
-  }
-}
-
-setInterval(updateTimeToRefresh, 1000);
-setInterval(updateTimeAgo, 1000);
-setInterval(fetchData, refreshInterval);
 fetchData();
+
+setInterval(fetchData, refreshInterval);
