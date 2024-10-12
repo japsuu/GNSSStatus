@@ -1,6 +1,6 @@
 const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
 const channelId = "2691494"; // ThingSpeak channel ID
-const maxResults = 288; // 15 sec intervals over 24 hours: 24 * 60 * 60 / 15
+const maxResults = 5760; // 15 sec intervals over 24 hours: 24 * 60 * 60 / 15
 const dataFetchUrl = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=${maxResults}`;
 
 const refreshInterval = 15000; // milliseconds
@@ -102,13 +102,10 @@ async function fetchData() {
         const gnssData = Object.assign({}, JSON.parse(f1), JSON.parse(f2), JSON.parse(f3), JSON.parse(f4));
 
         const timeUtc = gnssData.TimeUtc;
+        const date = feed.created_at.split('T')[0]; // Extract the date part from the created_at field
         const time = `${timeUtc.slice(0, 2)}:${timeUtc.slice(2, 4)}:${timeUtc.slice(4, 6)}`;
 
-        let datetime = new Date();
-        let [hours, minutes, seconds] = time.split(':');
-        datetime.setUTCHours(hours);
-        datetime.setUTCMinutes(minutes);
-        datetime.setUTCSeconds(seconds);
+        const datetime = new Date(`${date}T${time}Z`); // Combine date and time and parse as UTC
 
         return {
           gnss: gnssData,
@@ -117,8 +114,7 @@ async function fetchData() {
       })
     };
 
-    const lastEntry = data.feeds[data.feeds.length - 1];
-    lastNewDataReceiveTime = lastEntry.datetime;
+    lastNewDataReceiveTime = new Date();
 
     updateGraph(data, 'DeltaZ', deltaZChart);
     updateGraph(data, 'DeltaXY', deltaXYChart);
@@ -127,6 +123,8 @@ async function fetchData() {
   } catch (error) {
     console.error('Error fetching data:', error);
   }
+
+  setTimeout(fetchData, refreshInterval);
 }
 
 function updateGraph(data, dataKey, chart) {
@@ -197,13 +195,16 @@ function updateTimeToRefresh() {
     return;
 
   const now = new Date();
-  const refreshIn = Math.round((lastDataFetchTime.getTime() + refreshInterval - now.getTime()) / 1000);
+  let refreshIn = Math.round((lastDataFetchTime.getTime() + refreshInterval - now.getTime()) / 1000);
   const timeElement = document.getElementById('TimeToNextRefresh');
+
+  if (refreshIn <= 0)
+    refreshIn = 0;
 
   timeElement.textContent = `Refreshing in ${refreshIn}...`;
 }
 
-function updateTimeAgo() {
+function updateOldDataWarning() {
   if (!lastNewDataReceiveTime)
     return;
 
@@ -255,6 +256,6 @@ function getFixTypeName(fixType) {
 }
 
 setInterval(updateTimeToRefresh, 1000);
-setInterval(updateTimeAgo, 1000);
-setInterval(fetchData, refreshInterval);
+setInterval(updateOldDataWarning, 1000);
+
 fetchData();
