@@ -5,8 +5,8 @@ namespace GNSSStatus.Parsing;
 
 public class GNSSData
 {
-    public List<double> DeltaZCache;
-    public List<double> DeltaXYCache;
+    public readonly List<double> DeltaZCache = new();
+    public readonly List<double> DeltaXYCache = new();
     
     public GGAData GGA { get; set; }
     public GSAData GSA { get; set; }
