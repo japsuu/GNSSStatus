@@ -1,7 +1,6 @@
 const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
 const channelId = "2691494"; // ThingSpeak channel ID
-const maxResults = 5760; // 15 sec intervals over 24 hours: 24 * 60 * 60 / 15
-const dataFetchUrl = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=${maxResults}`;
+const dataFetchUrl = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&days=1`;
 
 const refreshInterval = 15000; // milliseconds
 const oldDataWarningThreshold = 60; // seconds
