@@ -88,7 +88,7 @@ const deltaZChart = new Chart(deltaZChartCtx, {
   options: {
     responsive: true,
     scales: {
-      x: {display: true, title: {display: true, text: 'Time (UTC)'}},
+      x: {display: true, title: {display: true, text: `Time (UTC+${-utcOffset})`}},
       y: {display: true, min: deltaZChartDefaultMinY, max: deltaZChartDefaultMaxY, title: {display: true, text: 'DeltaZ (m)'}}
     },
     plugins: {
@@ -130,7 +130,7 @@ const deltaXYChart = new Chart(deltaXYChartCtx, {
   options: {
     responsive: true,
     scales: {
-      x: {display: true, title: {display: true, text: 'Time (UTC)'}},
+      x: {display: true, title: {display: true, text: `Time (UTC+${-utcOffset})`}},
       y: {display: true, min: deltaXYChartDefaultMinY, max: deltaXYChartDefaultMaxY, title: {display: true, text: 'DeltaXY (m)'}}
     },
     plugins: {
