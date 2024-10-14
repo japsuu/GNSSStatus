@@ -3,21 +3,18 @@
 const refreshInterval = 15; // seconds
 //const oldDataWarningThreshold = 120; // seconds
 
-const startHourLocal = 6;
-const endHourLocal = 18;
-
 // Constants
 // ------------------------------------------------------------
 const siteRefreshDate = new Date(); // Date when the site was last refreshed
-const pointsPerGraph = (endHourLocal - startHourLocal) * 3600 / refreshInterval;
+const pointsPerGraph = 24 * 60 * 60 / refreshInterval;
 
 // Data fetch start UTC date in format YYYY-MM-DD%20HH:NN:SS
-const dayStartLocal = new Date(siteRefreshDate.getFullYear(), siteRefreshDate.getMonth(), siteRefreshDate.getDate(), startHourLocal, 0, 0, 0);
-const dataStartTimeDate = dayStartLocal.toISOString().slice(0, 19) + 'Z';
-console.log('Read start:', dataStartTimeDate);
+const dayStartLocal = new Date(siteRefreshDate.getFullYear(), siteRefreshDate.getMonth(), siteRefreshDate.getDate(), 0, 0, 0, 0);
+const dataStartUtc = dayStartLocal.toISOString().slice(0, 19) + 'Z';
+console.log('Day start UTC:', dataStartUtc);
 
 const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
-const dataFetchUrl = `https://api.thingspeak.com/channels/2691494/feeds.json?api_key=${apiKey}&start=${dataStartTimeDate}`;
+const dataFetchUrl = `https://api.thingspeak.com/channels/2691494/feeds.json?api_key=${apiKey}&start=${dataStartUtc}`;
 
 // Only used if autoScaleY is true
 const deltaZChartDefaultMinY = -0.03;
@@ -100,9 +97,10 @@ const deltaZChart = new Chart(deltaZChartCtx, {
         callbacks: {
           label: function(context) {
             const index = context.dataIndex;
-            const fixType = getFixTypeName(latestData.feeds[index].gnss.FixType);
             const value = context.formattedValue;
-            return [`Value: ${value} m`, `FixType: ${fixType}`];
+            const fixType = getFixTypeName(latestData.feeds[index].gnss.FixType);
+            const utcTime = latestData.feeds[index].datetime.toUTCString().slice(17, 25);
+            return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`];
           }
         }
       }
@@ -141,9 +139,10 @@ const deltaXYChart = new Chart(deltaXYChartCtx, {
         callbacks: {
           label: function(context) {
             const index = context.dataIndex;
-            const fixType = getFixTypeName(latestData.feeds[index].gnss.FixType);
             const value = context.formattedValue;
-            return [`Value: ${value} m`, `FixType: ${fixType}`];
+            const fixType = getFixTypeName(latestData.feeds[index].gnss.FixType);
+            const utcTime = latestData.feeds[index].datetime.toUTCString().slice(17, 25);
+            return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`];
           }
         }
       }
@@ -217,7 +216,7 @@ async function fetchData() {
         const date = feed.created_at.split('T')[0]; // Extract the date part from the created_at field
         const time = `${timeUtc.slice(0, 2)}:${timeUtc.slice(2, 4)}:${timeUtc.slice(4, 6)}`;
 
-        const datetime = new Date(`${date}T${time}Z`); // Combine date and time and parse as UTC
+        const datetime = new Date(`${date}T${time}Z`); // Combine date and time
 
         return {
           gnss: gnssData,
