@@ -189,18 +189,17 @@ let autoScaleX = false;
 let autoScaleY = false;
 
 async function fetchData() {
-  console.log('Fetching data...');
+  console.log('----- Fetching data -----');
   try {
     const response = await fetch(dataFetchUrl);
     const json = await response.json();
 
     lastDataFetchTime = new Date();
     const lastEntryId = json.channel.last_entry_id;
-    console.log('Last entry ID:', lastEntryId);
-    console.log('Latest entry ID:', latestEntryId);
+    // console.log('Entry ID:', lastEntryId, 'Cached entry ID:', latestEntryId);
 
     if (latestEntryId >= lastEntryId) {
-      console.log('No new data received');
+      // console.log('No new data received');
       return;
     }
 
