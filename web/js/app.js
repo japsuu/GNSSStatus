@@ -95,7 +95,17 @@ const deltaZChart = new Chart(deltaZChartCtx, {
       y: {display: true, min: deltaZChartDefaultMinY, max: deltaZChartDefaultMaxY, title: {display: true, text: 'DeltaZ (m)'}}
     },
     plugins: {
-      referenceLine: true // Enable the reference line plugin
+      referenceLine: true,
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const index = context.dataIndex;
+            const fixType = getFixTypeName(latestData.feeds[index].gnss.FixType);
+            const value = context.raw;
+            return [`Value: ${value}`, `FixType: ${fixType}`];
+          }
+        }
+      }
     }
   }
 });
@@ -126,7 +136,17 @@ const deltaXYChart = new Chart(deltaXYChartCtx, {
       y: {display: true, min: deltaXYChartDefaultMinY, max: deltaXYChartDefaultMaxY, title: {display: true, text: 'DeltaXY (m)'}}
     },
     plugins: {
-      referenceLine: true // Enable the reference line plugin
+      referenceLine: true,
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const index = context.dataIndex;
+            const fixType = getFixTypeName(latestData.feeds[index].gnss.FixType);
+            const value = context.raw;
+            return [`Value: ${value}`, `FixType: ${fixType}`];
+          }
+        }
+      }
     }
   }
 });
