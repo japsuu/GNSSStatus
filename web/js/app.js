@@ -91,7 +91,7 @@ const deltaZChart = new Chart(deltaZChartCtx, {
     responsive: true,
     scales: {
       x: {display: true, title: {display: true, text: 'Time (UTC)'}},
-      y: {display: true, title: {display: true, text: 'DeltaZ (m)'}}
+      y: {display: true, min: deltaZChartDefaultMinY, max: deltaZChartDefaultMaxY, title: {display: true, text: 'DeltaZ (m)'}}
     },
     plugins: {
       referenceLine: true // Enable the reference line plugin
@@ -121,7 +121,7 @@ const deltaXYChart = new Chart(deltaXYChartCtx, {
     responsive: true,
     scales: {
       x: {display: true, title: {display: true, text: 'Time (UTC)'}},
-      y: {display: true, min:0, title: {display: true, text: 'DeltaXY (m)'}}
+      y: {display: true, min: deltaXYChartDefaultMinY, max: deltaXYChartDefaultMaxY, title: {display: true, text: 'DeltaXY (m)'}}
     },
     plugins: {
       referenceLine: true // Enable the reference line plugin
@@ -261,6 +261,7 @@ function getFixTypeName(fixType) {
 function updateGraph(data, dataKey, chart) {
   const feeds = data.feeds;
 
+  // If autoScaleX is true, fill the graph with all the points
   let count = pointsPerGraph;
   if (autoScaleX)
     count = 0;
@@ -269,29 +270,66 @@ function updateGraph(data, dataKey, chart) {
   const dataPoints = Array(count).fill(null);
   const pointLabels = Array(count).fill('');
   const pointColors = Array(count).fill('black');
+  const pointRadius = Array(count).fill(0);
+
+  let maxIndex = -1;
+  let minIndex = -1;
+  let maxValue = -Infinity;
+  let minValue = Infinity;
 
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
       const time = feed.datetime.getUTCHours() + feed.datetime.getUTCMinutes() / 60 + feed.datetime.getUTCSeconds() / 3600;
-      const index = Math.floor((time - startHourLocal) * 3600 / refreshInterval);
+
+      const pData = feed.gnss[dataKey];
+      const pLabel = feed.datetime.toTimeString().slice(0, 8);
+      const pColor = getPointColor(feed.gnss.FixType);
+
+      let lastIndex = 0;
 
       if (autoScaleX) {
-        dataPoints.push(feed.gnss[dataKey]);
-        pointLabels.push(feed.datetime.toTimeString().slice(0, 8));
-        pointColors.push(getPointColor(feed.gnss.FixType));
+        dataPoints.push(pData);
+        pointLabels.push(pLabel);
+        pointColors.push(pColor);
+        pointRadius.push(0);
+        lastIndex = dataPoints.length - 1;
       } else {
+        const index = Math.floor((time - dayStartLocal.getUTCHours()) * 3600 / refreshInterval);
         if (index >= 0 && index < count) {
-          dataPoints[index] = feed.gnss[dataKey];
-          pointLabels[index] = feed.datetime.toTimeString().slice(0, 8);
-          pointColors[index] = getPointColor(feed.gnss.FixType);
+          dataPoints[index] = pData;
+          pointLabels[index] = pLabel;
+          pointColors[index] = pColor;
+          pointRadius[index] = 0;
+          lastIndex = index;
         }
+      }
+
+      // Check for max and min values
+      if (pData > maxValue) {
+        maxValue = pData;
+        maxIndex = lastIndex;
+      }
+      if (pData < minValue) {
+        minValue = pData;
+        minIndex = lastIndex;
       }
     }
   });
 
+  // Highlight the highest and lowest points
+  if (maxIndex !== -1) {
+    pointRadius[maxIndex] = 5; // Increase the radius for the highest point
+    pointColors[maxIndex] = 'red'; // Change color for the highest point
+  }
+  if (minIndex !== -1) {
+    pointRadius[minIndex] = 5; // Increase the radius for the lowest point
+    pointColors[minIndex] = 'red'; // Change color for the lowest point
+  }
+
   chart.data.labels = pointLabels;
   chart.data.datasets[0].data = dataPoints;
   chart.data.datasets[0].pointBackgroundColor = pointColors;
+  chart.data.datasets[0].pointRadius = pointRadius;
   chart.update();
 }
 
@@ -385,15 +423,15 @@ autoScaleYCheckbox.addEventListener('change', () => {
   autoScaleY = autoScale;
 
   if (autoScale) {
-    deltaZChart.options.scales.y.min = deltaZChartDefaultMinY;
-    deltaZChart.options.scales.y.max = deltaZChartDefaultMaxY;
-    deltaXYChart.options.scales.y.min = deltaXYChartDefaultMinY;
-    deltaXYChart.options.scales.y.max = deltaXYChartDefaultMaxY;
-  } else {
     deltaZChart.options.scales.y.min = undefined;
     deltaZChart.options.scales.y.max = undefined;
     deltaXYChart.options.scales.y.min = 0;
     deltaXYChart.options.scales.y.max = undefined;
+  } else {
+    deltaZChart.options.scales.y.min = deltaZChartDefaultMinY;
+    deltaZChart.options.scales.y.max = deltaZChartDefaultMaxY;
+    deltaXYChart.options.scales.y.min = deltaXYChartDefaultMinY;
+    deltaXYChart.options.scales.y.max = deltaXYChartDefaultMaxY;
   }
 
   deltaZChart.update();
