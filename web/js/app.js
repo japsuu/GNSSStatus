@@ -388,7 +388,7 @@ function updateTextData(data) {
   document.getElementById('TimeUtc').textContent = latestFeed.datetime.toTimeString();
   document.getElementById('FixType').textContent = getFixTypeName(latestFeed.gnss.FixType);
   document.getElementById('SatellitesInUse').textContent = latestFeed.gnss.SatellitesInUse;
-  document.getElementById('SatellitesInView').textContent = latestFeed.gnss.SatellitesInView;
+  //document.getElementById('SatellitesInView').textContent = latestFeed.gnss.SatellitesInView;
   document.getElementById('PDop').textContent = latestFeed.gnss.PDop;
   document.getElementById('HDop').textContent = latestFeed.gnss.HDop;
   document.getElementById('VDop').textContent = latestFeed.gnss.VDop;
