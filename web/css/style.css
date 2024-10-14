@@ -316,6 +316,24 @@ h2 {
   display: none;
 }
 
+.download-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+#datePicker {
+  margin-right: 10px;
+}
+
+#notification {
+  text-align: center;
+  margin: 20px 0;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
 
 /*#warning-popup {
   background-color: red;

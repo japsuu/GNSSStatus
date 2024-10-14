@@ -178,6 +178,9 @@ const fixTypeChart = new Chart(fixTypeChartCtx, {
 
 const autoScaleXCheckbox = document.getElementById('autoScaleXCheckbox');
 const autoScaleYCheckbox = document.getElementById('autoScaleYCheckbox');
+const downloadButton = document.getElementById('downloadButton');
+const datePicker = document.getElementById('datePicker');
+const notification = document.getElementById('notification');
 
 // Variables
 // ------------------------------------------------------------
@@ -395,6 +398,95 @@ function updateTextData(data) {
   document.getElementById('BaseRoverDistance').textContent = `${latestFeed.gnss.BaseRoverDistance} m`;
 }
 
+/*
+  Returns full 24h of data, beginning from the start date.
+ */
+async function get24hDataFromByStartDate(startDate){
+
+  // Get only the day, no time
+  const startDayUtc = startDate.toISOString().slice(0, 10);
+
+  const dataFetchUrl = `https://api.thingspeak.com/channels/2691494/feeds.json?api_key=${apiKey}&start=${startDayUtc}`;
+
+  const response = await fetch(dataFetchUrl);
+  const json = await response.json();
+
+  const data = {
+    feeds: json.feeds.map(feed => {
+      const f1 = feed.field1;
+      const f2 = feed.field2;
+      const f3 = feed.field3;
+      const f4 = feed.field4;
+      const gnssData = Object.assign({}, JSON.parse(f1), JSON.parse(f2), JSON.parse(f3), JSON.parse(f4));
+
+      const timeUtc = gnssData.TimeUtc;
+      const date = feed.created_at.split('T')[0]; // Extract the date part from the created_at field
+      const time = `${timeUtc.slice(0, 2)}:${timeUtc.slice(2, 4)}:${timeUtc.slice(4, 6)}`;
+
+      const datetime = new Date(`${date}T${time}Z`); // Combine date and time
+
+      return {
+        gnss: gnssData,
+        datetime: datetime
+      }
+    })
+  };
+
+  return data;
+}
+
+/*
+  Constructs an array of data points from the data object.
+ */
+function dataToCsv(data) {
+  const feeds = data.feeds;
+
+  const csvData = feeds.map(feed => {
+    const time = feed.datetime.toISOString();
+    const fixType = getFixTypeName(feed.gnss.FixType);
+    const satellitesInUse = feed.gnss.SatellitesInUse;
+    const satellitesInView = feed.gnss.SatellitesInView;
+    const pDop = feed.gnss.PDop;
+    const hDop = feed.gnss.HDop;
+    const vDop = feed.gnss.VDop;
+    const errorLatitude = feed.gnss.ErrorLatitude;
+    const errorLongitude = feed.gnss.ErrorLongitude;
+    const errorAltitude = feed.gnss.ErrorAltitude;
+    const baseRoverDistance = feed.gnss.BaseRoverDistance;
+
+    return [time, fixType, satellitesInUse, satellitesInView, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
+  });
+
+  return csvData;
+}
+
+function downloadCSV(dataArray, filename) {
+  // Convert array to CSV string
+  const csvContent = dataArray.map(e => e.join(",")).join("\n");
+
+  // Create a blob from the CSV string
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+
+  // Create a link element
+  const link = document.createElement("a");
+
+  // Create a URL for the blob
+  const url = URL.createObjectURL(blob);
+
+  // Set download attribute with a filename
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+
+  // Append the link to the document body (invisible)
+  document.body.appendChild(link);
+
+  // Programmatically trigger the click
+  link.click();
+
+  // Remove the link from the document
+  document.body.removeChild(link);
+}
+
 /*function updateTimeToRefresh() {
   if (!lastDataFetchTime)
     return;
@@ -424,11 +516,12 @@ function updateTextData(data) {
   }
 }*/
 
-//setInterval(updateTimeToRefresh, 1000);
-//setInterval(updateOldDataWarning, 1000);
+/*setInterval(updateTimeToRefresh, 1000);
+setInterval(updateOldDataWarning, 1000);*/
 
 autoScaleXCheckbox.checked = autoScaleX;
 autoScaleYCheckbox.checked = autoScaleY;
+datePicker.value = siteRefreshDate.toISOString().slice(0, 10);
 
 // Add an event listener to the stretch checkbox
 autoScaleXCheckbox.addEventListener('change', () => {
@@ -455,6 +548,33 @@ autoScaleYCheckbox.addEventListener('change', () => {
 
   deltaZChart.update();
   deltaXYChart.update();
+});
+
+downloadButton.addEventListener('click', async () => {
+  const selectedDate = new Date(datePicker.value);
+
+  if (isNaN(selectedDate)) {
+    alert('Please select a valid date.');
+    return;
+  }
+
+  notification.classList.remove('hidden');
+  notification.textContent = 'Downloading data...';
+
+  try {
+    const data = await get24hDataFromByStartDate(selectedDate);
+    const csvData = dataToCsv(data);
+    downloadCSV(csvData, `gnss_data_${selectedDate.toISOString().slice(0, 10)}.csv`);
+    notification.textContent = 'Download complete.';
+  } catch (error) {
+    console.error('Error downloading data:', error);
+    alert('Failed to download data. Please try again.');
+    notification.textContent = 'Download failed.';
+  } finally {
+    setTimeout(() => {
+      notification.classList.add('hidden');
+    }, 3000);
+  }
 });
 
 fetchData();
