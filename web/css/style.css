@@ -257,7 +257,7 @@ body {
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   background: #fff;
   padding: 20px;
@@ -269,17 +269,73 @@ h1 {
   text-align: center;
 }
 
+h2 {
+  text-align: center;
+  margin-top: 100px;
+}
+
 .chart-container {
   width: 100%;
-  height: 400px;
 }
 
-#gnss-data p {
+.gnss-data-text-group {
+  margin: 10px 0;
+}
+
+/* Contains full-width graphs and their settings */
+#gnss-graph-container {
+  margin: 10px 0;
+}
+
+/* Contains GNSS data as text and a smaller square chart */
+.gnss-data-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping of elements to the next line if space is insufficient */
+  justify-content: space-between; /* Distributes elements evenly */
+}
+
+/* Contains GNSS data in text form */
+#gnss-data-text-container,
+#gnss-data-graph-container {
+  flex: 1 1 45%; /* Each element will take 45% of the container width on larger screens */
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+#gnss-data-text-container p {
   font-size: 1.1em;
-  margin: 8px 0;
+  margin: 1px 0;
 }
 
-#warning-popup {
+#iono-container img {
+  width: 100%;
+  height: auto;
+}
+
+.hidden {
+  display: none;
+}
+
+.download-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+#datePicker {
+  margin-right: 10px;
+}
+
+#notification {
+  text-align: center;
+  margin: 20px 0;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+
+/*#warning-popup {
   background-color: red;
   color: white;
   padding: 5px 20px;
@@ -288,8 +344,22 @@ h1 {
   z-index: 1000;
   display: flex;
   justify-content: center;
-}
+}*/
 
-.hidden {
-  display: none;
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  #gnss-data-text-container, #gnss-data-graph-container {
+    flex: 1 1 100%; /* Take full width on smaller screens */
+  }
+
+  .container {
+    width: 100%;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  body {
+    padding: 0;
+  }
 }
