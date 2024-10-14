@@ -1,9 +1,23 @@
-const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
-const channelId = "2691494"; // ThingSpeak channel ID
-const dataFetchUrl = `https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&days=1`;
+// User configuration
+// ------------------------------------------------------------
+const refreshInterval = 15; // seconds
+//const oldDataWarningThreshold = 120; // seconds
 
-const refreshInterval = 15000; // milliseconds
-const oldDataWarningThreshold = 60; // seconds
+const startHourLocal = 6;
+const endHourLocal = 18;
+
+// Constants
+// ------------------------------------------------------------
+const siteRefreshDate = new Date(); // Date when the site was last refreshed
+const pointsPerGraph = (endHourLocal - startHourLocal) * 3600 / refreshInterval;
+
+// Data fetch start UTC date in format YYYY-MM-DD%20HH:NN:SS
+const dayStartLocal = new Date(siteRefreshDate.getFullYear(), siteRefreshDate.getMonth(), siteRefreshDate.getDate(), startHourLocal, 0, 0, 0);
+const dataStartTimeDate = dayStartLocal.toISOString().slice(0, 19) + 'Z';
+console.log('Read start:', dataStartTimeDate);
+
+const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
+const dataFetchUrl = `https://api.thingspeak.com/channels/2691494/feeds.json?api_key=${apiKey}&start=${dataStartTimeDate}`;
 
 const deltaZChartCtx = document.getElementById('deltaZChart').getContext('2d');
 const deltaZChart = new Chart(deltaZChartCtx, {
@@ -83,9 +97,15 @@ const fixTypeChart = new Chart(fixTypeChartCtx, {
   }
 });
 
+const stretchCheckbox = document.getElementById('stretchCheckbox');
+
+// Variables
+// ------------------------------------------------------------
 let lastDataFetchTime;
 let lastNewDataReceiveTime;
 let latestEntryId = 0;
+let latestData;
+let stretchGraphs = false;
 
 async function fetchData() {
   console.log('Fetching data...');
@@ -128,14 +148,20 @@ async function fetchData() {
 
     console.log('New data received:', data);
     lastNewDataReceiveTime = new Date();
+    latestData = data;
 
-    updateGraph(data, 'DeltaZ', deltaZChart);
-    updateGraph(data, 'DeltaXY', deltaXYChart);
-    updateTextData(data);
-    updateFixTypeChart(data);
+    refreshInterface();
+
   } catch (error) {
     console.error('Error fetching data:', error);
   }
+}
+
+function refreshInterface(){
+  updateGraph(latestData, 'DeltaZ', deltaZChart);
+  updateGraph(latestData, 'DeltaXY', deltaXYChart);
+  updateTextData(latestData);
+  updateFixTypeChart(latestData);
 }
 
 function getPointColor(fixType){
@@ -176,15 +202,32 @@ function getFixTypeName(fixType) {
 
 function updateGraph(data, dataKey, chart) {
   const feeds = data.feeds;
-  const dataPoints = [];
-  const pointLabels = [];
-  const pointColors = [];
+
+  let count = pointsPerGraph;
+  if (stretchGraphs)
+    count = 0;
+
+  // Init with pointsPerGraph empty points
+  const dataPoints = Array(count).fill(null);
+  const pointLabels = Array(count).fill('');
+  const pointColors = Array(count).fill('black');
 
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
-      dataPoints.push(feed.gnss[dataKey]);
-      pointLabels.push(feed.datetime.toTimeString().slice(0, 8));
-      pointColors.push(getPointColor(feed.gnss.FixType));
+      const time = feed.datetime.getUTCHours() + feed.datetime.getUTCMinutes() / 60 + feed.datetime.getUTCSeconds() / 3600;
+      const index = Math.floor((time - startHourLocal) * 3600 / refreshInterval);
+
+      if (stretchGraphs) {
+        dataPoints.push(feed.gnss[dataKey]);
+        pointLabels.push(feed.datetime.toTimeString().slice(0, 8));
+        pointColors.push(getPointColor(feed.gnss.FixType));
+      } else {
+        if (index >= 0 && index < count) {
+          dataPoints[index] = feed.gnss[dataKey];
+          pointLabels[index] = feed.datetime.toTimeString().slice(0, 8);
+          pointColors[index] = getPointColor(feed.gnss.FixType);
+        }
+      }
     }
   });
 
@@ -242,7 +285,7 @@ function updateTextData(data) {
     return;
 
   const now = new Date();
-  let refreshIn = Math.round((lastDataFetchTime.getTime() + refreshInterval - now.getTime()) / 1000);
+  let refreshIn = Math.round((lastDataFetchTime.getTime() + refreshInterval * 1000 - now.getTime()) / 1000);
   const timeElement = document.getElementById('TimeToNextRefresh');
 
   if (refreshIn <= 0)
@@ -269,6 +312,13 @@ function updateTextData(data) {
 //setInterval(updateTimeToRefresh, 1000);
 //setInterval(updateOldDataWarning, 1000);
 
+// Add an event listener to the stretch checkbox
+stretchCheckbox.addEventListener('change', () => {
+  const stretch = stretchCheckbox.checked;
+  stretchGraphs = stretch;
+  refreshInterface();
+});
+
 fetchData();
 
-setInterval(fetchData, refreshInterval);
+setInterval(fetchData, refreshInterval * 1000);
