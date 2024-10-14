@@ -19,6 +19,12 @@ console.log('Read start:', dataStartTimeDate);
 const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
 const dataFetchUrl = `https://api.thingspeak.com/channels/2691494/feeds.json?api_key=${apiKey}&start=${dataStartTimeDate}`;
 
+// Only used if autoScaleY is true
+const deltaZChartDefaultMinY = -0.03;
+const deltaZChartDefaultMaxY = 0.03;
+const deltaXYChartDefaultMinY = 0;
+const deltaXYChartDefaultMaxY = 0.03;
+
 const referenceLinePlugin = {
   id: 'referenceLine',
   beforeDraw: (chart) => {
@@ -37,19 +43,23 @@ const referenceLinePlugin = {
     const yPixelMin = yScale.getPixelForValue(yValue - yRange);
     const yPixelMax = yScale.getPixelForValue(yValue + yRange);
 
-    // Draw the highlighted area
+    // Draw the red background
     ctx.save();
     ctx.beginPath();
     ctx.rect(chart.chartArea.left, chart.chartArea.top, chart.chartArea.right - chart.chartArea.left, chart.chartArea.bottom - chart.chartArea.top);
     ctx.clip();
-    ctx.fillStyle = 'rgba(0, 255, 0, 0.2)'; // Color of the highlighted area with transparency
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.2)'; // Color of the red background with transparency
+    ctx.fillRect(chart.chartArea.left, chart.chartArea.top, chart.chartArea.right - chart.chartArea.left, chart.chartArea.bottom - chart.chartArea.top);
+
+    // Draw the green "safe" area
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.2)'; // Color of the green "safe" area with transparency
     ctx.fillRect(chart.chartArea.left, yPixelMax, chart.chartArea.right - chart.chartArea.left, yPixelMin - yPixelMax);
 
     // Draw the reference line
     ctx.beginPath();
     ctx.moveTo(chart.chartArea.left, yPixel);
     ctx.lineTo(chart.chartArea.right, yPixel);
-    ctx.strokeStyle = 'red'; // Color of the reference line
+    ctx.strokeStyle = 'green'; // Color of the reference line
     ctx.lineWidth = 2; // Width of the reference line
     ctx.stroke();
     ctx.restore();
