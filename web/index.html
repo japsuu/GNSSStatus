@@ -53,42 +53,39 @@
       </div>
     </div>
 
-    <div id="gnss-data-container">
-      <h2>Current GNSS Data</h2>
+    <h2>Current GNSS Data</h2>
+    <div class="gnss-data-container">
       <!--p><span id="TimeToNextRefresh">Loading...</span></p-->
 
-      <div style="display: flex; justify-content: center">
-        <div>
-          <div>
-            <p><strong>GPS Time:</strong> <span id="TimeUtc">Loading...</span></p>
-            <p><strong>Rover Distance to Base:</strong> <span id="BaseRoverDistance">Loading...</span></p>
-            <p><strong>Fix Type:</strong> <span id="FixType">Loading...</span></p>
-            <p><strong>Satellites in Use:</strong> <span id="SatellitesInUse">Loading...</span></p>
-            <p><strong>Satellites in View:</strong> <span id="SatellitesInView">Loading...</span></p>
-          </div>
-
-          <div>
-            <p><strong>PDop:</strong> <span id="PDop">Loading...</span></p>
-            <p><strong>HDop:</strong> <span id="HDop">Loading...</span></p>
-            <p><strong>VDop:</strong> <span id="VDop">Loading...</span></p>
-          </div>
-
-          <div>
-            <p><strong>Error Latitude:</strong> <span id="ErrorLatitude">Loading...</span></p>
-            <p><strong>Error Longitude:</strong> <span id="ErrorLongitude">Loading...</span></p>
-            <p><strong>Error Altitude:</strong> <span id="ErrorAltitude">Loading...</span></p>
-          </div>
+      <div id="gnss-data-text-container">
+        <div class="gnss-data-text-group">
+          <p><strong>GPS Time:</strong> <span id="TimeUtc">Loading...</span></p>
+          <p><strong>Rover Distance to Base:</strong> <span id="BaseRoverDistance">Loading...</span></p>
+          <p><strong>Fix Type:</strong> <span id="FixType">Loading...</span></p>
+          <p><strong>Satellites in Use:</strong> <span id="SatellitesInUse">Loading...</span></p>
+          <p><strong>Satellites in View:</strong> <span id="SatellitesInView">Loading...</span></p>
         </div>
 
-        <div class="chart-container">
-          <canvas id="fixTypeChart"></canvas>
+        <div class="gnss-data-text-group">
+          <p><strong>PDop:</strong> <span id="PDop">Loading...</span></p>
+          <p><strong>HDop:</strong> <span id="HDop">Loading...</span></p>
+          <p><strong>VDop:</strong> <span id="VDop">Loading...</span></p>
+        </div>
+
+        <div class="gnss-data-text-group">
+          <p><strong>Error Latitude:</strong> <span id="ErrorLatitude">Loading...</span></p>
+          <p><strong>Error Longitude:</strong> <span id="ErrorLongitude">Loading...</span></p>
+          <p><strong>Error Altitude:</strong> <span id="ErrorAltitude">Loading...</span></p>
         </div>
       </div>
 
+      <div id="gnss-data-graph-container">
+        <canvas id="fixTypeChart"></canvas>
+      </div>
     </div>
 
-    <div id="iono-data-container">
-      <h2>Ionosphere Data</h2>
+    <h2>Ionosphere Data</h2>
+    <div id="iono-container">
       <!-- Credit to the National Land Survey of Finland for Ionosphere data -->
       <p>Provided by the National Land Survey of Finland <a href="https://finpos.nls.fi/iono/">(link)</a></p>
       <!-- Link to FinPos iono graph image -->
