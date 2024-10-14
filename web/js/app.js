@@ -101,8 +101,8 @@ const deltaZChart = new Chart(deltaZChartCtx, {
           label: function(context) {
             const index = context.dataIndex;
             const fixType = getFixTypeName(latestData.feeds[index].gnss.FixType);
-            const value = context.raw;
-            return [`Value: ${value}`, `FixType: ${fixType}`];
+            const value = context.formattedValue;
+            return [`Value: ${value} m`, `FixType: ${fixType}`];
           }
         }
       }
@@ -142,8 +142,8 @@ const deltaXYChart = new Chart(deltaXYChartCtx, {
           label: function(context) {
             const index = context.dataIndex;
             const fixType = getFixTypeName(latestData.feeds[index].gnss.FixType);
-            const value = context.raw;
-            return [`Value: ${value}`, `FixType: ${fixType}`];
+            const value = context.formattedValue;
+            return [`Value: ${value} m`, `FixType: ${fixType}`];
           }
         }
       }
@@ -245,6 +245,8 @@ function refreshInterface(){
 }
 
 function getPointColor(fixType){
+  fixType = parseInt(fixType);
+
   // Quality 4 = green, 5 = yellow, others = red
   if (fixType === 4) {
     return 'green';
