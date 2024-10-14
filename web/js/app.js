@@ -18,7 +18,7 @@ const deltaZChart = new Chart(deltaZChartCtx, {
       backgroundColor: 'black',
       borderWidth: 2,
       pointBorderWidth: 0,
-      pointRadius: 5,
+      pointRadius: 0,
       pointHitRadius: 10,
       fill: false
     }]
@@ -45,7 +45,7 @@ const deltaXYChart = new Chart(deltaXYChartCtx, {
       backgroundColor: 'black',
       borderWidth: 2,
       pointBorderWidth: 0,
-      pointRadius: 5,
+      pointRadius: 0,
       pointHitRadius: 10,
       fill: false
     }]
