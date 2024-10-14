@@ -153,7 +153,8 @@ const fixTypeChart = new Chart(fixTypeChartCtx, {
   }
 });
 
-const stretchCheckbox = document.getElementById('stretchCheckbox');
+const autoScaleXCheckbox = document.getElementById('autoScaleXCheckbox');
+const autoScaleYCheckbox = document.getElementById('autoScaleYCheckbox');
 
 // Variables
 // ------------------------------------------------------------
@@ -161,7 +162,8 @@ let lastDataFetchTime;
 let lastNewDataReceiveTime;
 let latestEntryId = 0;
 let latestData;
-let stretchGraphs = false;
+let autoScaleX = false;
+let autoScaleY = false;
 
 async function fetchData() {
   console.log('Fetching data...');
@@ -260,7 +262,7 @@ function updateGraph(data, dataKey, chart) {
   const feeds = data.feeds;
 
   let count = pointsPerGraph;
-  if (stretchGraphs)
+  if (autoScaleX)
     count = 0;
 
   // Init with pointsPerGraph empty points
@@ -273,7 +275,7 @@ function updateGraph(data, dataKey, chart) {
       const time = feed.datetime.getUTCHours() + feed.datetime.getUTCMinutes() / 60 + feed.datetime.getUTCSeconds() / 3600;
       const index = Math.floor((time - startHourLocal) * 3600 / refreshInterval);
 
-      if (stretchGraphs) {
+      if (autoScaleX) {
         dataPoints.push(feed.gnss[dataKey]);
         pointLabels.push(feed.datetime.toTimeString().slice(0, 8));
         pointColors.push(getPointColor(feed.gnss.FixType));
@@ -368,11 +370,34 @@ function updateTextData(data) {
 //setInterval(updateTimeToRefresh, 1000);
 //setInterval(updateOldDataWarning, 1000);
 
+autoScaleXCheckbox.checked = autoScaleX;
+autoScaleYCheckbox.checked = autoScaleY;
+
 // Add an event listener to the stretch checkbox
-stretchCheckbox.addEventListener('change', () => {
-  const stretch = stretchCheckbox.checked;
-  stretchGraphs = stretch;
+autoScaleXCheckbox.addEventListener('change', () => {
+  autoScaleX = autoScaleXCheckbox.checked;
   refreshInterface();
+});
+
+// Add an event listener to the auto-scale Y checkbox
+autoScaleYCheckbox.addEventListener('change', () => {
+  const autoScale = autoScaleYCheckbox.checked;
+  autoScaleY = autoScale;
+
+  if (autoScale) {
+    deltaZChart.options.scales.y.min = deltaZChartDefaultMinY;
+    deltaZChart.options.scales.y.max = deltaZChartDefaultMaxY;
+    deltaXYChart.options.scales.y.min = deltaXYChartDefaultMinY;
+    deltaXYChart.options.scales.y.max = deltaXYChartDefaultMaxY;
+  } else {
+    deltaZChart.options.scales.y.min = undefined;
+    deltaZChart.options.scales.y.max = undefined;
+    deltaXYChart.options.scales.y.min = 0;
+    deltaXYChart.options.scales.y.max = undefined;
+  }
+
+  deltaZChart.update();
+  deltaXYChart.update();
 });
 
 fetchData();
