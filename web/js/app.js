@@ -7,10 +7,12 @@ const refreshInterval = 15; // seconds
 // ------------------------------------------------------------
 const siteRefreshDate = new Date(); // Date when the site was last refreshed
 const pointsPerGraph = 24 * 60 * 60 / refreshInterval;
+console.log('Points per graph:', pointsPerGraph);
 
 // Data fetch start UTC date in format YYYY-MM-DD%20HH:NN:SS
 const dayStartLocal = new Date(siteRefreshDate.getFullYear(), siteRefreshDate.getMonth(), siteRefreshDate.getDate(), 0, 0, 0, 0);
 const dataStartUtc = dayStartLocal.toISOString().slice(0, 19) + 'Z';
+const utcOffset = siteRefreshDate.getTimezoneOffset() / 60;
 console.log('Day start UTC:', dataStartUtc);
 
 const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
@@ -284,49 +286,31 @@ function getFixTypeName(fixType) {
 function updateGraph(data, dataKey, chart) {
   const feeds = data.feeds;
 
-  // If autoScaleX is true, fill the graph with all the points
-  let count = pointsPerGraph;
-  if (autoScaleX)
-    count = 0;
-
   // Init with pointsPerGraph empty points
-  const dataPoints = Array(count).fill(null);
-  const pointLabels = Array(count).fill('');
-  const pointColors = Array(count).fill('black');
-  const pointRadius = Array(count).fill(0);
+  const dataPoints = [];
+  const pointLabels = [];
+  const pointColors = [];
+  const pointRadius = [];
 
   let maxIndex = -1;
   let minIndex = -1;
   let maxValue = -Infinity;
   let minValue = Infinity;
 
+  let pointCount = 0;
+
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
-      const time = feed.datetime.getUTCHours() + feed.datetime.getUTCMinutes() / 60 + feed.datetime.getUTCSeconds() / 3600;
-
       const pData = feed.gnss[dataKey];
       const pLabel = feed.datetime.toTimeString().slice(0, 8);
       const pColor = getPointColor(feed.gnss.FixType);
 
-      let lastIndex = 0;
+      dataPoints.push(pData);
+      pointLabels.push(pLabel);
+      pointColors.push(pColor);
+      pointRadius.push(0);
 
-      if (autoScaleX) {
-        dataPoints.push(pData);
-        pointLabels.push(pLabel);
-        pointColors.push(pColor);
-        pointRadius.push(0);
-        lastIndex = dataPoints.length - 1;
-      } else {
-        const index = Math.floor((time - dayStartLocal.getUTCHours()) * 3600 / refreshInterval);
-        if (index >= 0 && index < count) {
-          dataPoints[index] = pData;
-          pointLabels[index] = pLabel;
-          pointColors[index] = pColor;
-          pointRadius[index] = 0;
-          lastIndex = index;
-        }
-      }
-
+      const lastIndex = dataPoints.length - 1;
       // Check for max and min values
       if (pData > maxValue) {
         maxValue = pData;
@@ -336,8 +320,21 @@ function updateGraph(data, dataKey, chart) {
         minValue = pData;
         minIndex = lastIndex;
       }
+
+      pointCount++;
     }
   });
+
+  // If autoScaleX is false, fill the graph with all the remaining empty points
+  let count = pointsPerGraph - pointCount;
+  if (!autoScaleX) {
+    for (let i = 0; i < count; i++) {
+      dataPoints.push(null);
+      pointLabels.push('');
+      pointColors.push('black');
+      pointRadius.push(0);
+    }
+  }
 
   // Highlight the highest and lowest points
   if (maxIndex !== -1) {
