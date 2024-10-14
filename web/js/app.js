@@ -19,6 +19,46 @@ console.log('Read start:', dataStartTimeDate);
 const apiKey = "WQNA71V5DYQRO3BV"; // Public read API key
 const dataFetchUrl = `https://api.thingspeak.com/channels/2691494/feeds.json?api_key=${apiKey}&start=${dataStartTimeDate}`;
 
+const referenceLinePlugin = {
+  id: 'referenceLine',
+  beforeDraw: (chart) => {
+    const ctx = chart.ctx;
+    const yScale = chart.scales.y;
+
+    if (!yScale) {
+      return; // Exit if yScale is not defined
+    }
+
+    const yValue = 0; // Y-value where the reference line should be drawn
+    const yRange = 0.02; // Range for the highlighted area
+
+    // Get the pixel values for the Y-value and the range
+    const yPixel = yScale.getPixelForValue(yValue);
+    const yPixelMin = yScale.getPixelForValue(yValue - yRange);
+    const yPixelMax = yScale.getPixelForValue(yValue + yRange);
+
+    // Draw the highlighted area
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(chart.chartArea.left, chart.chartArea.top, chart.chartArea.right - chart.chartArea.left, chart.chartArea.bottom - chart.chartArea.top);
+    ctx.clip();
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.2)'; // Color of the highlighted area with transparency
+    ctx.fillRect(chart.chartArea.left, yPixelMax, chart.chartArea.right - chart.chartArea.left, yPixelMin - yPixelMax);
+
+    // Draw the reference line
+    ctx.beginPath();
+    ctx.moveTo(chart.chartArea.left, yPixel);
+    ctx.lineTo(chart.chartArea.right, yPixel);
+    ctx.strokeStyle = 'red'; // Color of the reference line
+    ctx.lineWidth = 2; // Width of the reference line
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
+// Register the plugin with ChartJS
+Chart.register(referenceLinePlugin);
+
 const deltaZChartCtx = document.getElementById('deltaZChart').getContext('2d');
 const deltaZChart = new Chart(deltaZChartCtx, {
   type: 'line',
@@ -42,6 +82,9 @@ const deltaZChart = new Chart(deltaZChartCtx, {
     scales: {
       x: {display: true, title: {display: true, text: 'Time (UTC)'}},
       y: {display: true, title: {display: true, text: 'DeltaZ (m)'}}
+    },
+    plugins: {
+      referenceLine: true // Enable the reference line plugin
     }
   }
 });
@@ -69,6 +112,9 @@ const deltaXYChart = new Chart(deltaXYChartCtx, {
     scales: {
       x: {display: true, title: {display: true, text: 'Time (UTC)'}},
       y: {display: true, min:0, title: {display: true, text: 'DeltaXY (m)'}}
+    },
+    plugins: {
+      referenceLine: true // Enable the reference line plugin
     }
   }
 });
