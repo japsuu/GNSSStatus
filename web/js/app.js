@@ -84,7 +84,8 @@ const deltaZChart = new Chart(deltaZChartCtx, {
       pointBorderWidth: 0,
       pointRadius: 0,
       pointHitRadius: 10,
-      fill: false
+      fill: false,
+      pointHoverRadius: 8
     }]
   },
   options: {
@@ -114,7 +115,8 @@ const deltaXYChart = new Chart(deltaXYChartCtx, {
       pointBorderWidth: 0,
       pointRadius: 0,
       pointHitRadius: 10,
-      fill: false
+      fill: false,
+      pointHoverRadius: 8
     }]
   },
   options: {
