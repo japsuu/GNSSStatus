@@ -138,7 +138,7 @@ const fixTypeChart = new Chart(fixTypeChartCtx, {
     labels: [getFixTypeName(0), getFixTypeName(1), getFixTypeName(2), getFixTypeName(3), getFixTypeName(4), getFixTypeName(5), getFixTypeName(6)],
     datasets: [{
       data: [],
-      backgroundColor: ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'brown']
+      backgroundColor: ['red', 'red', 'red', 'red', 'green', 'yellow', 'red']
     }]
   },
   options: {
