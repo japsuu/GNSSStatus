@@ -47,6 +47,7 @@ internal static class Program
     {
         using IMqttClient mqttClient = CreateMqttClient();
         using NmeaClient nmeaClient = new(ConfigManager.CurrentConfiguration.ServerAddress, ConfigManager.CurrentConfiguration.ServerPort);
+        using IonoClient ionoClient = new();
         
         // Connect to the NMEA server.
         nmeaClient.Connect();
@@ -54,6 +55,7 @@ internal static class Program
         // Connect to the MQTT broker.
         await ConnectMqttBroker(mqttClient);
         
+        SentenceParser.ParsedData.IonoPercentage = await ionoClient.GetIonoPercentage();
         // Avoid sending the first message immediately.
         double lastSendTime = TimeUtils.GetTimeMillis() + 5000;
         
@@ -65,6 +67,8 @@ internal static class Program
             double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
             if (timeSinceLastSend < ConfigManager.MQTT_SEND_INTERVAL_MILLIS)
                 continue;
+            
+            SentenceParser.ParsedData.IonoPercentage = await ionoClient.GetIonoPercentage();
             
             string payload = SentenceParser.ParsedData.GetPayloadJson();
             

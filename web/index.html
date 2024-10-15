@@ -44,6 +44,23 @@
         <input type="checkbox" id="autoScaleYCheckbox">
       </div>
 
+      <div>
+        <label for="manualYRangeInput">Manual Y range</label>
+        <input type="number" id="manualYRangeInput" value="100" step=".01" min="0">
+      </div>
+
+      </br>
+
+      <div>
+        <label for="showOnlyRtkFixCheckbox">Show only RTK Fix</label>
+        <input type="checkbox" id="showOnlyRtkFixCheckbox">
+      </div>
+
+      <div>
+        <label for="showThresholdInput">Show threshold</label>
+        <input type="number" id="showThresholdInput" value="100" step=".01" min="0">
+      </div>
+
       <div class="chart-container">
         <canvas id="deltaZChart"></canvas>
       </div>
@@ -71,7 +88,6 @@
           <p><strong>Rover Distance to Base:</strong> <span id="BaseRoverDistance">Loading...</span></p>
           <p><strong>Fix Type:</strong> <span id="FixType">Loading...</span></p>
           <p><strong>Satellites in Use:</strong> <span id="SatellitesInUse">Loading...</span></p>
-          <!--p><strong>Satellites in View:</strong> <span id="SatellitesInView">Loading...</span></p-->
         </div>
 
         <div class="gnss-data-text-group">
@@ -101,7 +117,7 @@
     </div>
   </div>
 
-  <script src="js/app.js"></script>
+  <script type="module" src="js/app.js"></script>
 
 </body>
 

@@ -13,6 +13,8 @@ public static class ConfigManager
     public const int MAX_COMBINED_PAYLOAD_COUNT = 8;
     public const int MQTT_SEND_INTERVAL_MILLIS = 15000;    // 15 seconds.
     public const int MQTT_MAX_PAYLOAD_SIZE_BYTES = 2999;
+    public const int FINPOS_IONO_PARSE_INTERVAL_MILLIS = 60000;    // 1 minute.
+    public const string FINPOS_IONO_IMAGE_URL = "https://finpos.nls.fi/iono/ir_ipi_ip0/PROD_seven2three_IPI.png";
 
     public static ConfigurationData CurrentConfiguration { get; private set; } = null!;
 

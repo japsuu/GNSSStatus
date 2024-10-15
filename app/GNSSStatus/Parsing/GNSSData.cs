@@ -7,14 +7,15 @@ public class GNSSData
 {
     public readonly List<double> DeltaZCache = new();
     public readonly List<double> DeltaXYCache = new();
+    public double IonoPercentage { get; set; }
     
     public GGAData GGA { get; set; }
     public GSAData GSA { get; set; }
     public GSTData GST { get; set; }
     public GSVData GSV { get; set; }
     public NTRData NTR { get; set; }
-    
-    
+
+
     public string GetPayloadJson()
     {
         JsonPayloadBuilder builder = new();
@@ -30,7 +31,9 @@ public class GNSSData
             TimeUtc = GGA.UtcTime,
             FixType = GGA.Quality,
             SatellitesInUse = GGA.TotalSatellitesInUse,
-            SatellitesInView = GSV.TotalSatellitesVisible
+            RoverX = GGA.RoverX,
+            RoverY = GGA.RoverY,
+            RoverZ = GGA.RoverZ,
         });
         
         builder.AddPayload(new
@@ -53,7 +56,8 @@ public class GNSSData
         {
             DifferentialDataAge = GGA.AgeOfDifferentialData,
             ReferenceStationId = GGA.DifferentialReferenceStationID,
-            BaseRoverDistance = NTR.DistanceBetweenBaseAndRover
+            BaseRoverDistance = NTR.DistanceBetweenBaseAndRover,
+            IonoPercentage = IonoPercentage
         });
         
         return builder.Build(true);
