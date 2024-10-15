@@ -29,4 +29,37 @@ async function fetchData(startDate) {
   };
 }
 
-export { fetchData };
+/*
+  Constructs an array of data points from the data object.
+ */
+function dataToCsv(data) {
+  const feeds = data.feeds;
+
+  // Define the header row
+  const header = [
+    'Time', 'FixType', 'SatellitesInUse', 'PDop', 'HDop', 'VDop', 'ErrorLatitude', 'ErrorLongitude', 'ErrorAltitude', 'BaseRoverDistance'
+  ];
+
+  // Map the data to CSV format
+  const csvData = feeds.map(feed => {
+    const time = feed.datetime.toISOString();
+    const fixType = feed.gnss.FixType;
+    const satellitesInUse = feed.gnss.SatellitesInUse;
+    const pDop = feed.gnss.PDop;
+    const hDop = feed.gnss.HDop;
+    const vDop = feed.gnss.VDop;
+    const errorLatitude = feed.gnss.ErrorLatitude;
+    const errorLongitude = feed.gnss.ErrorLongitude;
+    const errorAltitude = feed.gnss.ErrorAltitude;
+    const baseRoverDistance = feed.gnss.BaseRoverDistance;
+
+    return [time, fixType, satellitesInUse, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
+  });
+
+  // Prepend the header row to the CSV data
+  csvData.unshift(header);
+
+  return csvData;
+}
+
+export { fetchData, dataToCsv };

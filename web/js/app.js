@@ -1,6 +1,6 @@
 import { createChart, referenceLinePlugin, updateGraph, updateFixTypeChart } from './charts.js';
-import { fetchData } from './data.js';
-import { getFixTypeName } from './utils.js';
+import { fetchData, dataToCsv } from './data.js';
+import { getFixTypeName, downloadCSV } from './utils.js';
 
 // User configuration
 // ------------------------------------------------------------
@@ -205,7 +205,7 @@ autoScaleYCheckbox.addEventListener('change', () => {
 downloadButton.addEventListener('click', async () => {
   const selectedDate = new Date(datePicker.value);
 
-  if (isNaN(selectedDate)) {
+  if (isNaN(selectedDate.getTime())) {
     alert('Please select a valid date.');
     return;
   }
