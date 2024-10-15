@@ -29,7 +29,10 @@ public class GNSSData
         {
             TimeUtc = GGA.UtcTime,
             FixType = GGA.Quality,
-            SatellitesInUse = GGA.TotalSatellitesInUse
+            SatellitesInUse = GGA.TotalSatellitesInUse,
+            RoverX = GGA.RoverX,
+            RoverY = GGA.RoverY,
+            RoverZ = GGA.RoverZ,
         });
         
         builder.AddPayload(new
