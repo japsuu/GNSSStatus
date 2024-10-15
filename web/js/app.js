@@ -19,10 +19,7 @@ const utcOffset = siteRefreshDate.getTimezoneOffset() / 60;
 console.log('Day start UTC:', dataStartUtc);
 
 // Only used if autoScaleY is true
-const deltaZChartDefaultMinY = -0.03;
-const deltaZChartDefaultMaxY = 0.03;
-const deltaXYChartDefaultMinY = 0;
-const deltaXYChartDefaultMaxY = 0.03;
+const defaultChartYRange = 0.03;
 
 // Initialize charts
 const deltaZChartCtx = document.getElementById('deltaZChart').getContext('2d');
@@ -45,7 +42,7 @@ const deltaZChart = createChart(deltaZChartCtx, 'line', {
   responsive: true,
   scales: {
     x: { display: true, title: { display: true, text: `Time (UTC+${-utcOffset})` } },
-    y: { display: true, min: deltaZChartDefaultMinY, max: deltaZChartDefaultMaxY, title: { display: true, text: 'DeltaZ (m)' } }
+    y: { display: true, min: -defaultChartYRange, max: defaultChartYRange, title: { display: true, text: 'DeltaZ (m)' } }
   },
   plugins: {
     referenceLine: true,
@@ -83,7 +80,7 @@ const deltaXYChart = createChart(deltaXYChartCtx, 'line', {
   responsive: true,
   scales: {
     x: { display: true, title: { display: true, text: `Time (UTC+${-utcOffset})` } },
-    y: { display: true, min: deltaXYChartDefaultMinY, max: deltaXYChartDefaultMaxY, title: { display: true, text: 'DeltaXY (m)' } }
+    y: { display: true, min: 0, max: defaultChartYRange, title: { display: true, text: 'DeltaXY (m)' } }
   },
   plugins: {
     referenceLine: true,
@@ -126,6 +123,7 @@ const fixTypeChart = createChart(fixTypeChartCtx, 'pie', {
 
 const autoScaleXCheckbox = document.getElementById('autoScaleXCheckbox');
 const autoScaleYCheckbox = document.getElementById('autoScaleYCheckbox');
+const manualYRangeInput = document.getElementById('manualYRangeInput');
 const showOnlyRtkFixCheckbox = document.getElementById('showOnlyRtkFixCheckbox');
 const showThresholdInput = document.getElementById('showThresholdInput');
 const downloadButton = document.getElementById('downloadButton');
@@ -136,6 +134,7 @@ const notification = document.getElementById('notification');
 // ------------------------------------------------------------
 let autoScaleX = false;
 let autoScaleY = false;
+let manualYRange = defaultChartYRange;
 let showOnlyRtkFix = false;
 let showThreshold = 100;
 let latestEntryId = 0;
@@ -177,8 +176,26 @@ function updateTextData(data) {
   document.getElementById('BaseRoverDistance').textContent = `${latestFeed.gnss.BaseRoverDistance} m`;
 }
 
+function updateGraphRanges(){
+  if (autoScaleY) {
+    deltaZChart.options.scales.y.min = undefined;
+    deltaZChart.options.scales.y.max = undefined;
+    deltaXYChart.options.scales.y.min = 0;
+    deltaXYChart.options.scales.y.max = undefined;
+  } else {
+    deltaZChart.options.scales.y.min = -manualYRange;
+    deltaZChart.options.scales.y.max = manualYRange;
+    deltaXYChart.options.scales.y.min = 0;
+    deltaXYChart.options.scales.y.max = manualYRange;
+  }
+
+  deltaZChart.update();
+  deltaXYChart.update();
+}
+
 autoScaleXCheckbox.checked = autoScaleX;
 autoScaleYCheckbox.checked = autoScaleY;
+manualYRangeInput.value = manualYRange;
 showOnlyRtkFixCheckbox.checked = showOnlyRtkFix;
 showThresholdInput.value = showThreshold;
 datePicker.value = siteRefreshDate.toISOString().slice(0, 10);
@@ -192,20 +209,12 @@ autoScaleYCheckbox.addEventListener('change', () => {
   const autoScale = autoScaleYCheckbox.checked;
   autoScaleY = autoScale;
 
-  if (autoScale) {
-    deltaZChart.options.scales.y.min = undefined;
-    deltaZChart.options.scales.y.max = undefined;
-    deltaXYChart.options.scales.y.min = 0;
-    deltaXYChart.options.scales.y.max = undefined;
-  } else {
-    deltaZChart.options.scales.y.min = deltaZChartDefaultMinY;
-    deltaZChart.options.scales.y.max = deltaZChartDefaultMaxY;
-    deltaXYChart.options.scales.y.min = deltaXYChartDefaultMinY;
-    deltaXYChart.options.scales.y.max = deltaXYChartDefaultMaxY;
-  }
+  updateGraphRanges()
+});
 
-  deltaZChart.update();
-  deltaXYChart.update();
+manualYRangeInput.addEventListener('change', () => {
+  manualYRange = parseFloat(manualYRangeInput.value);
+  updateGraphRanges()
 });
 
 showOnlyRtkFixCheckbox.addEventListener('change', () => {
