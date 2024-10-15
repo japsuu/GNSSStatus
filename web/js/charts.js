@@ -55,7 +55,7 @@ function createChart(ctx, type, data, options) {
   });
 }
 
-function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyRtkFix) {
+function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold) {
   const feeds = data.feeds;
   const dataPoints = [];
   const pointLabels = [];
@@ -82,7 +82,9 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
       pointCount++;
 
       // Skip points that are not RTKFix if showOnlyRtkFix is true
-      const isNullPoint = showOnlyRtkFix && pFixType !== 4;
+      const isUnwantedFix = showOnlyRtkFix && pFixType !== 4;
+      const isOverThreshold = Math.abs(pData) > showThreshold;
+      const isNullPoint = isUnwantedFix || isOverThreshold;
 
       if (isNullPoint){
         pData = null;
