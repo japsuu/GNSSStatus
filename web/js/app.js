@@ -441,11 +441,16 @@ async function get24hDataFromByStartDate(startDate){
 function dataToCsv(data) {
   const feeds = data.feeds;
 
+  // Define the header row
+  const header = [
+    'Time', 'FixType', 'SatellitesInUse', 'PDop', 'HDop', 'VDop', 'ErrorLatitude', 'ErrorLongitude', 'ErrorAltitude', 'BaseRoverDistance'
+  ];
+
+  // Map the data to CSV format
   const csvData = feeds.map(feed => {
     const time = feed.datetime.toISOString();
-    const fixType = getFixTypeName(feed.gnss.FixType);
+    const fixType = feed.gnss.FixType;
     const satellitesInUse = feed.gnss.SatellitesInUse;
-    const satellitesInView = feed.gnss.SatellitesInView;
     const pDop = feed.gnss.PDop;
     const hDop = feed.gnss.HDop;
     const vDop = feed.gnss.VDop;
@@ -454,8 +459,11 @@ function dataToCsv(data) {
     const errorAltitude = feed.gnss.ErrorAltitude;
     const baseRoverDistance = feed.gnss.BaseRoverDistance;
 
-    return [time, fixType, satellitesInUse, satellitesInView, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
+    return [time, fixType, satellitesInUse, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
   });
+
+  // Prepend the header row to the CSV data
+  csvData.unshift(header);
 
   return csvData;
 }
