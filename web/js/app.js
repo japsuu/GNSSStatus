@@ -103,10 +103,10 @@ const deltaXYChart = createChart(deltaXYChartCtx, 'line', {
 
 const fixTypeChartCtx = document.getElementById('fixTypeChart').getContext('2d');
 const fixTypeChart = createChart(fixTypeChartCtx, 'pie', {
-  labels: [getFixTypeName(0), getFixTypeName(1), getFixTypeName(2), getFixTypeName(3), getFixTypeName(4), getFixTypeName(5), getFixTypeName(6)],
+  labels: [getFixTypeName(0), getFixTypeName(5), getFixTypeName(4)],
   datasets: [{
     data: [],
-    backgroundColor: ['red', 'red', 'red', 'red', 'green', 'yellow', 'red'],
+    backgroundColor: ['red', 'yellow', 'green'],
     // Remove the border around the pie chart segments
     borderColor: 'white',
     borderWidth: 0

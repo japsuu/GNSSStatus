@@ -121,27 +121,29 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX) {
 
 function updateFixTypeChart(data, fixTypeChart) {
   const feeds = data.feeds;
-  const fixTypeDurations = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+  const fixTypeDurations = { 0: 0, 1: 0, 2: 0 };
 
   for (let i = 1; i < feeds.length; i++) {
     const currentFeed = feeds[i];
     const previousFeed = feeds[i - 1];
     const duration = (currentFeed.datetime - previousFeed.datetime) / 1000;
-    const fixType = previousFeed.gnss.FixType;
+    const fixType = parseInt(previousFeed.gnss.FixType);
 
-    if (fixTypeDurations[fixType] !== undefined) {
-      fixTypeDurations[fixType] += duration;
+    if (fixType === 4) {
+      fixTypeDurations[2] += duration;
+    }
+    else if (fixType === 5) {
+      fixTypeDurations[1] += duration;
+    }
+    else {
+      fixTypeDurations[0] += duration;
     }
   }
 
   fixTypeChart.data.datasets[0].data = [
     fixTypeDurations[0],
     fixTypeDurations[1],
-    fixTypeDurations[2],
-    fixTypeDurations[3],
-    fixTypeDurations[4],
-    fixTypeDurations[5],
-    fixTypeDurations[6]
+    fixTypeDurations[2]
   ];
   fixTypeChart.update();
 }
