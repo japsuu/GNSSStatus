@@ -60,7 +60,9 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
   const dataPoints = [];
   const pointLabels = [];
   const pointColors = [];
-  const pointRadius = [];
+  const pointRadii = [];
+  const fixTypes = [];
+  const dateTimes = [];
 
   let maxIndex = -1;
   let minIndex = -1;
@@ -72,19 +74,23 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
 
+      const fixType = parseInt(feed.gnss.FixType);
+
       // Skip points that are not RTKFix if showOnlyRtkFix is true
-      if (showOnlyRtkFix && parseInt(feed.gnss.FixType) !== 4) {
+      if (showOnlyRtkFix && fixType !== 4) {
         return;
       }
 
       const pData = feed.gnss[dataKey];
       const pLabel = feed.datetime.toTimeString().slice(0, 8);
-      const pColor = getPointColor(feed.gnss.FixType);
+      const pColor = getPointColor(fixType);
 
       dataPoints.push(pData);
       pointLabels.push(pLabel);
       pointColors.push(pColor);
-      pointRadius.push(0);
+      pointRadii.push(0);
+      fixTypes.push(fixType);
+      dateTimes.push(feed.datetime);
 
       const lastIndex = dataPoints.length - 1;
       if (pData > maxValue) {
@@ -105,23 +111,27 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
       dataPoints.push(null);
       pointLabels.push('');
       pointColors.push('black');
-      pointRadius.push(0);
+      pointRadii.push(0);
+      fixTypes.push(-1);
+      dateTimes.push(null);
     }
   }
 
   if (maxIndex !== -1) {
-    pointRadius[maxIndex] = 5;
+    pointRadii[maxIndex] = 5;
     pointColors[maxIndex] = 'red';
   }
   if (minIndex !== -1) {
-    pointRadius[minIndex] = 5;
+    pointRadii[minIndex] = 5;
     pointColors[minIndex] = 'red';
   }
 
   chart.data.labels = pointLabels;
   chart.data.datasets[0].data = dataPoints;
   chart.data.datasets[0].pointBackgroundColor = pointColors;
-  chart.data.datasets[0].pointRadius = pointRadius;
+  chart.data.datasets[0].pointRadius = pointRadii;
+  chart.data.datasets[0].fixType = fixTypes;
+  chart.data.datasets[0].datetime = dateTimes;
   chart.update();
 }
 

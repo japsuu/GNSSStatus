@@ -54,8 +54,8 @@ const deltaZChart = createChart(deltaZChartCtx, 'line', {
         label: function (context) {
           const index = context.dataIndex;
           const value = context.formattedValue;
-          const fixType = getFixTypeName(latestData.feeds[index].gnss.FixType);
-          const utcTime = latestData.feeds[index].datetime.toUTCString().slice(17, 25);
+          const fixType = getFixTypeName(context.chart.data.datasets[0].fixType[index]);
+          const utcTime = context.chart.data.datasets[0].datetime[index].toUTCString().slice(17, 25);
           return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`];
         }
       }
@@ -92,8 +92,8 @@ const deltaXYChart = createChart(deltaXYChartCtx, 'line', {
         label: function (context) {
           const index = context.dataIndex;
           const value = context.formattedValue;
-          const fixType = getFixTypeName(latestData.feeds[index].gnss.FixType);
-          const utcTime = latestData.feeds[index].datetime.toUTCString().slice(17, 25);
+          const fixType = getFixTypeName(context.chart.data.datasets[0].fixType[index]);
+          const utcTime = context.chart.data.datasets[0].datetime[index].toUTCString().slice(17, 25);
           return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`];
         }
       }
