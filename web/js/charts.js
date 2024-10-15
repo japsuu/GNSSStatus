@@ -55,7 +55,7 @@ function createChart(ctx, type, data, options) {
   });
 }
 
-function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX) {
+function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyRtkFix) {
   const feeds = data.feeds;
   const dataPoints = [];
   const pointLabels = [];
@@ -71,6 +71,12 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX) {
 
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
+
+      // Skip points that are not RTKFix if showOnlyRtkFix is true
+      if (showOnlyRtkFix && parseInt(feed.gnss.FixType) !== 4) {
+        return;
+      }
+
       const pData = feed.gnss[dataKey];
       const pLabel = feed.datetime.toTimeString().slice(0, 8);
       const pColor = getPointColor(feed.gnss.FixType);

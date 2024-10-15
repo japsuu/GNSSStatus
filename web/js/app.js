@@ -126,6 +126,7 @@ const fixTypeChart = createChart(fixTypeChartCtx, 'pie', {
 
 const autoScaleXCheckbox = document.getElementById('autoScaleXCheckbox');
 const autoScaleYCheckbox = document.getElementById('autoScaleYCheckbox');
+const showOnlyRtkFixCheckbox = document.getElementById('showOnlyRtkFixCheckbox');
 const downloadButton = document.getElementById('downloadButton');
 const datePicker = document.getElementById('datePicker');
 const notification = document.getElementById('notification');
@@ -134,6 +135,7 @@ const notification = document.getElementById('notification');
 // ------------------------------------------------------------
 let autoScaleX = false;
 let autoScaleY = false;
+let showOnlyRtkFix = false;
 let latestEntryId = 0;
 let latestData;
 
@@ -152,8 +154,8 @@ async function refreshData() {
 }
 
 function refreshInterface() {
-  updateGraph(latestData, 'DeltaZ', deltaZChart, pointsPerGraph, autoScaleX);
-  updateGraph(latestData, 'DeltaXY', deltaXYChart, pointsPerGraph, autoScaleX);
+  updateGraph(latestData, 'DeltaZ', deltaZChart, pointsPerGraph, autoScaleX, showOnlyRtkFix);
+  updateGraph(latestData, 'DeltaXY', deltaXYChart, pointsPerGraph, autoScaleX, showOnlyRtkFix);
   updateTextData(latestData);
   updateFixTypeChart(latestData, fixTypeChart);
 }
@@ -175,6 +177,7 @@ function updateTextData(data) {
 
 autoScaleXCheckbox.checked = autoScaleX;
 autoScaleYCheckbox.checked = autoScaleY;
+showOnlyRtkFixCheckbox.checked = showOnlyRtkFix;
 datePicker.value = siteRefreshDate.toISOString().slice(0, 10);
 
 autoScaleXCheckbox.addEventListener('change', () => {
@@ -200,6 +203,11 @@ autoScaleYCheckbox.addEventListener('change', () => {
 
   deltaZChart.update();
   deltaXYChart.update();
+});
+
+showOnlyRtkFixCheckbox.addEventListener('change', () => {
+  showOnlyRtkFix = showOnlyRtkFixCheckbox.checked;
+  refreshInterface();
 });
 
 downloadButton.addEventListener('click', async () => {
