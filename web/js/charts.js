@@ -74,23 +74,33 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
 
-      const fixType = parseInt(feed.gnss.FixType);
+      let pFixType = parseInt(feed.gnss.FixType);
+      let pData = feed.gnss[dataKey];
+      let pLabel = feed.datetime.toTimeString().slice(0, 8);
+      let pColor = getPointColor(pFixType);
+      let pDatetime = feed.datetime;
+      pointCount++;
 
       // Skip points that are not RTKFix if showOnlyRtkFix is true
-      if (showOnlyRtkFix && fixType !== 4) {
-        return;
-      }
+      const isNullPoint = showOnlyRtkFix && pFixType !== 4;
 
-      const pData = feed.gnss[dataKey];
-      const pLabel = feed.datetime.toTimeString().slice(0, 8);
-      const pColor = getPointColor(fixType);
+      if (isNullPoint){
+        pData = null;
+        pLabel = '';
+        pColor = 'black';
+        pDatetime = null;
+      }
 
       dataPoints.push(pData);
       pointLabels.push(pLabel);
       pointColors.push(pColor);
       pointRadii.push(0);
-      fixTypes.push(fixType);
-      dateTimes.push(feed.datetime);
+      fixTypes.push(pFixType);
+      dateTimes.push(pDatetime);
+
+      // Null points are not considered for min/max
+      if (isNullPoint)
+        return;
 
       const lastIndex = dataPoints.length - 1;
       if (pData > maxValue) {
@@ -101,8 +111,6 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
         minValue = pData;
         minIndex = lastIndex;
       }
-
-      pointCount++;
     }
   });
 
