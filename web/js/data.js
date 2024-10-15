@@ -37,12 +37,13 @@ function dataToCsv(data) {
 
   // Define the header row
   const header = [
-    'Time', 'FixType', 'SatellitesInUse', 'PDop', 'HDop', 'VDop', 'ErrorLatitude', 'ErrorLongitude', 'ErrorAltitude', 'BaseRoverDistance'
+    'DateUTC', 'TimeZoneOffset', 'FixType', 'SatellitesInUse', 'PDop', 'HDop', 'VDop', 'ErrorLatitude', 'ErrorLongitude', 'ErrorAltitude', 'BaseRoverDistance'
   ];
 
   // Map the data to CSV format
   const csvData = feeds.map(feed => {
-    const time = feed.datetime.toISOString();
+    const date = feed.datetime.toISOString();
+    const tzOffset = -feed.datetime.getTimezoneOffset();
     const fixType = feed.gnss.FixType;
     const satellitesInUse = feed.gnss.SatellitesInUse;
     const pDop = feed.gnss.PDop;
@@ -53,7 +54,7 @@ function dataToCsv(data) {
     const errorAltitude = feed.gnss.ErrorAltitude;
     const baseRoverDistance = feed.gnss.BaseRoverDistance;
 
-    return [time, fixType, satellitesInUse, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
+    return [date, tzOffset, fixType, satellitesInUse, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
   });
 
   // Prepend the header row to the CSV data
