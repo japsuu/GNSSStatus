@@ -29,8 +29,7 @@ public class GNSSData
         {
             TimeUtc = GGA.UtcTime,
             FixType = GGA.Quality,
-            SatellitesInUse = GGA.TotalSatellitesInUse,
-            SatellitesInView = GSV.TotalSatellitesVisible
+            SatellitesInUse = GGA.TotalSatellitesInUse
         });
         
         builder.AddPayload(new
