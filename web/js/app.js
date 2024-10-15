@@ -204,8 +204,10 @@ autoScaleYCheckbox.addEventListener('change', () => {
 
 downloadButton.addEventListener('click', async () => {
   const selectedDate = new Date(datePicker.value);
+  const dayStartLocal = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), 0, 0, 0, 0);
+  const dataStartUtc = dayStartLocal.toISOString().slice(0, 19) + 'Z';
 
-  if (isNaN(selectedDate.getTime())) {
+  if (isNaN(dayStartLocal.getTime())) {
     alert('Please select a valid date.');
     return;
   }
@@ -214,9 +216,9 @@ downloadButton.addEventListener('click', async () => {
   notification.textContent = 'Downloading data...';
 
   try {
-    const data = await fetchData(selectedDate.toISOString().slice(0, 10));
+    const data = await fetchData(dataStartUtc);
     const csvData = dataToCsv(data);
-    downloadCSV(csvData, `gnss_data_${selectedDate.toISOString().slice(0, 10)}.csv`);
+    downloadCSV(csvData, `gnss_data_${dataStartUtc}.csv`);
     notification.textContent = 'Download complete.';
   } catch (error) {
     console.error('Error downloading data:', error);
