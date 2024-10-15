@@ -43,8 +43,53 @@ const referenceLinePlugin = {
   }
 };
 
+// Custom plugin to change line color based on FixType
+const fixTypeLineColorPlugin = {
+  id: 'fixTypeLineColor',
+  beforeDatasetDraw: (chart, args, options) => {
+    const { ctx, chartArea: { left, right, top, bottom }, scales: { x, y } } = chart;
+    const dataset = chart.data.datasets[args.index];
+    const points = dataset.data;
+    const fixTypes = dataset.fixType;
+
+    ctx.save();
+
+    for (let i = 0; i < points.length - 1; i++) {
+      if (points[i] === null || points[i + 1] === null) continue;
+
+      const x1 = x.getPixelForValue(i);
+      const y1 = y.getPixelForValue(points[i]);
+      const x2 = x.getPixelForValue(i + 1);
+      const y2 = y.getPixelForValue(points[i + 1]);
+
+      let lineColor;
+      switch (fixTypes[i]) {
+        case 4: // RTK Fix
+          lineColor = 'green';
+          break;
+        case 5: // Float RTK
+          lineColor = 'orange';
+          break;
+        default: // Other
+          lineColor = 'red';
+          break;
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+};
+
 // Register the plugin with ChartJS
 Chart.register(referenceLinePlugin);
+//Chart.register(fixTypeLineColorPlugin);
 
 // Function to create a chart
 function createChart(ctx, type, data, options) {
@@ -175,4 +220,4 @@ function updateFixTypeChart(data, fixTypeChart) {
 }
 
 // Export the necessary functions and variables
-export { createChart, referenceLinePlugin, updateGraph, updateFixTypeChart };
+export { createChart, updateGraph, updateFixTypeChart };

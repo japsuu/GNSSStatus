@@ -1,4 +1,4 @@
-import { createChart, referenceLinePlugin, updateGraph, updateFixTypeChart } from './charts.js';
+import { createChart, updateGraph, updateFixTypeChart } from './charts.js';
 import { fetchData, dataToCsv } from './data.js';
 import { getFixTypeName, downloadCSV } from './utils.js';
 
