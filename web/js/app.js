@@ -218,6 +218,8 @@ autoScaleYCheckbox.addEventListener('change', () => {
 
 manualYRangeInput.addEventListener('change', () => {
   manualYRange = parseFloat(manualYRangeInput.value);
+  autoScaleYCheckbox.checked = false;
+  autoScaleY = false;
   updateGraphRanges()
 });
 
