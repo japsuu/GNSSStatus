@@ -194,9 +194,17 @@ function refreshInterface() {
 function updateTextData(data) {
   const latestFeed = data.feeds[data.feeds.length - 1];
 
+  const deltaZ = latestFeed.gnss.DeltaZ.toFixed(3);
+  const deltaXY = latestFeed.gnss.DeltaXY.toFixed(3);
+  const ionoRaw = latestFeed.gnss.Ionosphere;
+  const iono = ionoRaw === undefined ? 'N/A' : ionoRaw;
+
   // Deltas pruned to 3 decimal places
-  document.getElementById('DeltaZ').textContent = `${latestFeed.gnss.DeltaZ.toFixed(3)} m`;
-  document.getElementById('DeltaXY').textContent = `${latestFeed.gnss.DeltaXY.toFixed(3)} m`;
+  document.getElementById('DeltaZ').textContent = `${deltaZ} m`;
+  document.getElementById('DeltaZTitle').textContent = `${deltaZ} m`;
+  document.getElementById('DeltaXY').textContent = `${deltaXY} m`;
+  document.getElementById('DeltaXYTitle').textContent = `${deltaXY} m`;
+  document.getElementById('Ionosphere').textContent = `${iono} %`;
 
   document.getElementById('TimeUtc').textContent = latestFeed.datetime.toTimeString();
   document.getElementById('FixType').textContent = getFixTypeName(latestFeed.gnss.FixType);
