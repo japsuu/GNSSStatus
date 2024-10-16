@@ -15,9 +15,9 @@ const pointsPerGraph = 24 * 60 * 60 / refreshInterval;
 console.log('Points per graph:', pointsPerGraph);
 // Data fetch start UTC date in format YYYY-MM-DD%20HH:NN:SS
 const dayStartLocal = new Date(siteRefreshDate.getFullYear(), siteRefreshDate.getMonth(), siteRefreshDate.getDate(), 0, 0, 0, 0);
-const dataStartUtc = dayStartLocal.toISOString().slice(0, 19) + 'Z';
+const dataStartTodayUtc = dayStartLocal.toISOString().slice(0, 19) + 'Z';
 const utcOffset = siteRefreshDate.getTimezoneOffset() / 60;
-console.log('Day start UTC:', dataStartUtc);
+console.log('Day start UTC:', dataStartTodayUtc);
 
 const returnValueIfSkip = (segmentCtx, value) => segmentCtx.p0.skip || segmentCtx.p1.skip ? value : undefined;
 const tryGetLineFixColor = function (segmentCtx) {
@@ -156,6 +156,7 @@ const autoScaleYCheckbox = document.getElementById('autoScaleYCheckbox');
 const manualYRangeInput = document.getElementById('manualYRangeInput');
 const showOnlyRtkFixCheckbox = document.getElementById('showOnlyRtkFixCheckbox');
 const showThresholdInput = document.getElementById('showThresholdInput');
+const displayModeDropdown = document.getElementById('displayModeDropdown');
 const downloadButton = document.getElementById('downloadButton');
 const datePicker = document.getElementById('datePicker');
 const notification = document.getElementById('notification');
@@ -167,11 +168,41 @@ let autoScaleY = false;
 let manualYRange = defaultChartYRange;
 let showOnlyRtkFix = false;
 let showThreshold = 100;
+// Possible values: 'startOfDay', 'last24Hours', 'last6Hours', 'last1Hours', 'last10Minutes'.
+let displayMode = 'startOfDay';
 let latestEntryId = 0;
 let latestData;
 
+async function refetchData() {
+  latestEntryId = 0;
+  await refreshData();
+}
+
 async function refreshData() {
-  const data = await fetchData(dataStartUtc);
+  let dataStart = dataStartTodayUtc;
+
+  switch (displayMode) {
+    case 'startOfDay':
+      dataStart = dataStartTodayUtc;
+      break;
+    case 'last24Hours':
+      dataStart = new Date(siteRefreshDate.getTime() - 24 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      break;
+    case 'last6Hours':
+      dataStart = new Date(siteRefreshDate.getTime() - 6 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      break;
+    case 'last1Hours':
+      dataStart = new Date(siteRefreshDate.getTime() - 1 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      break;
+    case 'last10Minutes':
+      dataStart = new Date(siteRefreshDate.getTime() - 10 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      break;
+    default:
+      console.error('Invalid display mode:', displayMode);
+      return;
+  }
+
+  const data = await fetchData(dataStart);
 
   if (latestEntryId >= data.lastEntryId) {
     console.log('No new data received');
@@ -240,6 +271,7 @@ autoScaleYCheckbox.checked = autoScaleY;
 manualYRangeInput.value = manualYRange;
 showOnlyRtkFixCheckbox.checked = showOnlyRtkFix;
 showThresholdInput.value = showThreshold;
+displayModeDropdown.value = displayMode;
 datePicker.value = siteRefreshDate.toISOString().slice(0, 10);
 
 autoScaleXCheckbox.addEventListener('change', () => {
@@ -269,6 +301,11 @@ showOnlyRtkFixCheckbox.addEventListener('change', () => {
 showThresholdInput.addEventListener('change', () => {
   showThreshold = parseFloat(showThresholdInput.value);
   refreshInterface();
+});
+
+displayModeDropdown.addEventListener('change', async () => {
+  displayMode = displayModeDropdown.value;
+  await refetchData();
 });
 
 downloadButton.addEventListener('click', async () => {

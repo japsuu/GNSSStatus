@@ -61,6 +61,17 @@
         <input type="number" id="showThresholdInput" value="100" step=".01" min="0">
       </div>
 
+      <div>
+        <label for="displayModeDropdown">Display mode</label>
+        <select id="displayModeDropdown">
+          <option value="startOfDay">Since start of day</option>
+          <option value="last24Hours">Last 24 hours</option>
+          <option value="last6Hours">Last 6 hours</option>
+          <option value="last1Hours">Last hour</option>
+          <option value="last10Minutes">Last 10 minutes</option>
+        </select>
+      </div>
+
       <div class="chart-container">
         <h2>Delta Z (<span id="DeltaZTitle">Loading...</span>)</h2>
         <canvas id="deltaZChart"></canvas>
