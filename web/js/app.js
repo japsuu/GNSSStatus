@@ -78,7 +78,9 @@ const deltaZChart = createChart(deltaZChartCtx, 'line', {
           const value = context.formattedValue;
           const fixType = getFixTypeName(context.chart.data.datasets[0].fixType[index]);
           const utcTime = context.chart.data.datasets[0].datetime[index].toUTCString().slice(17, 25);
-          return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`];
+          let iono = context.chart.data.datasets[0].ionos[index];
+          iono = iono === undefined ? 'N/A' : iono;
+          return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`, `Iono: ${iono} %`];
         }
       }
     }
@@ -121,7 +123,9 @@ const deltaXYChart = createChart(deltaXYChartCtx, 'line', {
           const value = context.formattedValue;
           const fixType = getFixTypeName(context.chart.data.datasets[0].fixType[index]);
           const utcTime = context.chart.data.datasets[0].datetime[index].toUTCString().slice(17, 25);
-          return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`];
+          let iono = context.chart.data.datasets[0].ionos[index];
+          iono = iono === undefined ? 'N/A' : iono;
+          return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`, `Iono: ${iono} %`];
         }
       }
     }

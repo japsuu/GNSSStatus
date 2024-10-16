@@ -64,6 +64,7 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
   const pointRadii = [];
   const fixTypes = [];
   const dateTimes = [];
+  const ionos = [];
 
   let maxIndex = -1;
   let minIndex = -1;
@@ -71,7 +72,7 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
   let minValue = Infinity;
 
   let pointCount = 0;
-
+  console.log(feeds);
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
 
@@ -85,6 +86,8 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
       let pColor = getPointColor(pFixType);
       // Datetime for the point
       let pDatetime = feed.datetime;
+      // Ionosphere percentage
+      let pIono = feed.gnss.IonoPercentage;
 
       pointCount++;
 
@@ -98,6 +101,7 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
         pLabel = '';
         pColor = 'black';
         pDatetime = null;
+        pIono = null;
       }
 
       dataPoints.push(pData);
@@ -106,6 +110,7 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
       pointRadii.push(0);
       fixTypes.push(pFixType);
       dateTimes.push(pDatetime);
+      ionos.push(pIono);
 
       // Null points are not considered for min/max
       if (isNullPoint)
@@ -131,6 +136,7 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
       pointRadii.push(0);
       fixTypes.push(-1);
       dateTimes.push(null);
+      ionos.push(null);
     }
   }
 
@@ -149,6 +155,7 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
   chart.data.datasets[0].pointRadius = pointRadii;
   chart.data.datasets[0].fixType = fixTypes;
   chart.data.datasets[0].datetime = dateTimes;
+  chart.data.datasets[0].ionos = ionos;
   chart.update();
 }
 
