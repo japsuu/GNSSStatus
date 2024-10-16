@@ -1,7 +1,6 @@
 #define MQTT_ENABLE
 
 using System.Globalization;
-using System.Net;
 using System.Text;
 using GNSSStatus.Configuration;
 using GNSSStatus.Coordinates;
@@ -33,7 +32,8 @@ internal static class Program
             }
             catch (Exception ex)
             {
-                Logger.LogError($"An unhandled exception occurred ({ex.Message}). Restarting in 5 seconds...");
+                Logger.LogError($"An unhandled exception occurred ({ex.Message}).");
+                Logger.LogError("Restarting in 5 seconds...");
                 await Task.Delay(5000);
             }
         }
