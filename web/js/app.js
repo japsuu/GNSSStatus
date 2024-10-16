@@ -15,9 +15,7 @@ const pointsPerGraph = 24 * 60 * 60 / refreshInterval;
 console.log('Points per graph:', pointsPerGraph);
 // Data fetch start UTC date in format YYYY-MM-DD%20HH:NN:SS
 const dayStartLocal = new Date(siteRefreshDate.getFullYear(), siteRefreshDate.getMonth(), siteRefreshDate.getDate(), 0, 0, 0, 0);
-const dataStartTodayUtc = dayStartLocal.toISOString().slice(0, 19) + 'Z';
 const utcOffset = siteRefreshDate.getTimezoneOffset() / 60;
-console.log('Day start UTC:', dataStartTodayUtc);
 
 const returnValueIfSkip = (segmentCtx, value) => segmentCtx.p0.skip || segmentCtx.p1.skip ? value : undefined;
 const tryGetLineFixColor = function (segmentCtx) {
@@ -78,7 +76,9 @@ const deltaZChart = createChart(deltaZChartCtx, 'line', {
           const value = context.formattedValue;
           const fixType = getFixTypeName(context.chart.data.datasets[0].fixType[index]);
           const utcTime = context.chart.data.datasets[0].datetime[index].toUTCString().slice(17, 25);
-          return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`];
+          let iono = context.chart.data.datasets[0].ionos[index];
+          iono = iono === undefined ? 'N/A' : iono;
+          return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`, `Iono: ${iono} %`];
         }
       }
     }
@@ -121,7 +121,9 @@ const deltaXYChart = createChart(deltaXYChartCtx, 'line', {
           const value = context.formattedValue;
           const fixType = getFixTypeName(context.chart.data.datasets[0].fixType[index]);
           const utcTime = context.chart.data.datasets[0].datetime[index].toUTCString().slice(17, 25);
-          return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`];
+          let iono = context.chart.data.datasets[0].ionos[index];
+          iono = iono === undefined ? 'N/A' : iono;
+          return [`Value: ${value} m`, `FixType: ${fixType}`, `UTC: ${utcTime}`, `Iono: ${iono} %`];
         }
       }
     }
@@ -179,23 +181,23 @@ async function refetchData() {
 }
 
 async function refreshData() {
-  let dataStart = dataStartTodayUtc;
+  let dataStart = dayStartLocal;
 
   switch (displayMode) {
     case 'startOfDay':
-      dataStart = dataStartTodayUtc;
+      dataStart = dayStartLocal;
       break;
     case 'last24Hours':
-      dataStart = new Date(siteRefreshDate.getTime() - 24 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      dataStart = new Date(siteRefreshDate.getTime() - 24 * 60 * 60 * 1000);
       break;
     case 'last6Hours':
-      dataStart = new Date(siteRefreshDate.getTime() - 6 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      dataStart = new Date(siteRefreshDate.getTime() - 6 * 60 * 60 * 1000);
       break;
     case 'last1Hours':
-      dataStart = new Date(siteRefreshDate.getTime() - 1 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      dataStart = new Date(siteRefreshDate.getTime() - 1 * 60 * 60 * 1000);
       break;
     case 'last10Minutes':
-      dataStart = new Date(siteRefreshDate.getTime() - 10 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      dataStart = new Date(siteRefreshDate.getTime() - 10 * 60 * 1000);
       break;
     default:
       console.error('Invalid display mode:', displayMode);
@@ -227,7 +229,7 @@ function updateTextData(data) {
 
   const deltaZ = latestFeed.gnss.DeltaZ.toFixed(3);
   const deltaXY = latestFeed.gnss.DeltaXY.toFixed(3);
-  const ionoRaw = latestFeed.gnss.Ionosphere;
+  const ionoRaw = latestFeed.gnss.IonoPercentage;
   const iono = ionoRaw === undefined ? 'N/A' : ionoRaw;
 
   // Deltas pruned to 3 decimal places
@@ -305,13 +307,14 @@ showThresholdInput.addEventListener('change', () => {
 
 displayModeDropdown.addEventListener('change', async () => {
   displayMode = displayModeDropdown.value;
+  autoScaleX = displayMode !== 'startOfDay';
+
   await refetchData();
 });
 
 downloadButton.addEventListener('click', async () => {
   const selectedDate = new Date(datePicker.value);
   const dayStartLocal = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), 0, 0, 0, 0);
-  const dataStartUtc = dayStartLocal.toISOString().slice(0, 19) + 'Z';
 
   if (isNaN(dayStartLocal.getTime())) {
     alert('Please select a valid date.');
@@ -322,9 +325,9 @@ downloadButton.addEventListener('click', async () => {
   notification.textContent = 'Downloading data...';
 
   try {
-    const data = await fetchData(dataStartUtc);
+    const data = await fetchData(dayStartLocal);
     const csvData = dataToCsv(data);
-    downloadCSV(csvData, `gnss_data_${dataStartUtc}.csv`);
+    downloadCSV(csvData, `gnss_data_${dayStartLocal.toISOString().slice(0, 19) + 'Z'}.csv`);
     notification.textContent = 'Download complete.';
   } catch (error) {
     console.error('Error downloading data:', error);
