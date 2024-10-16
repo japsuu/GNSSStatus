@@ -36,53 +36,9 @@ const referenceLinePlugin = {
     ctx.beginPath();
     ctx.moveTo(chart.chartArea.left, yPixel);
     ctx.lineTo(chart.chartArea.right, yPixel);
-    ctx.strokeStyle = 'green'; // Color of the reference line
+    ctx.strokeStyle = 'black'; // Color of the reference line
     ctx.lineWidth = 2; // Width of the reference line
     ctx.stroke();
-    ctx.restore();
-  }
-};
-
-// Custom plugin to change line color based on FixType
-const fixTypeLineColorPlugin = {
-  id: 'fixTypeLineColor',
-  beforeDatasetDraw: (chart, args, options) => {
-    const { ctx, chartArea: { left, right, top, bottom }, scales: { x, y } } = chart;
-    const dataset = chart.data.datasets[args.index];
-    const points = dataset.data;
-    const fixTypes = dataset.fixType;
-
-    ctx.save();
-
-    for (let i = 0; i < points.length - 1; i++) {
-      if (points[i] === null || points[i + 1] === null) continue;
-
-      const x1 = x.getPixelForValue(i);
-      const y1 = y.getPixelForValue(points[i]);
-      const x2 = x.getPixelForValue(i + 1);
-      const y2 = y.getPixelForValue(points[i + 1]);
-
-      let lineColor;
-      switch (fixTypes[i]) {
-        case 4: // RTK Fix
-          lineColor = 'green';
-          break;
-        case 5: // Float RTK
-          lineColor = 'orange';
-          break;
-        default: // Other
-          lineColor = 'red';
-          break;
-      }
-
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
     ctx.restore();
   }
 };
@@ -119,11 +75,17 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
 
+      // FixType as an integer
       let pFixType = parseInt(feed.gnss.FixType);
+      // Wanted data point
       let pData = feed.gnss[dataKey];
-      let pLabel = feed.datetime.toTimeString().slice(0, 8);
+      // Label for the point: time in HH:MM format
+      let pLabel = feed.datetime.toTimeString().slice(0, 5);
+      // Color for the point based on FixType
       let pColor = getPointColor(pFixType);
+      // Datetime for the point
       let pDatetime = feed.datetime;
+
       pointCount++;
 
       // Skip points that are not RTKFix if showOnlyRtkFix is true

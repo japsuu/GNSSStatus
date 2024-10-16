@@ -5,6 +5,7 @@ import { getFixTypeName, downloadCSV } from './utils.js';
 // User configuration
 // ------------------------------------------------------------
 const refreshInterval = 15; // seconds
+const defaultChartYRange = 0.03;
 //const oldDataWarningThreshold = 120; // seconds
 
 // Constants
@@ -14,12 +15,31 @@ const pointsPerGraph = 24 * 60 * 60 / refreshInterval;
 console.log('Points per graph:', pointsPerGraph);
 // Data fetch start UTC date in format YYYY-MM-DD%20HH:NN:SS
 const dayStartLocal = new Date(siteRefreshDate.getFullYear(), siteRefreshDate.getMonth(), siteRefreshDate.getDate(), 0, 0, 0, 0);
-const dataStartUtc = dayStartLocal.toISOString().slice(0, 19) + 'Z';
+const dataStartTodayUtc = dayStartLocal.toISOString().slice(0, 19) + 'Z';
 const utcOffset = siteRefreshDate.getTimezoneOffset() / 60;
-console.log('Day start UTC:', dataStartUtc);
+console.log('Day start UTC:', dataStartTodayUtc);
 
-// Only used if autoScaleY is true
-const defaultChartYRange = 0.03;
+const returnValueIfSkip = (segmentCtx, value) => segmentCtx.p0.skip || segmentCtx.p1.skip ? value : undefined;
+const tryGetLineFixColor = function (segmentCtx) {
+  const p0Index = segmentCtx.p0DataIndex;
+  const p1Index = segmentCtx.p1DataIndex;
+
+  const p0FixType = segmentCtx.chart.data.datasets[0].fixType[p0Index];
+  const p1FixType = segmentCtx.chart.data.datasets[0].fixType[p1Index];
+
+  // Both RTK Fix
+  if (p0FixType === 4 && p1FixType === 4) {
+    return 'green';
+  }
+
+  // Both RTK Float
+  if (p0FixType === 5 && p1FixType === 5) {
+    return 'yellow';
+  }
+
+  // Other
+  return 'red';
+};
 
 // Initialize charts
 const deltaZChartCtx = document.getElementById('deltaZChart').getContext('2d');
@@ -36,7 +56,12 @@ const deltaZChart = createChart(deltaZChartCtx, 'line', {
     pointRadius: 0,
     pointHitRadius: 10,
     fill: false,
-    pointHoverRadius: 8
+    pointHoverRadius: 8,
+    segment: {
+      borderColor: ctx => returnValueIfSkip(ctx, 'rgb(0,0,0,0.2)') || tryGetLineFixColor(ctx),
+      borderDash: ctx => returnValueIfSkip(ctx, [6, 6]),
+    },
+    spanGaps: true
   }]
 }, {
   responsive: true,
@@ -74,7 +99,12 @@ const deltaXYChart = createChart(deltaXYChartCtx, 'line', {
     pointRadius: 0,
     pointHitRadius: 10,
     fill: false,
-    pointHoverRadius: 8
+    pointHoverRadius: 8,
+    segment: {
+      borderColor: ctx => returnValueIfSkip(ctx, 'rgb(0,0,0,0.2)') || tryGetLineFixColor(ctx),
+      borderDash: ctx => returnValueIfSkip(ctx, [6, 6]),
+    },
+    spanGaps: true
   }]
 }, {
   responsive: true,
@@ -126,6 +156,7 @@ const autoScaleYCheckbox = document.getElementById('autoScaleYCheckbox');
 const manualYRangeInput = document.getElementById('manualYRangeInput');
 const showOnlyRtkFixCheckbox = document.getElementById('showOnlyRtkFixCheckbox');
 const showThresholdInput = document.getElementById('showThresholdInput');
+const displayModeDropdown = document.getElementById('displayModeDropdown');
 const downloadButton = document.getElementById('downloadButton');
 const datePicker = document.getElementById('datePicker');
 const notification = document.getElementById('notification');
@@ -137,11 +168,41 @@ let autoScaleY = false;
 let manualYRange = defaultChartYRange;
 let showOnlyRtkFix = false;
 let showThreshold = 100;
+// Possible values: 'startOfDay', 'last24Hours', 'last6Hours', 'last1Hours', 'last10Minutes'.
+let displayMode = 'startOfDay';
 let latestEntryId = 0;
 let latestData;
 
+async function refetchData() {
+  latestEntryId = 0;
+  await refreshData();
+}
+
 async function refreshData() {
-  const data = await fetchData(dataStartUtc);
+  let dataStart = dataStartTodayUtc;
+
+  switch (displayMode) {
+    case 'startOfDay':
+      dataStart = dataStartTodayUtc;
+      break;
+    case 'last24Hours':
+      dataStart = new Date(siteRefreshDate.getTime() - 24 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      break;
+    case 'last6Hours':
+      dataStart = new Date(siteRefreshDate.getTime() - 6 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      break;
+    case 'last1Hours':
+      dataStart = new Date(siteRefreshDate.getTime() - 1 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      break;
+    case 'last10Minutes':
+      dataStart = new Date(siteRefreshDate.getTime() - 10 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      break;
+    default:
+      console.error('Invalid display mode:', displayMode);
+      return;
+  }
+
+  const data = await fetchData(dataStart);
 
   if (latestEntryId >= data.lastEntryId) {
     console.log('No new data received');
@@ -163,6 +224,18 @@ function refreshInterface() {
 
 function updateTextData(data) {
   const latestFeed = data.feeds[data.feeds.length - 1];
+
+  const deltaZ = latestFeed.gnss.DeltaZ.toFixed(3);
+  const deltaXY = latestFeed.gnss.DeltaXY.toFixed(3);
+  const ionoRaw = latestFeed.gnss.Ionosphere;
+  const iono = ionoRaw === undefined ? 'N/A' : ionoRaw;
+
+  // Deltas pruned to 3 decimal places
+  document.getElementById('DeltaZ').textContent = `${deltaZ} m`;
+  document.getElementById('DeltaZTitle').textContent = `${deltaZ} m`;
+  document.getElementById('DeltaXY').textContent = `${deltaXY} m`;
+  document.getElementById('DeltaXYTitle').textContent = `${deltaXY} m`;
+  document.getElementById('Ionosphere').textContent = `${iono} %`;
 
   document.getElementById('TimeUtc').textContent = latestFeed.datetime.toTimeString();
   document.getElementById('FixType').textContent = getFixTypeName(latestFeed.gnss.FixType);
@@ -198,6 +271,7 @@ autoScaleYCheckbox.checked = autoScaleY;
 manualYRangeInput.value = manualYRange;
 showOnlyRtkFixCheckbox.checked = showOnlyRtkFix;
 showThresholdInput.value = showThreshold;
+displayModeDropdown.value = displayMode;
 datePicker.value = siteRefreshDate.toISOString().slice(0, 10);
 
 autoScaleXCheckbox.addEventListener('change', () => {
@@ -214,6 +288,8 @@ autoScaleYCheckbox.addEventListener('change', () => {
 
 manualYRangeInput.addEventListener('change', () => {
   manualYRange = parseFloat(manualYRangeInput.value);
+  autoScaleYCheckbox.checked = false;
+  autoScaleY = false;
   updateGraphRanges()
 });
 
@@ -225,6 +301,11 @@ showOnlyRtkFixCheckbox.addEventListener('change', () => {
 showThresholdInput.addEventListener('change', () => {
   showThreshold = parseFloat(showThresholdInput.value);
   refreshInterface();
+});
+
+displayModeDropdown.addEventListener('change', async () => {
+  displayMode = displayModeDropdown.value;
+  await refetchData();
 });
 
 downloadButton.addEventListener('click', async () => {

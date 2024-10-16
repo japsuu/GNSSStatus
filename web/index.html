@@ -21,7 +21,7 @@
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#fafafa">
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.5/dist/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
@@ -45,7 +45,7 @@
       </div>
 
       <div>
-        <label for="manualYRangeInput">Manual Y range</label>
+        <label for="manualYRangeInput">Manual Y scale</label>
         <input type="number" id="manualYRangeInput" value="100" step=".01" min="0">
       </div>
 
@@ -56,16 +56,29 @@
         <input type="checkbox" id="showOnlyRtkFixCheckbox">
       </div>
 
-      <div>
+      <div class="hidden">
         <label for="showThresholdInput">Show threshold</label>
         <input type="number" id="showThresholdInput" value="100" step=".01" min="0">
       </div>
 
+      <div>
+        <label for="displayModeDropdown">Display mode</label>
+        <select id="displayModeDropdown">
+          <option value="startOfDay">Since start of day</option>
+          <option value="last24Hours">Last 24 hours</option>
+          <option value="last6Hours">Last 6 hours</option>
+          <option value="last1Hours">Last hour</option>
+          <option value="last10Minutes">Last 10 minutes</option>
+        </select>
+      </div>
+
       <div class="chart-container">
+        <h2>Delta Z (<span id="DeltaZTitle">Loading...</span>)</h2>
         <canvas id="deltaZChart"></canvas>
       </div>
 
       <div class="chart-container">
+        <h2>Delta XY (<span id="DeltaXYTitle">Loading...</span>)</h2>
         <canvas id="deltaXYChart"></canvas>
       </div>
 
@@ -100,6 +113,12 @@
           <p><strong>Error Latitude:</strong> <span id="ErrorLatitude">Loading...</span></p>
           <p><strong>Error Longitude:</strong> <span id="ErrorLongitude">Loading...</span></p>
           <p><strong>Error Altitude:</strong> <span id="ErrorAltitude">Loading...</span></p>
+        </div>
+
+        <div class="gnss-data-text-group">
+          <p><strong>DeltaZ:</strong> <span id="DeltaZ">Loading...</span></p>
+          <p><strong>DeltaXY:</strong> <span id="DeltaXY">Loading...</span></p>
+          <p><strong>Ionosphere:</strong> <span id="Ionosphere">Loading...</span></p>
         </div>
       </div>
 
