@@ -36,6 +36,7 @@ public sealed class NmeaClient : IDisposable
         Logger.LogInfo("Connecting to NMEA server...");
 
         _tcpClient = new TcpClient(_ipAddress, _port);
+        _tcpClient.ReceiveTimeout = 5000;
         _reader = new StreamReader(_tcpClient.GetStream());
         IsConnected = true;
         
@@ -60,6 +61,11 @@ public sealed class NmeaClient : IDisposable
             try
             {
                 data = _reader!.ReadLine();
+            }
+            catch (IOException ex) when (ex.InnerException is SocketException)
+            {
+                Logger.LogError("A socket error has occurred or the read operation timed out.");
+                break;
             }
             catch (Exception ex)
             {
