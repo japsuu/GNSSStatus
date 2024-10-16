@@ -5,6 +5,7 @@ import { getFixTypeName, downloadCSV } from './utils.js';
 // User configuration
 // ------------------------------------------------------------
 const refreshInterval = 15; // seconds
+const defaultChartYRange = 0.03;
 //const oldDataWarningThreshold = 120; // seconds
 
 // Constants
@@ -18,8 +19,27 @@ const dataStartUtc = dayStartLocal.toISOString().slice(0, 19) + 'Z';
 const utcOffset = siteRefreshDate.getTimezoneOffset() / 60;
 console.log('Day start UTC:', dataStartUtc);
 
-// Only used if autoScaleY is true
-const defaultChartYRange = 0.03;
+const returnValueIfSkip = (segmentCtx, value) => segmentCtx.p0.skip || segmentCtx.p1.skip ? value : undefined;
+const tryGetLineFixColor = function (segmentCtx) {
+  const p0Index = segmentCtx.p0DataIndex;
+  const p1Index = segmentCtx.p1DataIndex;
+
+  const p0FixType = segmentCtx.chart.data.datasets[0].fixType[p0Index];
+  const p1FixType = segmentCtx.chart.data.datasets[0].fixType[p1Index];
+
+  // Both RTK Fix
+  if (p0FixType === 4 && p1FixType === 4) {
+    return 'green';
+  }
+
+  // Both RTK Float
+  if (p0FixType === 5 && p1FixType === 5) {
+    return 'yellow';
+  }
+
+  // Other
+  return 'red';
+};
 
 // Initialize charts
 const deltaZChartCtx = document.getElementById('deltaZChart').getContext('2d');
@@ -38,8 +58,8 @@ const deltaZChart = createChart(deltaZChartCtx, 'line', {
     fill: false,
     pointHoverRadius: 8,
     segment: {
-      borderColor: ctx => skipped(ctx, 'rgb(0,0,0,0.2)') || down(ctx, 'rgb(192,75,75)'),
-      borderDash: ctx => skipped(ctx, [6, 6]),
+      borderColor: ctx => returnValueIfSkip(ctx, 'rgb(0,0,0,0.2)') || tryGetLineFixColor(ctx),
+      borderDash: ctx => returnValueIfSkip(ctx, [6, 6]),
     },
     spanGaps: true
   }]
@@ -79,7 +99,12 @@ const deltaXYChart = createChart(deltaXYChartCtx, 'line', {
     pointRadius: 0,
     pointHitRadius: 10,
     fill: false,
-    pointHoverRadius: 8
+    pointHoverRadius: 8,
+    segment: {
+      borderColor: ctx => returnValueIfSkip(ctx, 'rgb(0,0,0,0.2)') || tryGetLineFixColor(ctx),
+      borderDash: ctx => returnValueIfSkip(ctx, [6, 6]),
+    },
+    spanGaps: true
   }]
 }, {
   responsive: true,
