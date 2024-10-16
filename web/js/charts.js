@@ -119,11 +119,17 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
 
+      // FixType as an integer
       let pFixType = parseInt(feed.gnss.FixType);
+      // Wanted data point
       let pData = feed.gnss[dataKey];
-      let pLabel = feed.datetime.toTimeString().slice(0, 8);
+      // Label for the point: time in HH:MM format
+      let pLabel = feed.datetime.toTimeString().slice(0, 5);
+      // Color for the point based on FixType
       let pColor = getPointColor(pFixType);
+      // Datetime for the point
       let pDatetime = feed.datetime;
+
       pointCount++;
 
       // Skip points that are not RTKFix if showOnlyRtkFix is true
