@@ -72,7 +72,6 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
   let minValue = Infinity;
 
   let pointCount = 0;
-  console.log(feeds);
   feeds.forEach(feed => {
     if (feed.gnss[dataKey] !== undefined) {
 

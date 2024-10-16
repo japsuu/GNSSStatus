@@ -231,7 +231,7 @@ function updateTextData(data) {
 
   const deltaZ = latestFeed.gnss.DeltaZ.toFixed(3);
   const deltaXY = latestFeed.gnss.DeltaXY.toFixed(3);
-  const ionoRaw = latestFeed.gnss.Ionosphere;
+  const ionoRaw = latestFeed.gnss.IonoPercentage;
   const iono = ionoRaw === undefined ? 'N/A' : ionoRaw;
 
   // Deltas pruned to 3 decimal places

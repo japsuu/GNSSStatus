@@ -61,7 +61,7 @@ function dataToCsv(data) {
     const errorAltitude = feed.gnss.ErrorAltitude;
     const baseRoverDistance = feed.gnss.BaseRoverDistance;
 
-    const iono = feed.gnss.Ionosphere;
+    const iono = feed.gnss.IonoPercentage;
 
     return [dateUtc, dateLocal, fixType, satellitesInUse, roverX, roverY, roverZ, deltaZ, deltaXY, iono, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
   });
