@@ -305,6 +305,8 @@ showThresholdInput.addEventListener('change', () => {
 
 displayModeDropdown.addEventListener('change', async () => {
   displayMode = displayModeDropdown.value;
+  autoScaleX = displayMode !== 'startOfDay';
+
   await refetchData();
 });
 

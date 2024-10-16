@@ -34,7 +34,13 @@
     </div-->
 
     <div id="gnss-graph-container">
+
       <div>
+        <label for="showOnlyRtkFixCheckbox">Show only RTK Fix</label>
+        <input type="checkbox" id="showOnlyRtkFixCheckbox">
+      </div>
+
+      <div class="hidden">
         <label for="autoScaleXCheckbox">Auto Scale X axis</label>
         <input type="checkbox" id="autoScaleXCheckbox">
       </div>
@@ -44,16 +50,9 @@
         <input type="checkbox" id="autoScaleYCheckbox">
       </div>
 
-      <div>
+      <div class="hidden">
         <label for="manualYRangeInput">Manual Y scale</label>
         <input type="number" id="manualYRangeInput" value="100" step=".01" min="0">
-      </div>
-
-      </br>
-
-      <div>
-        <label for="showOnlyRtkFixCheckbox">Show only RTK Fix</label>
-        <input type="checkbox" id="showOnlyRtkFixCheckbox">
       </div>
 
       <div class="hidden">
