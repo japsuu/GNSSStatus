@@ -1,9 +1,17 @@
 
 const apiKey = "WQNA71V5DYQRO3BV";
-const dataFetchUrl = (startDate) => `https://api.thingspeak.com/channels/2691494/feeds.json?api_key=${apiKey}&start=${startDate}`;
+const dataFetchUrl = (startDate, endDate) => `https://api.thingspeak.com/channels/2691494/feeds.json?api_key=${apiKey}&start=${startDate}&end=${endDate}`;
 
 async function fetchData(startDate) {
-  const response = await fetch(dataFetchUrl(startDate));
+  // End date is 24 hours after the start date
+  const day = 60 * 60 * 24 * 1000;
+  let endDate = new Date(startDate.getTime() + day);
+  endDate = endDate.toISOString().slice(0, 19) + 'Z';
+  startDate = startDate.toISOString().slice(0, 19) + 'Z';
+
+  const url = dataFetchUrl(startDate, endDate);
+
+  const response = await fetch(url);
   const json = await response.json();
 
   return {
