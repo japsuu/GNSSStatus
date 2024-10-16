@@ -278,6 +278,14 @@ h2 {
   width: 100%;
 }
 
+.chart-container p {
+  text-align: center;
+}
+
+.chart-container h2 {
+  margin-top: 20px;
+}
+
 .gnss-data-text-group {
   margin: 10px 0;
 }

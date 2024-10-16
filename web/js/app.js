@@ -164,6 +164,10 @@ function refreshInterface() {
 function updateTextData(data) {
   const latestFeed = data.feeds[data.feeds.length - 1];
 
+  // Deltas pruned to 3 decimal places
+  document.getElementById('DeltaZ').textContent = `${latestFeed.gnss.DeltaZ.toFixed(3)} m`;
+  document.getElementById('DeltaXY').textContent = `${latestFeed.gnss.DeltaXY.toFixed(3)} m`;
+
   document.getElementById('TimeUtc').textContent = latestFeed.datetime.toTimeString();
   document.getElementById('FixType').textContent = getFixTypeName(latestFeed.gnss.FixType);
   document.getElementById('SatellitesInUse').textContent = latestFeed.gnss.SatellitesInUse;
