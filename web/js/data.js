@@ -37,7 +37,7 @@ function dataToCsv(data) {
 
   // Define the header row
   const header = [
-    'DateUTC', 'DateLocal', 'FixType', 'SatellitesInUse', 'RoverX', 'RoverY', 'RoverZ', 'DeltaZ', 'DeltaXY', 'PDop', 'HDop', 'VDop', 'ErrorLatitude', 'ErrorLongitude', 'ErrorAltitude', 'BaseRoverDistance'
+    'DateUTC', 'DateLocal', 'FixType', 'SatellitesInUse', 'RoverX', 'RoverY', 'RoverZ', 'DeltaZ', 'DeltaXY', 'IonoPercentage', 'PDop', 'HDop', 'VDop', 'ErrorLatitude', 'ErrorLongitude', 'ErrorAltitude', 'BaseRoverDistance'
   ];
 
   // Map the data to CSV format
@@ -61,7 +61,9 @@ function dataToCsv(data) {
     const errorAltitude = feed.gnss.ErrorAltitude;
     const baseRoverDistance = feed.gnss.BaseRoverDistance;
 
-    return [dateUtc, dateLocal, fixType, satellitesInUse, roverX, roverY, roverZ, deltaZ, deltaXY, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
+    const iono = feed.gnss.Ionosphere;
+
+    return [dateUtc, dateLocal, fixType, satellitesInUse, roverX, roverY, roverZ, deltaZ, deltaXY, iono, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
   });
 
   // Prepend the header row to the CSV data
