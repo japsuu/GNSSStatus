@@ -36,7 +36,12 @@ const deltaZChart = createChart(deltaZChartCtx, 'line', {
     pointRadius: 0,
     pointHitRadius: 10,
     fill: false,
-    pointHoverRadius: 8
+    pointHoverRadius: 8,
+    segment: {
+      borderColor: ctx => skipped(ctx, 'rgb(0,0,0,0.2)') || down(ctx, 'rgb(192,75,75)'),
+      borderDash: ctx => skipped(ctx, [6, 6]),
+    },
+    spanGaps: true
   }]
 }, {
   responsive: true,
