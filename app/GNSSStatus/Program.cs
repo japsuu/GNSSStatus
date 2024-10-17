@@ -14,7 +14,7 @@ namespace GNSSStatus;
 
 internal static class Program
 {
-    public const string VERSION = "0.1.0";
+    public const string VERSION = "0.1.1";
     
     public static bool RequestExit { get; set; }
     
