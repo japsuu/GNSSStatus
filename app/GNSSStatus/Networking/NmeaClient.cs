@@ -12,6 +12,7 @@ public sealed class NmeaClient : IDisposable
     private readonly int _port;
     private TcpClient? _tcpClient;
     private StreamReader? _reader;
+    private int _nullDataCounter = 0;
     
     public bool IsConnected { get; private set; }
 
@@ -75,11 +76,23 @@ public sealed class NmeaClient : IDisposable
             }
             
             if (data == null)
+            {
+                _nullDataCounter++;
+                
+                if (_nullDataCounter > 5)
+                {
+                    Logger.LogWarning("No data received from server. Disconnecting...");
+                    Dispose();
+                    break;
+                }
+                
                 continue;
+            }
             
             if (!data.StartsWith('$'))
                 continue;
-                
+            
+            _nullDataCounter = 0;
             yield return new Nmea0183Sentence(data);
         }
     }
@@ -93,8 +106,8 @@ public sealed class NmeaClient : IDisposable
         if (!IsConnected)
             return;
         
-        _tcpClient!.Dispose();
-        _reader!.Dispose();
+        _tcpClient?.Dispose();
+        _reader?.Dispose();
         _tcpClient = null;
         _reader = null;
         
