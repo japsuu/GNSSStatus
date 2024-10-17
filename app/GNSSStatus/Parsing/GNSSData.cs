@@ -1,12 +1,18 @@
 ﻿using System.Reflection;
 using System.Text;
+using GNSSStatus.Configuration;
+using GNSSStatus.Utils;
 
 namespace GNSSStatus.Parsing;
 
 public class GNSSData
 {
+    public readonly List<double> DeltaXCache = new();
+    public readonly List<double> DeltaYCache = new();
     public readonly List<double> DeltaZCache = new();
-    public readonly List<double> DeltaXYCache = new();
+    public readonly List<double> RoverXCache = new();
+    public readonly List<double> RoverYCache = new();
+    public readonly List<double> RoverZCache = new();
     public double IonoPercentage { get; set; }
     
     public GGAData GGA { get; set; }
@@ -20,10 +26,19 @@ public class GNSSData
     {
         JsonPayloadBuilder builder = new();
         
+        double deltaXAverage = DeltaXCache.Count > 0 ? DeltaXCache.Average() : 0;
+        double deltaYAverage = DeltaYCache.Count > 0 ? DeltaYCache.Average() : 0;
         double deltaZAverage = DeltaZCache.Count > 0 ? DeltaZCache.Average() : 0;
-        double deltaXYAverage = DeltaXYCache.Count > 0 ? DeltaXYCache.Average() : 0;
+        double deltaXYAverage = Math.Sqrt(deltaXAverage * deltaXAverage + deltaYAverage * deltaYAverage);
+        double roverXAverage = RoverXCache.Count > 0 ? RoverXCache.Average() : 0;
+        double roverYAverage = RoverYCache.Count > 0 ? RoverYCache.Average() : 0;
+        double roverZAverage = RoverZCache.Count > 0 ? RoverZCache.Average() : 0;
+        DeltaXCache.Clear();
+        DeltaYCache.Clear();
         DeltaZCache.Clear();
-        DeltaXYCache.Clear();
+        RoverXCache.Clear();
+        RoverYCache.Clear();
+        RoverZCache.Clear();
         
         // Manually serialize relevant properties.
         builder.AddPayload(new
@@ -31,9 +46,9 @@ public class GNSSData
             TimeUtc = GGA.UtcTime,
             FixType = GGA.Quality,
             SatellitesInUse = GGA.TotalSatellitesInUse,
-            RoverX = GGA.RoverX,
-            RoverY = GGA.RoverY,
-            RoverZ = GGA.RoverZ,
+            RoverX = roverXAverage,
+            RoverY = roverYAverage,
+            RoverZ = roverZAverage,
         });
         
         builder.AddPayload(new

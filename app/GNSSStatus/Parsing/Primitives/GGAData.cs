@@ -12,8 +12,9 @@ public readonly struct GGAData
     public readonly GKCoordinate GKCoordinate;
     public readonly double RoverX;
     public readonly double RoverY;
+    public readonly double DeltaX;
+    public readonly double DeltaY;
     public readonly double RoverZ;
-    public readonly double DeltaXY;
     public readonly double DeltaZ;
     public readonly string UtcTime;
     public readonly string Latitude;
@@ -104,7 +105,9 @@ public readonly struct GGAData
         RoverX = GKCoordinate.N;
         RoverY = GKCoordinate.E;
         RoverZ = GKCoordinate.Z;
-        DeltaXY = MathUtils.Distance(RoverX, RoverY, ConfigManager.CurrentConfiguration.RoverLocationX, ConfigManager.CurrentConfiguration.RoverLocationY);
+        //DeltaXY = MathUtils.Distance(RoverX, RoverY, ConfigManager.CurrentConfiguration.RoverLocationX, ConfigManager.CurrentConfiguration.RoverLocationY);
+        DeltaX = RoverX - ConfigManager.CurrentConfiguration.RoverLocationX;
+        DeltaY = RoverY - ConfigManager.CurrentConfiguration.RoverLocationY;
         DeltaZ = RoverZ - ConfigManager.CurrentConfiguration.RoverLocationZ;
     }
 }
