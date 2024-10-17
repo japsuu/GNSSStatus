@@ -14,6 +14,8 @@ namespace GNSSStatus;
 
 internal static class Program
 {
+    public const string VERSION = "0.1.0";
+    
     public static bool RequestExit { get; set; }
     
     
@@ -21,6 +23,10 @@ internal static class Program
     {
         InitializeThreadCultureInfo();
         ConfigManager.LoadConfiguration();
+        
+        if (TryProcessArgs(args))
+            return;
+        
         CoordinateConverter.Initialize();
         
         // Run the main loop indefinitely.
@@ -168,6 +174,33 @@ internal static class Program
         CultureInfo culture = new("en-US");
         CultureInfo.DefaultThreadCurrentCulture = culture;
         CultureInfo.DefaultThreadCurrentUICulture = culture;
+    }
+
+    
+    /// <returns>True if the program should exit, false otherwise.</returns>
+    private static bool TryProcessArgs(string[] args)
+    {
+        if (args.Length == 0)
+            return false;
+        
+        bool exit = false;
+
+        if (args.Contains("--version"))
+        {
+            Console.WriteLine($"GNSSStatus v{VERSION}");
+            exit = true;
+        }
+
+        if (args.Contains("--help"))
+        {
+            Console.WriteLine("Usage: GNSSStatus [options]");
+            Console.WriteLine("Options:");
+            Console.WriteLine("  --version    Display the version of the program.");
+            Console.WriteLine("  --help       Display this help message.");
+            exit = true;
+        }
+        
+        return exit;
     }
 
 #endregion
