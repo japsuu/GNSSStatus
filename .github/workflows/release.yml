@@ -48,6 +48,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: GNSSStatus
+      
+      # Execute "ls" command to list the files in the artifact
+      - name: List files in artifact
+        run: ls
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -55,6 +59,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: false
           prerelease: false
+          fail_on_unmatched_files: true
           files: |
-            app/Build/Release/net7.0/linux-arm64/publish/GNSSStatus
-            app/Build/Release/net7.0/linux-arm64/publish/assets/FIN2005N00.lst
+            /home/runner/work/GNSSStatus/GNSSStatus/app/Build/Release/net7.0/linux-arm64/publish/*
