@@ -35,8 +35,7 @@ public sealed class IonoClient : IDisposable
         const int bottom = 584;
         Rgba32 targetColor = new(255, 0, 0);
         
-        //byte[] imageData = await _httpClient.GetByteArrayAsync(ConfigManager.FINPOS_IONO_IMAGE_URL);
-        byte[] imageData = await File.ReadAllBytesAsync("iono.png");
+        byte[] imageData = await _httpClient.GetByteArrayAsync(ConfigManager.FINPOS_IONO_IMAGE_URL);
 
         using MemoryStream ms = new(imageData);
         using Image<Rgba32> image = await Image.LoadAsync<Rgba32>(ms);
