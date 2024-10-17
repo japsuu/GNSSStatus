@@ -61,4 +61,4 @@ jobs:
           prerelease: false
           fail_on_unmatched_files: true
           files: |
-            /home/runner/work/GNSSStatus/GNSSStatus/app/Build/Release/net7.0/linux-arm64/publish/*
+            ./*
