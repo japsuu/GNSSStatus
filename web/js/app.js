@@ -182,22 +182,23 @@ async function refetchData() {
 
 async function refreshData() {
   let dataStart = dayStartLocal;
+  const now = new Date();
 
   switch (displayMode) {
     case 'startOfDay':
       dataStart = dayStartLocal;
       break;
     case 'last24Hours':
-      dataStart = new Date(siteRefreshDate.getTime() - 24 * 60 * 60 * 1000);
+      dataStart = new Date(now.getTime() - 24 * 60 * 60 * 1000);
       break;
     case 'last6Hours':
-      dataStart = new Date(siteRefreshDate.getTime() - 6 * 60 * 60 * 1000);
+      dataStart = new Date(now.getTime() - 6 * 60 * 60 * 1000);
       break;
     case 'last1Hours':
-      dataStart = new Date(siteRefreshDate.getTime() - 1 * 60 * 60 * 1000);
+      dataStart = new Date(now.getTime() - 1 * 60 * 60 * 1000);
       break;
     case 'last10Minutes':
-      dataStart = new Date(siteRefreshDate.getTime() - 10 * 60 * 1000);
+      dataStart = new Date(now.getTime() - 10 * 60 * 1000);
       break;
     default:
       console.error('Invalid display mode:', displayMode);
