@@ -179,10 +179,17 @@ function updateFixTypeChart(data, fixTypeChart) {
     }
   }
 
+  const fixTypePercentages = { 0: 0, 1: 0, 2: 0 };
+  const totalDuration = fixTypeDurations[0] + fixTypeDurations[1] + fixTypeDurations[2];
+
+  for (let i = 0; i < 3; i++) {
+    fixTypePercentages[i] = (fixTypeDurations[i] / totalDuration) * 100;
+  }
+
   fixTypeChart.data.datasets[0].data = [
-    fixTypeDurations[0],
-    fixTypeDurations[1],
-    fixTypeDurations[2]
+    fixTypePercentages[0],
+    fixTypePercentages[1],
+    fixTypePercentages[2]
   ];
   fixTypeChart.update();
 }

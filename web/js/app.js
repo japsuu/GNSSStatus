@@ -148,7 +148,15 @@ const fixTypeChart = createChart(fixTypeChartCtx, 'pie', {
     },
     title: {
       display: true,
-      text: 'GNSS Fix Types Duration (seconds)'
+      text: 'GNSS Fix Types Duration (%)'
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          const value = context.formattedValue;
+          return `${value} %`;
+        }
+      }
     }
   }
 });
