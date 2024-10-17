@@ -69,6 +69,9 @@ const deltaZChart = createChart(deltaZChartCtx, 'line', {
   },
   plugins: {
     referenceLine: true,
+    legend: {
+      display: false
+    },
     tooltip: {
       callbacks: {
         label: function (context) {
@@ -114,6 +117,9 @@ const deltaXYChart = createChart(deltaXYChartCtx, 'line', {
   },
   plugins: {
     referenceLine: true,
+    legend: {
+      display: false
+    },
     tooltip: {
       callbacks: {
         label: function (context) {
