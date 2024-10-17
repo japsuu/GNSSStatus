@@ -35,7 +35,8 @@ public sealed class IonoClient : IDisposable
         const int bottom = 584;
         Rgba32 targetColor = new(255, 0, 0);
         
-        byte[] imageData = await _httpClient.GetByteArrayAsync(ConfigManager.FINPOS_IONO_IMAGE_URL);
+        //byte[] imageData = await _httpClient.GetByteArrayAsync(ConfigManager.FINPOS_IONO_IMAGE_URL);
+        byte[] imageData = await File.ReadAllBytesAsync("iono.png");
 
         using MemoryStream ms = new(imageData);
         using Image<Rgba32> image = await Image.LoadAsync<Rgba32>(ms);
@@ -69,7 +70,9 @@ public sealed class IonoClient : IDisposable
             
             // Get the middle Y coordinate of the found pixels.
             double middleY;
-            if (lowestY == int.MaxValue)
+            if (lowestY == 0)
+                middleY = lowestY;
+            else if (lowestY == int.MaxValue)
                 middleY = highestY;
             else if (highestY == int.MinValue)
                 middleY = lowestY;

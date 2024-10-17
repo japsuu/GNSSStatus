@@ -61,7 +61,6 @@ internal static class Program
         // Connect to the MQTT broker.
         await ConnectMqttBroker(mqttClient);
         
-        SentenceParser.ParsedData.IonoPercentage = await ionoClient.GetIonoPercentage();
         // Avoid sending the first message immediately.
         double lastSendTime = TimeUtils.GetTimeMillis() + 5000;
         
