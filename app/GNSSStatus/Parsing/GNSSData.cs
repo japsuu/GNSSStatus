@@ -13,6 +13,7 @@ public class GNSSData
     public readonly List<double> RoverXCache = new();
     public readonly List<double> RoverYCache = new();
     public readonly List<double> RoverZCache = new();
+    public readonly List<GGAData.FixType> FixTypesCache = new();
     public double IonoPercentage { get; set; }
     
     public GGAData GGA { get; set; }
@@ -26,6 +27,7 @@ public class GNSSData
     {
         JsonPayloadBuilder builder = new();
         
+        // Calculate averages and clear caches.
         double deltaXAverage = DeltaXCache.Count > 0 ? DeltaXCache.Average() : 0;
         double deltaYAverage = DeltaYCache.Count > 0 ? DeltaYCache.Average() : 0;
         double deltaZAverage = DeltaZCache.Count > 0 ? DeltaZCache.Average() : 0;
@@ -39,12 +41,27 @@ public class GNSSData
         RoverXCache.Clear();
         RoverYCache.Clear();
         RoverZCache.Clear();
+
+        // Determine the worst fix type.
+        GGAData.FixType worstFixType;
+        if (FixTypesCache.Count > 0)
+        {
+            if (FixTypesCache.Contains(GGAData.FixType.NoFix))
+                worstFixType = GGAData.FixType.NoFix;
+            else if (FixTypesCache.Contains(GGAData.FixType.RTKFloat))
+                worstFixType = GGAData.FixType.RTKFloat;
+            else
+                worstFixType = GGAData.FixType.RTKFixed;
+        }
+        else
+            worstFixType = GGAData.FixType.NoFix;
+        FixTypesCache.Clear();
         
         // Manually serialize relevant properties.
         builder.AddPayload(new
         {
             TimeUtc = GGA.UtcTime,
-            FixType = GGA.Quality,
+            FixType = worstFixType,
             SatellitesInUse = GGA.TotalSatellitesInUse,
             RoverX = roverXAverage,
             RoverY = roverYAverage,

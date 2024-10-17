@@ -30,6 +30,7 @@ public static class SentenceParser
                 ParsedData.RoverXCache.Add(ParsedData.GGA.RoverX);
                 ParsedData.RoverYCache.Add(ParsedData.GGA.RoverY);
                 ParsedData.RoverZCache.Add(ParsedData.GGA.RoverZ);
+                ParsedData.FixTypesCache.Add(ParsedData.GGA.Quality);
                 break;
             }
             case Nmea0183SentenceType.GSA:
