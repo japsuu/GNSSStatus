@@ -148,7 +148,15 @@ const fixTypeChart = createChart(fixTypeChartCtx, 'pie', {
     },
     title: {
       display: true,
-      text: 'GNSS Fix Types Duration (seconds)'
+      text: 'GNSS Fix Types Duration (%)'
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          const value = context.formattedValue;
+          return `${value} %`;
+        }
+      }
     }
   }
 });
@@ -235,9 +243,9 @@ function updateTextData(data) {
 
   // Deltas pruned to 3 decimal places
   document.getElementById('DeltaZ').textContent = `${deltaZ} m`;
-  document.getElementById('DeltaZTitle').textContent = `${deltaZ} m`;
+  document.getElementById('DeltaZTitle').textContent = `${deltaZ * 1000} mm`;
   document.getElementById('DeltaXY').textContent = `${deltaXY} m`;
-  document.getElementById('DeltaXYTitle').textContent = `${deltaXY} m`;
+  document.getElementById('DeltaXYTitle').textContent = `${deltaXY * 1000} mm`;
   document.getElementById('Ionosphere').textContent = `${iono} %`;
 
   document.getElementById('TimeUtc').textContent = latestFeed.datetime.toTimeString();
