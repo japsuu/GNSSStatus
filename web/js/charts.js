@@ -45,7 +45,6 @@ const referenceLinePlugin = {
 
 // Register the plugin with ChartJS
 Chart.register(referenceLinePlugin);
-//Chart.register(fixTypeLineColorPlugin);
 
 // Function to create a chart
 function createChart(ctx, type, data, options) {
@@ -91,7 +90,7 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
       pointCount++;
 
       // Skip points that are not RTKFix if showOnlyRtkFix is true
-      const isUnwantedFix = showOnlyRtkFix && pFixType !== 4;
+      const isUnwantedFix = showOnlyRtkFix && pFixType !== 1;
       const isOverThreshold = Math.abs(pData) > showThreshold;
       const isNullPoint = isUnwantedFix || isOverThreshold;
 
@@ -168,11 +167,11 @@ function updateFixTypeChart(data, fixTypeChart) {
     const duration = (currentFeed.datetime - previousFeed.datetime) / 1000;
     const fixType = parseInt(previousFeed.gnss.FixType);
 
-    if (fixType === 4) {
-      fixTypeDurations[2] += duration;
-    }
-    else if (fixType === 5) {
+    if (fixType === 1) {
       fixTypeDurations[1] += duration;
+    }
+    else if (fixType === 2) {
+      fixTypeDurations[2] += duration;
     }
     else {
       fixTypeDurations[0] += duration;

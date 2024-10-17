@@ -2,10 +2,10 @@
 function getPointColor(fixType) {
   fixType = parseInt(fixType);
 
-  if (fixType === 4) {
+  if (fixType === 1) {
     return 'green';
   }
-  if (fixType === 5) {
+  if (fixType === 2) {
     return 'yellow';
   }
 
@@ -19,17 +19,9 @@ function getFixTypeName(fixType) {
     case 0:
       return 'No Fix';
     case 1:
-      return 'GPS Fix';
-    case 2:
-      return 'Differential GPS Fix';
-    case 3:
-      return 'Not Applicable';
-    case 4:
       return 'RTK Fix';
-    case 5:
+    case 2:
       return 'RTK Float';
-    case 6:
-      return 'INS Dead Reckoning';
     default:
       return 'Unknown';
   }

@@ -26,12 +26,12 @@ const tryGetLineFixColor = function (segmentCtx) {
   const p1FixType = segmentCtx.chart.data.datasets[0].fixType[p1Index];
 
   // Both RTK Fix
-  if (p0FixType === 4 && p1FixType === 4) {
+  if (p0FixType === 1 && p1FixType === 1) {
     return 'green';
   }
 
   // Both RTK Float
-  if (p0FixType === 5 && p1FixType === 5) {
+  if (p0FixType === 2 && p1FixType === 2) {
     return 'yellow';
   }
 
@@ -138,10 +138,10 @@ const deltaXYChart = createChart(deltaXYChartCtx, 'line', {
 
 const fixTypeChartCtx = document.getElementById('fixTypeChart').getContext('2d');
 const fixTypeChart = createChart(fixTypeChartCtx, 'pie', {
-  labels: [getFixTypeName(0), getFixTypeName(5), getFixTypeName(4)],
+  labels: [getFixTypeName(0), getFixTypeName(1), getFixTypeName(2)],
   datasets: [{
     data: [],
-    backgroundColor: ['red', 'yellow', 'green'],
+    backgroundColor: ['red', 'green', 'yellow'],
     // Remove the border around the pie chart segments
     borderColor: 'white',
     borderWidth: 0
