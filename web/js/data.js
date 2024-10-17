@@ -1,3 +1,4 @@
+import { getFixTypeName } from './utils.js';
 
 const apiKey = "WQNA71V5DYQRO3BV";
 const dataFetchUrl = (startDate, endDate) => `https://api.thingspeak.com/channels/2691494/feeds.json?api_key=${apiKey}&start=${startDate}&end=${endDate}`;
@@ -54,7 +55,7 @@ function dataToCsv(data) {
     let localDate = new Date(feed.datetime);
     localDate.setHours(localDate.getHours() - (localDate.getTimezoneOffset() / 60));
     const dateLocal = localDate.toISOString();
-    const fixType = feed.gnss.FixType;
+    const fixType = getFixTypeName(feed.gnss.FixType);
     const satellitesInUse = feed.gnss.SatellitesInUse;
     const roverX = feed.gnss.RoverX;
     const roverY = feed.gnss.RoverY;
