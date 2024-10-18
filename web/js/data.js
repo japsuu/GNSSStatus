@@ -71,7 +71,15 @@ function dataToCsv(data) {
     'RoverId', 'DateUTC', 'DateLocal', 'FixType', 'SatellitesInUse', 'RoverX', 'RoverY', 'RoverZ', 'DeltaZ', 'DeltaXY', 'IonoPercentage', 'PDop', 'HDop', 'VDop', 'ErrorLatitude', 'ErrorLongitude', 'ErrorAltitude', 'BaseRoverDistance'
   ];
 
-  const feeds = data.feeds;
+  const feedsMap = data.feeds;
+  const feeds = [];
+
+  // Flatten the feeds object into an array
+  Object.keys(feedsMap).forEach(roverId => {
+    feedsMap[roverId].forEach(feed => {
+      feeds.push(feed);
+    });
+  });
 
   // Map the data to CSV format
   const csvData = feeds.map(feed => {
