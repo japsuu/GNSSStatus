@@ -70,7 +70,7 @@ internal static class Program
             SentenceParser.Parse(sentence);
             
             double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
-            if (timeSinceLastSend < ConfigManager.MQTT_SEND_INTERVAL_MILLIS)
+            if (timeSinceLastSend < ConfigManager.CurrentConfiguration.DataSendIntervalSeconds * 1000)
                 continue;
             
             SentenceParser.ParsedData.IonoPercentage = await ionoClient.GetIonoPercentage();

@@ -22,6 +22,10 @@ public class ConfigurationData
     public required string MqttUsername { get; set; }
     public required string MqttPassword { get; set; }
     public required bool UseTls { get; set; }
+    
+    // Other
+    public required int DataSendIntervalSeconds { get; set; }
+    public required int IonoParseIntervalSeconds { get; set; }
 
 
     public static ConfigurationData GetDefault()
@@ -40,7 +44,9 @@ public class ConfigurationData
             MqttClientId = "clientID",
             MqttUsername = "username",
             MqttPassword = "password",
-            UseTls = false
+            UseTls = false,
+            DataSendIntervalSeconds = 30,
+            IonoParseIntervalSeconds = 60,
         };
         
         return defaultConfig;
