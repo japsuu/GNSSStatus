@@ -343,7 +343,7 @@ h2 {
 }
 
 
-/*#warning-popup {
+#warning-popup {
   background-color: red;
   color: white;
   padding: 5px 20px;
@@ -352,7 +352,7 @@ h2 {
   z-index: 1000;
   display: flex;
   justify-content: center;
-}*/
+}
 
 
 /* Responsive styles */

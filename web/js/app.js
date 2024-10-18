@@ -6,7 +6,7 @@ import { getFixTypeName, downloadCSV } from './utils.js';
 // ------------------------------------------------------------
 const refreshInterval = 15; // seconds
 const defaultChartYRange = 0.03;
-//const oldDataWarningThreshold = 120; // seconds
+const oldDataWarningThreshold = 5 * 60; // seconds
 
 // Constants
 // ------------------------------------------------------------
@@ -188,8 +188,9 @@ let showThreshold = 100;
 let displayMode = 'startOfDay';
 let latestEntryId = 0;
 let latestData;
+let latestDataReceiveTime;
 
-async function refetchData() {
+async function forceRefreshData() {
   latestEntryId = 0;
   await refreshData();
 }
@@ -227,6 +228,7 @@ async function refreshData() {
   }
 
   latestData = data;
+  latestDataReceiveTime = new Date();
   latestEntryId = data.lastEntryId;
   console.log('New data received:', latestData);
   refreshInterface();
@@ -283,6 +285,19 @@ function updateGraphRanges(){
   deltaXYChart.update();
 }
 
+function updateOldDataWarning() {
+  if (!latestDataReceiveTime)
+    return;
+  const now = new Date();
+  const secondsAgo = Math.floor((now - latestDataReceiveTime) / 1000);
+  const warningPopup = document.getElementById('warning-popup');
+  if (secondsAgo > oldDataWarningThreshold) {
+    warningPopup.classList.remove('hidden');
+  } else {
+    warningPopup.classList.add('hidden');
+  }
+}
+
 autoScaleXCheckbox.checked = autoScaleX;
 autoScaleYCheckbox.checked = autoScaleY;
 manualYRangeInput.value = manualYRange;
@@ -324,7 +339,7 @@ displayModeDropdown.addEventListener('change', async () => {
   displayMode = displayModeDropdown.value;
   autoScaleX = displayMode !== 'startOfDay';
 
-  await refetchData();
+  await forceRefreshData();
 });
 
 downloadButton.addEventListener('click', async () => {
@@ -357,3 +372,4 @@ downloadButton.addEventListener('click', async () => {
 
 refreshData();
 setInterval(refreshData, refreshInterval * 1000);
+setInterval(updateOldDataWarning, 5000);
