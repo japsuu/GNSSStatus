@@ -26,11 +26,11 @@ async function fetchData(startDate) {
     const gnssData = Object.assign({}, JSON.parse(f1), JSON.parse(f2), JSON.parse(f3), JSON.parse(f4));
 
     // Read the RoverId from the gnssData
-    const roverId = gnssData.RoverId;
+    let roverId = gnssData.RoverId;
 
     if (roverId === undefined) {
-      console.error('Encountered a data feed without a RoverId');
-      return;
+      console.error('Encountered a data feed without a RoverId, setting to Unknown');
+      roverId = 'Unknown';
     }
 
     // Add the roverId to availableRovers
