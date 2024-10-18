@@ -193,7 +193,7 @@ let latestData;
 let latestDataReceiveTime;
 // The IDs of the rovers that are currently available
 let availableRovers = [];
-let selectedRover = null;
+let selectedRover = "Unknown";
 
 async function forceRefreshData() {
   latestEntryId = 0;
@@ -248,7 +248,7 @@ async function refreshData() {
   // Check that the currently selected rover is still available.
   // If not, select the first available rover.
   if (selectedRover && !availableRovers.includes(selectedRover)) {
-    selectedRover = availableRovers.length > 0 ? availableRovers[0] : null;
+    selectedRover = availableRovers.length > 0 ? availableRovers[0] : "Unknown";
   }
 
   latestData = data;
