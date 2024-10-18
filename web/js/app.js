@@ -6,7 +6,7 @@ import { getFixTypeName, downloadCSV } from './utils.js';
 // ------------------------------------------------------------
 const refreshInterval = 15; // seconds
 const defaultChartYRange = 0.03;
-//const oldDataWarningThreshold = 120; // seconds
+const oldDataWarningThreshold = 5 * 60; // seconds
 
 // Constants
 // ------------------------------------------------------------
@@ -173,6 +173,8 @@ const manualYRangeInput = document.getElementById('manualYRangeInput');
 const showOnlyRtkFixCheckbox = document.getElementById('showOnlyRtkFixCheckbox');
 const showThresholdInput = document.getElementById('showThresholdInput');
 const displayModeDropdown = document.getElementById('displayModeDropdown');
+const selectedRoverContainer = document.getElementById('selectedRoverContainer');
+const selectedRoverDropdown = document.getElementById('selectedRoverDropdown');
 const downloadButton = document.getElementById('downloadButton');
 const datePicker = document.getElementById('datePicker');
 const notification = document.getElementById('notification');
@@ -188,8 +190,12 @@ let showThreshold = 100;
 let displayMode = 'startOfDay';
 let latestEntryId = 0;
 let latestData;
+let latestDataReceiveTime;
+// The IDs of the rovers that are currently available
+let availableRovers = [];
+let selectedRover = null;
 
-async function refetchData() {
+async function forceRefreshData() {
   latestEntryId = 0;
   await refreshData();
 }
@@ -219,28 +225,49 @@ async function refreshData() {
       return;
   }
 
+  selectedRoverContainer.classList.add('hidden');
+  selectedRoverDropdown.innerHTML = '<option>No rovers available</option>';
+
   const data = await fetchData(dataStart);
+
+  if (data.availableRovers.length === 0) {
+    console.log('No rovers available');
+    return;
+  }
 
   if (latestEntryId >= data.lastEntryId) {
     console.log('No new data received');
     return;
   }
 
+  selectedRoverContainer.classList.remove('hidden');
+
+  // Update the available rovers
+  availableRovers = data.availableRovers;
+
+  // Check that the currently selected rover is still available.
+  // If not, select the first available rover.
+  if (selectedRover && !availableRovers.includes(selectedRover)) {
+    selectedRover = availableRovers.length > 0 ? availableRovers[0] : null;
+  }
+
   latestData = data;
+  latestDataReceiveTime = new Date();
   latestEntryId = data.lastEntryId;
   console.log('New data received:', latestData);
   refreshInterface();
 }
 
 function refreshInterface() {
-  updateGraph(latestData, 'DeltaZ', deltaZChart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold);
-  updateGraph(latestData, 'DeltaXY', deltaXYChart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold);
-  updateTextData(latestData);
-  updateFixTypeChart(latestData, fixTypeChart);
+  updateGraph(latestData.feeds[selectedRover], 'DeltaZ', deltaZChart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold);
+  updateGraph(latestData.feeds[selectedRover], 'DeltaXY', deltaXYChart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold);
+  updateTextData(latestData.feeds[selectedRover]);
+  updateFixTypeChart(latestData.feeds[selectedRover], fixTypeChart);
+  updateAvailableRoversDropdown();
 }
 
-function updateTextData(data) {
-  const latestFeed = data.feeds[data.feeds.length - 1];
+function updateTextData(feeds) {
+  const latestFeed = feeds[feeds.length - 1];
 
   const deltaZ = latestFeed.gnss.DeltaZ.toFixed(3);
   const deltaXY = latestFeed.gnss.DeltaXY.toFixed(3);
@@ -283,6 +310,24 @@ function updateGraphRanges(){
   deltaXYChart.update();
 }
 
+function updateOldDataWarning() {
+  if (!latestDataReceiveTime)
+    return;
+  const now = new Date();
+  const secondsAgo = Math.floor((now - latestDataReceiveTime) / 1000);
+  const warningPopup = document.getElementById('warning-popup');
+  if (secondsAgo > oldDataWarningThreshold) {
+    warningPopup.classList.remove('hidden');
+  } else {
+    warningPopup.classList.add('hidden');
+  }
+}
+
+function updateAvailableRoversDropdown() {
+  selectedRoverDropdown.innerHTML = availableRovers.map(roverId => `<option value="${roverId}">${roverId}</option>`).join('');
+  selectedRoverDropdown.value = selectedRover;
+}
+
 autoScaleXCheckbox.checked = autoScaleX;
 autoScaleYCheckbox.checked = autoScaleY;
 manualYRangeInput.value = manualYRange;
@@ -297,8 +342,7 @@ autoScaleXCheckbox.addEventListener('change', () => {
 });
 
 autoScaleYCheckbox.addEventListener('change', () => {
-  const autoScale = autoScaleYCheckbox.checked;
-  autoScaleY = autoScale;
+  autoScaleY = autoScaleYCheckbox.checked;
 
   updateGraphRanges()
 });
@@ -324,7 +368,12 @@ displayModeDropdown.addEventListener('change', async () => {
   displayMode = displayModeDropdown.value;
   autoScaleX = displayMode !== 'startOfDay';
 
-  await refetchData();
+  await forceRefreshData();
+});
+
+selectedRoverDropdown.addEventListener('change', () => {
+  selectedRover = selectedRoverDropdown.value;
+  refreshInterface();
 });
 
 downloadButton.addEventListener('click', async () => {
@@ -357,3 +406,4 @@ downloadButton.addEventListener('click', async () => {
 
 refreshData();
 setInterval(refreshData, refreshInterval * 1000);
+setInterval(updateOldDataWarning, 5000);

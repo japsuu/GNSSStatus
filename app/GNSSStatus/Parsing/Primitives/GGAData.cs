@@ -23,19 +23,19 @@ public readonly struct GGAData
     public readonly double RoverZ;
     public readonly double DeltaZ;
     public readonly string UtcTime;
-    public readonly string Latitude;
-    public readonly string DirectionLatitude;
-    public readonly string Longitude;
-    public readonly string DirectionLongitude;
+    public readonly double Latitude;
+    public readonly char DirectionLatitude;
+    public readonly double Longitude;
+    public readonly char DirectionLongitude;
     public readonly FixType Quality;
-    public readonly string TotalSatellitesInUse;
-    public readonly string HDOP;
-    public readonly string Altitude;
-    public readonly string AltitudeUnit;
-    public readonly string GeoidSeparation;
-    public readonly string GeoidSeparationUnit;
-    public readonly string AgeOfDifferentialData;
-    public readonly string DifferentialReferenceStationID;
+    public readonly int TotalSatellitesInUse;
+    public readonly float HDop;
+    public readonly double Altitude;
+    public readonly char AltitudeUnit;
+    public readonly double GeoidSeparation;
+    public readonly char GeoidSeparationUnit;
+    public readonly float AgeOfDifferentialData;
+    public readonly int DifferentialReferenceStationID;
 
 
     public GGAData(Nmea0183Sentence sentence)
@@ -100,26 +100,25 @@ public readonly struct GGAData
         };
 
         UtcTime = utcTime;
-        Latitude = latitude;
-        DirectionLatitude = directionLatitude;
-        Longitude = longitude;
-        DirectionLongitude = directionLongitude;
+        Latitude = double.Parse(latitude);
+        DirectionLatitude = directionLatitude[0];
+        Longitude = double.Parse(longitude);
+        DirectionLongitude = directionLongitude[0];
         Quality = fixType;
-        TotalSatellitesInUse = satellites;
-        HDOP = hdop;
-        Altitude = altitude;
-        AltitudeUnit = altitudeUnit;
-        GeoidSeparation = geoidSeparation;
-        GeoidSeparationUnit = geoidSeparationUnit;
-        AgeOfDifferentialData = ageOfDifferentialData;
-        DifferentialReferenceStationID = differentialReferenceStationID;
+        TotalSatellitesInUse = int.Parse(satellites);
+        HDop = float.Parse(hdop);
+        Altitude = double.Parse(altitude);
+        AltitudeUnit = altitudeUnit[0];
+        GeoidSeparation = double.Parse(geoidSeparation);
+        GeoidSeparationUnit = geoidSeparationUnit[0];
+        AgeOfDifferentialData = float.Parse(ageOfDifferentialData);
+        DifferentialReferenceStationID = int.Parse(differentialReferenceStationID);
 
         GKCoordinate = CoordinateConverter.ConvertToGk(latitude, longitude, directionLatitude, directionLongitude, ConfigManager.CurrentConfiguration.GkSystemNumber, altitude);
 
         RoverX = GKCoordinate.N;
         RoverY = GKCoordinate.E;
         RoverZ = GKCoordinate.Z;
-        //DeltaXY = MathUtils.Distance(RoverX, RoverY, ConfigManager.CurrentConfiguration.RoverLocationX, ConfigManager.CurrentConfiguration.RoverLocationY);
         DeltaX = RoverX - ConfigManager.CurrentConfiguration.RoverLocationX;
         DeltaY = RoverY - ConfigManager.CurrentConfiguration.RoverLocationY;
         DeltaZ = RoverZ - ConfigManager.CurrentConfiguration.RoverLocationZ;

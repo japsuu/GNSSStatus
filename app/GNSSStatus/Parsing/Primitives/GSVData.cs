@@ -6,9 +6,9 @@ public readonly struct GSVData
 {
     public const int LENGTH = 4;
     
-    public readonly string TotalMessages;
-    public readonly string MessageNumber;
-    public readonly string TotalSatellitesVisible;
+    public readonly int TotalMessages;
+    public readonly int MessageNumber;
+    public readonly int TotalSatellitesVisible;
     // Other fields aren't needed.
 
 
@@ -23,8 +23,8 @@ public readonly struct GSVData
         // Total number of satellites visible
         string totalSatellitesVisible = sentence.Parts[3];
         
-        TotalMessages = totalMessages;
-        MessageNumber = messageNumber;
-        TotalSatellitesVisible = totalSatellitesVisible;
+        TotalMessages = int.Parse(totalMessages);
+        MessageNumber = int.Parse(messageNumber);
+        TotalSatellitesVisible = int.Parse(totalSatellitesVisible);
     }
 }

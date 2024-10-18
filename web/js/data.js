@@ -15,26 +15,49 @@ async function fetchData(startDate) {
   const response = await fetch(url);
   const json = await response.json();
 
+  let availableRovers = [];
+  let feedsByRoverId = {};
+
+  json.feeds.map(feed => {
+    const f1 = feed.field1;
+    const f2 = feed.field2;
+    const f3 = feed.field3;
+    const f4 = feed.field4;
+    const gnssData = Object.assign({}, JSON.parse(f1), JSON.parse(f2), JSON.parse(f3), JSON.parse(f4));
+
+    // Read the RoverId from the gnssData
+    const roverId = gnssData.RoverId;
+
+    if (roverId === undefined) {
+      console.error('Encountered a data feed without a RoverId');
+      return;
+    }
+
+    // Add the roverId to availableRovers
+    if (!availableRovers.includes(roverId)) {
+      availableRovers.push(roverId);
+    }
+    // Add a new feed to feedsByRoverId
+    if (!feedsByRoverId[roverId]) {
+      feedsByRoverId[roverId] = [];
+    }
+
+    const timeUtc = gnssData.TimeUtc;
+    const date = feed.created_at.split('T')[0];
+    const time = `${timeUtc.slice(0, 2)}:${timeUtc.slice(2, 4)}:${timeUtc.slice(4, 6)}`;
+
+    const datetime = new Date(`${date}T${time}Z`);
+
+    feedsByRoverId[roverId].push({
+      gnss: gnssData,
+      datetime: datetime
+    });
+  });
+
   return {
-    feeds: json.feeds.map(feed => {
-      const f1 = feed.field1;
-      const f2 = feed.field2;
-      const f3 = feed.field3;
-      const f4 = feed.field4;
-      const gnssData = Object.assign({}, JSON.parse(f1), JSON.parse(f2), JSON.parse(f3), JSON.parse(f4));
-
-      const timeUtc = gnssData.TimeUtc;
-      const date = feed.created_at.split('T')[0];
-      const time = `${timeUtc.slice(0, 2)}:${timeUtc.slice(2, 4)}:${timeUtc.slice(4, 6)}`;
-
-      const datetime = new Date(`${date}T${time}Z`);
-
-      return {
-        gnss: gnssData,
-        datetime: datetime
-      };
-    }),
-    lastEntryId: json.channel.last_entry_id
+    feeds: feedsByRoverId,
+    lastEntryId: json.channel.last_entry_id,
+    availableRovers: availableRovers
   };
 }
 
@@ -42,15 +65,17 @@ async function fetchData(startDate) {
   Constructs an array of data points from the data object.
  */
 function dataToCsv(data) {
-  const feeds = data.feeds;
 
   // Define the header row
   const header = [
-    'DateUTC', 'DateLocal', 'FixType', 'SatellitesInUse', 'RoverX', 'RoverY', 'RoverZ', 'DeltaZ', 'DeltaXY', 'IonoPercentage', 'PDop', 'HDop', 'VDop', 'ErrorLatitude', 'ErrorLongitude', 'ErrorAltitude', 'BaseRoverDistance'
+    'RoverId', 'DateUTC', 'DateLocal', 'FixType', 'SatellitesInUse', 'RoverX', 'RoverY', 'RoverZ', 'DeltaZ', 'DeltaXY', 'IonoPercentage', 'PDop', 'HDop', 'VDop', 'ErrorLatitude', 'ErrorLongitude', 'ErrorAltitude', 'BaseRoverDistance'
   ];
+
+  const feeds = data.feeds;
 
   // Map the data to CSV format
   const csvData = feeds.map(feed => {
+    const roverId = feed.gnss.RoverId;
     const dateUtc = feed.datetime.toISOString();
     let localDate = new Date(feed.datetime);
     localDate.setHours(localDate.getHours() - (localDate.getTimezoneOffset() / 60));
@@ -69,10 +94,9 @@ function dataToCsv(data) {
     const errorLongitude = feed.gnss.ErrorLongitude;
     const errorAltitude = feed.gnss.ErrorAltitude;
     const baseRoverDistance = feed.gnss.BaseRoverDistance;
-
     const iono = feed.gnss.IonoPercentage;
 
-    return [dateUtc, dateLocal, fixType, satellitesInUse, roverX, roverY, roverZ, deltaZ, deltaXY, iono, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
+    return [roverId, dateUtc, dateLocal, fixType, satellitesInUse, roverX, roverY, roverZ, deltaZ, deltaXY, iono, pDop, hDop, vDop, errorLatitude, errorLongitude, errorAltitude, baseRoverDistance];
   });
 
   // Prepend the header row to the CSV data

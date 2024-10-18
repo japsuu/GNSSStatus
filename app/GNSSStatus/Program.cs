@@ -22,7 +22,8 @@ internal static class Program
     private static async Task Main(string[] args)
     {
         InitializeThreadCultureInfo();
-        ConfigManager.LoadConfiguration();
+        if (!ConfigManager.TryLoadConfiguration())
+            return;
         
         if (TryProcessArgs(args))
             return;
@@ -67,10 +68,17 @@ internal static class Program
         // Read the latest received NMEA sentence from the server.
         foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentences())
         {
-            SentenceParser.Parse(sentence);
+            try
+            {
+                SentenceParser.Parse(sentence);
+            }
+            catch (Exception e)
+            {
+                Logger.LogException("Failed to parse NMEA sentence", e);
+            }
             
             double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
-            if (timeSinceLastSend < ConfigManager.MQTT_SEND_INTERVAL_MILLIS)
+            if (timeSinceLastSend < ConfigManager.CurrentConfiguration.DataSendIntervalSeconds * 1000)
                 continue;
             
             SentenceParser.ParsedData.IonoPercentage = await ionoClient.GetIonoPercentage();

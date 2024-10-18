@@ -29,9 +29,9 @@
   <div class="container">
     <h1>GNSS Status</h1>
 
-    <!--div id="warning-popup" class="hidden">
-      <p>Warning: The most recent data is over 60 seconds old!</p>
-    </div-->
+    <div id="warning-popup" class="hidden">
+      <p>Warning: The most recent data is over 5 minutes old!</p>
+    </div>
 
     <div id="gnss-graph-container">
 
@@ -69,6 +69,11 @@
           <option value="last1Hours">Last hour</option>
           <option value="last10Minutes">Last 10 minutes</option>
         </select>
+      </div>
+
+      <div id="selectedRoverContainer">
+        <label for="selectedRoverDropdown">Selected Rover</label>
+        <select id="selectedRoverDropdown"></select>
       </div>
 
       <div class="chart-container">

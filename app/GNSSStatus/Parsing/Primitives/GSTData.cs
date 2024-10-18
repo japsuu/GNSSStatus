@@ -7,13 +7,13 @@ public readonly struct GSTData
     public const int LENGTH = 8;
 
     public readonly string UtcTime;
-    public readonly string Rms;
-    public readonly string MajorSemiAxis;
-    public readonly string MinorSemiAxis;
-    public readonly string Orientation;
-    public readonly string LatitudeError;
-    public readonly string LongitudeError;
-    public readonly string AltitudeError;
+    public readonly float Rms;
+    public readonly float MajorSemiAxis;
+    public readonly float MinorSemiAxis;
+    public readonly float Orientation;
+    public readonly float LatitudeError;
+    public readonly float LongitudeError;
+    public readonly float AltitudeError;
 
 
     public GSTData(Nmea0183Sentence sentence)
@@ -45,12 +45,12 @@ public readonly struct GSTData
         altError = altError[..altError.IndexOf('*')];
         
         UtcTime = utcTime;
-        Rms = rms;
-        MajorSemiAxis = semiMajor;
-        MinorSemiAxis = semiMinor;
-        Orientation = orientation;
-        LatitudeError = latError;
-        LongitudeError = lonError;
-        AltitudeError = altError;
+        Rms = float.Parse(rms);
+        MajorSemiAxis = float.Parse(semiMajor);
+        MinorSemiAxis = float.Parse(semiMinor);
+        Orientation = float.Parse(orientation);
+        LatitudeError = float.Parse(latError);
+        LongitudeError = float.Parse(lonError);
+        AltitudeError = float.Parse(altError);
     }
 }

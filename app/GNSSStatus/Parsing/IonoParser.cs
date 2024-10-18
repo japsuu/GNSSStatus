@@ -9,13 +9,13 @@ namespace GNSSStatus.Parsing;
 public sealed class IonoClient : IDisposable
 {
     private readonly HttpClient _httpClient = new();
-    private double _lastIonoUpdate = -(ConfigManager.FINPOS_IONO_PARSE_INTERVAL_MILLIS + 1);    // Force an update on the first call.
+    private double _lastIonoUpdate = -(ConfigManager.CurrentConfiguration.IonoParseIntervalSeconds * 1000 + 1);    // Force an update on the first call.
     private double _latestIonoPercentage;
 
 
     public async Task<double> GetIonoPercentage()
     {
-        if (TimeUtils.GetTimeMillis() - _lastIonoUpdate >= ConfigManager.FINPOS_IONO_PARSE_INTERVAL_MILLIS)
+        if (TimeUtils.GetTimeMillis() - _lastIonoUpdate >= ConfigManager.CurrentConfiguration.IonoParseIntervalSeconds * 1000)
         {
             Logger.LogDebug("Parsing the latest ionospheric percentage...");
             _latestIonoPercentage = await ReadLatestIonoPercentage();

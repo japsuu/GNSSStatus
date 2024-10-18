@@ -72,13 +72,14 @@ public class GNSSData
         {
             DeltaXY = deltaXYAverage,
             DeltaZ = deltaZAverage,
-            PDop = GSA.PDOP,
-            HDop = GSA.HDOP,
-            VDop = GSA.VDOP
+            PDop = GSA.PDop,
+            HDop = GSA.HDop,
+            VDop = GSA.VDop
         });
         
         builder.AddPayload(new
         {
+            RoverId = ConfigManager.CurrentConfiguration.RoverIdentifier,
             ErrorLatitude = GST.LatitudeError,
             ErrorLongitude = GST.LongitudeError,
             ErrorAltitude = GST.AltitudeError
