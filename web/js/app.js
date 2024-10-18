@@ -322,15 +322,30 @@ function onAvailableRoversChanged() {
   selectedRoverDropdown.innerHTML = availableRovers.map(roverId => `<option value="${roverId}">${roverId}</option>`).join('');
   selectedRoverDropdown.value = selectedRover;
 
-  const roverList = availableRovers.map(roverId => getRoverListEntry(roverId)).join('');
+  const roverTable = `
+    <table>
+      <thead>
+        <tr>
+          <th>Rover ID</th>
+          <th>DeltaZ (mm)</th>
+          <th>DeltaXY (mm)</th>
+          <th>Iono (%)</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${availableRovers.map(roverId => getRoverListEntry(roverId)).join('')}
+      </tbody>
+    </table>
+  `;
 
-  availableRoversContainer.innerHTML = roverList;
+  availableRoversContainer.innerHTML = roverTable;
 }
 
 function getRoverListEntry(roverId) {
   const feeds = latestData.feeds[roverId];
   if (!feeds || feeds.length === 0) {
-    return `<li><b>${roverId}</b>: No data</li>`;
+    return `<tr><td colspan="5"><b>${roverId}</b>: No data</td></tr>`;
   }
 
   const latestFeed = feeds[feeds.length - 1];
@@ -340,7 +355,15 @@ function getRoverListEntry(roverId) {
   const iono = ionoRaw === undefined ? 'N/A' : ionoRaw;
   const time = latestFeed.datetime.toTimeString();
 
-  return `<li><b>${roverId}</b>: ${deltaZ} mm, ${deltaXY} mm, ${iono} %, ${time}</li>`;
+  return `
+    <tr>
+      <td><b>${roverId}</b></td>
+      <td>${deltaZ}</td>
+      <td>${deltaXY}</td>
+      <td>${iono}</td>
+      <td>${time}</td>
+    </tr>
+  `;
 }
 
 autoScaleXCheckbox.checked = autoScaleX;

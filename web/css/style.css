@@ -356,6 +356,22 @@ h2 {
   text-align: center;
 }
 
+#availableRoversContainer table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#availableRoversContainer th, #availableRoversContainer td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+#availableRoversContainer th {
+  background-color: #f4f4f4;
+}
+
 
 #warning-popup {
   background-color: red;
