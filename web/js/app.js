@@ -189,6 +189,9 @@ let displayMode = 'startOfDay';
 let latestEntryId = 0;
 let latestData;
 let latestDataReceiveTime;
+// The IDs of the rovers that are currently available
+let availableRovers = [];
+let selectedRover = null;
 
 async function forceRefreshData() {
   latestEntryId = 0;
@@ -227,6 +230,15 @@ async function refreshData() {
     return;
   }
 
+  // Update the available rovers
+  availableRovers = data.availableRovers;
+
+  // Check that the currently selected rover is still available.
+  // If not, select the first available rover.
+  if (selectedRover && !availableRovers.includes(selectedRover)) {
+    selectedRover = availableRovers.length > 0 ? availableRovers[0] : null;
+  }
+
   latestData = data;
   latestDataReceiveTime = new Date();
   latestEntryId = data.lastEntryId;
@@ -235,14 +247,14 @@ async function refreshData() {
 }
 
 function refreshInterface() {
-  updateGraph(latestData, 'DeltaZ', deltaZChart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold);
-  updateGraph(latestData, 'DeltaXY', deltaXYChart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold);
-  updateTextData(latestData);
-  updateFixTypeChart(latestData, fixTypeChart);
+  updateGraph(latestData.feeds[selectedRover], 'DeltaZ', deltaZChart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold);
+  updateGraph(latestData.feeds[selectedRover], 'DeltaXY', deltaXYChart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold);
+  updateTextData(latestData.feeds[selectedRover]);
+  updateFixTypeChart(latestData.feeds[selectedRover], fixTypeChart);
 }
 
-function updateTextData(data) {
-  const latestFeed = data.feeds[data.feeds.length - 1];
+function updateTextData(feeds) {
+  const latestFeed = feeds[feeds.length - 1];
 
   const deltaZ = latestFeed.gnss.DeltaZ.toFixed(3);
   const deltaXY = latestFeed.gnss.DeltaXY.toFixed(3);

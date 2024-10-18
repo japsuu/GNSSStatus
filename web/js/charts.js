@@ -55,8 +55,7 @@ function createChart(ctx, type, data, options) {
   });
 }
 
-function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold) {
-  const feeds = data.feeds;
+function updateGraph(feeds, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold) {
   const dataPoints = [];
   const pointLabels = [];
   const pointColors = [];
@@ -157,8 +156,7 @@ function updateGraph(data, dataKey, chart, pointsPerGraph, autoScaleX, showOnlyR
   chart.update();
 }
 
-function updateFixTypeChart(data, fixTypeChart) {
-  const feeds = data.feeds;
+function updateFixTypeChart(feeds, fixTypeChart) {
   const fixTypeDurations = { 0: 0, 1: 0, 2: 0 };
 
   for (let i = 1; i < feeds.length; i++) {
