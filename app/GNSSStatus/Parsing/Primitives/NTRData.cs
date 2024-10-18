@@ -6,7 +6,7 @@ public readonly struct NTRData
 {
     public const int LENGTH = 4;
     
-    public readonly string DistanceBetweenBaseAndRover;
+    public readonly double DistanceBetweenBaseAndRover;
     // Other fields aren't needed.
 
 
@@ -15,6 +15,6 @@ public readonly struct NTRData
         // Distance between base and rover
         string distanceBetweenBaseAndRover = sentence.Parts[3];
         
-        DistanceBetweenBaseAndRover = distanceBetweenBaseAndRover;
+        DistanceBetweenBaseAndRover = double.Parse(distanceBetweenBaseAndRover);
     }
 }
