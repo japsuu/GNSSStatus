@@ -174,6 +174,7 @@ const showOnlyRtkFixCheckbox = document.getElementById('showOnlyRtkFixCheckbox')
 const showThresholdInput = document.getElementById('showThresholdInput');
 const displayModeDropdown = document.getElementById('displayModeDropdown');
 const selectedRoverDropdown = document.getElementById('selectedRoverDropdown');
+const availableRoversContainer = document.getElementById('availableRoversContainer');
 const downloadButton = document.getElementById('downloadButton');
 const datePicker = document.getElementById('datePicker');
 const notification = document.getElementById('notification');
@@ -250,7 +251,7 @@ async function refreshData() {
   latestEntryId = data.lastEntryId;
   console.log('New data received:', latestData);
   refreshInterface();
-  updateAvailableRoversDropdown();
+  onAvailableRoversChanged();
 }
 
 function refreshInterface() {
@@ -317,9 +318,29 @@ function updateOldDataWarning() {
   }
 }
 
-function updateAvailableRoversDropdown() {
+function onAvailableRoversChanged() {
   selectedRoverDropdown.innerHTML = availableRovers.map(roverId => `<option value="${roverId}">${roverId}</option>`).join('');
   selectedRoverDropdown.value = selectedRover;
+
+  const roverList = availableRovers.map(roverId => getRoverListEntry(roverId)).join('');
+
+  availableRoversContainer.innerHTML = roverList;
+}
+
+function getRoverListEntry(roverId) {
+  const feeds = latestData.feeds[roverId];
+  if (!feeds || feeds.length === 0) {
+    return `<li><b>${roverId}</b>: No data</li>`;
+  }
+
+  const latestFeed = feeds[feeds.length - 1];
+  const deltaZ = latestFeed.gnss.DeltaZ.toFixed(3);
+  const deltaXY = latestFeed.gnss.DeltaXY.toFixed(3);
+  const ionoRaw = latestFeed.gnss.IonoPercentage;
+  const iono = ionoRaw === undefined ? 'N/A' : ionoRaw;
+  const time = latestFeed.datetime.toTimeString();
+
+  return `<li><b>${roverId}</b>: ${deltaZ} mm, ${deltaXY} mm, ${iono} %, ${time}</li>`;
 }
 
 autoScaleXCheckbox.checked = autoScaleX;
