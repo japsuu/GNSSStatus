@@ -29,8 +29,8 @@ async function fetchData(startDate) {
     let roverId = gnssData.RoverId;
 
     if (roverId === undefined) {
-      console.warn('Encountered a data feed without a RoverId, setting to Unknown');
-      roverId = 'Unknown';
+      // console.warn('Encountered a data feed without a RoverId, setting to unknown');
+      roverId = 'unknown';
     }
 
     // Add the roverId to availableRovers
