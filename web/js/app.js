@@ -225,7 +225,6 @@ async function refreshData() {
       return;
   }
 
-  selectedRoverContainer.classList.add('hidden');
   selectedRoverDropdown.innerHTML = '<option>No rovers available</option>';
 
   const data = await fetchData(dataStart);
@@ -239,8 +238,6 @@ async function refreshData() {
     console.log('No new data received');
     return;
   }
-
-  selectedRoverContainer.classList.remove('hidden');
 
   // Update the available rovers
   availableRovers = data.availableRovers;
