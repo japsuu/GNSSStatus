@@ -87,6 +87,14 @@
             <option>Loading...</option>
           </select>
         </div>
+
+        <div id="notification" class="hidden">Downloading data...</div>
+
+        <div class="download-container">
+          <label for="datePicker">Select Date:</label>
+          <input type="date" id="datePicker">
+          <button id="downloadButton">Download CSV</button>
+        </div>
       </div>
 
       <div class="chart-container">
@@ -97,14 +105,6 @@
       <div class="chart-container">
         <h2>dXY (<span id="DeltaXYTitle">Loading...</span>)</h2>
         <canvas id="deltaXYChart"></canvas>
-      </div>
-
-      <div id="notification" class="hidden">Downloading data...</div>
-
-      <div class="download-container">
-        <label for="datePicker">Select Date:</label>
-        <input type="date" id="datePicker">
-        <button id="downloadButton">Download CSV</button>
       </div>
     </div>
 
