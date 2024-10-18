@@ -173,6 +173,7 @@ const manualYRangeInput = document.getElementById('manualYRangeInput');
 const showOnlyRtkFixCheckbox = document.getElementById('showOnlyRtkFixCheckbox');
 const showThresholdInput = document.getElementById('showThresholdInput');
 const displayModeDropdown = document.getElementById('displayModeDropdown');
+const selectedRoverContainer = document.getElementById('selectedRoverContainer');
 const selectedRoverDropdown = document.getElementById('selectedRoverDropdown');
 const downloadButton = document.getElementById('downloadButton');
 const datePicker = document.getElementById('datePicker');
@@ -224,6 +225,9 @@ async function refreshData() {
       return;
   }
 
+  selectedRoverContainer.classList.add('hidden');
+  selectedRoverDropdown.innerHTML = '<option>No rovers available</option>';
+
   const data = await fetchData(dataStart);
 
   if (data.availableRovers.length === 0) {
@@ -235,6 +239,8 @@ async function refreshData() {
     console.log('No new data received');
     return;
   }
+
+  selectedRoverContainer.classList.remove('hidden');
 
   // Update the available rovers
   availableRovers = data.availableRovers;
@@ -336,8 +342,7 @@ autoScaleXCheckbox.addEventListener('change', () => {
 });
 
 autoScaleYCheckbox.addEventListener('change', () => {
-  const autoScale = autoScaleYCheckbox.checked;
-  autoScaleY = autoScale;
+  autoScaleY = autoScaleYCheckbox.checked;
 
   updateGraphRanges()
 });
@@ -364,6 +369,11 @@ displayModeDropdown.addEventListener('change', async () => {
   autoScaleX = displayMode !== 'startOfDay';
 
   await forceRefreshData();
+});
+
+selectedRoverDropdown.addEventListener('change', () => {
+  selectedRover = selectedRoverDropdown.value;
+  refreshInterface();
 });
 
 downloadButton.addEventListener('click', async () => {
