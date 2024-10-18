@@ -37,7 +37,11 @@ public readonly struct GSAData
         NavigationMode = int.Parse(fix);
         PRNs = new int[12];
         for (int i = 0; i < 12; i++)
-            PRNs[i] = int.Parse(prns[i]);
+        {
+            if (!int.TryParse(prns[i], out int res))
+                continue;
+            PRNs[i] = res;
+        }
         PDop = float.Parse(pDop);
         HDop = float.Parse(hDop);
         VDop = float.Parse(vDop);
