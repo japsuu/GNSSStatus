@@ -268,6 +268,10 @@ function updateTextData(feeds) {
   const deltaXY = latestFeed.gnss.DeltaXY.toFixed(3);
   const ionoRaw = latestFeed.gnss.IonoPercentage;
   const iono = ionoRaw === undefined ? 'N/A' : ionoRaw;
+  let roverId = latestFeed.gnss.RoverId;
+  if (roverId === undefined) {
+    roverId = 'unknown';
+  }
 
   // Deltas pruned to 3 decimal places
   document.getElementById('DeltaZ').textContent = `${deltaZ} m`;
@@ -276,6 +280,7 @@ function updateTextData(feeds) {
   document.getElementById('DeltaXYTitle').textContent = `${deltaXY * 1000} mm`;
   document.getElementById('Ionosphere').textContent = `${iono} %`;
 
+  document.getElementById('RoverId').textContent = roverId;
   document.getElementById('TimeUtc').textContent = latestFeed.datetime.toTimeString();
   document.getElementById('FixType').textContent = getFixTypeName(latestFeed.gnss.FixType);
   document.getElementById('SatellitesInUse').textContent = latestFeed.gnss.SatellitesInUse;
@@ -330,6 +335,7 @@ function onAvailableRoversChanged() {
           <th>DeltaZ (mm)</th>
           <th>DeltaXY (mm)</th>
           <th>Iono (%)</th>
+          <th>Base Distance (m)</th>
           <th>Time</th>
         </tr>
       </thead>
@@ -349,10 +355,11 @@ function getRoverListEntry(roverId) {
   }
 
   const latestFeed = feeds[feeds.length - 1];
-  const deltaZ = latestFeed.gnss.DeltaZ.toFixed(3);
-  const deltaXY = latestFeed.gnss.DeltaXY.toFixed(3);
+  const deltaZ = latestFeed.gnss.DeltaZ.toFixed(3) * 1000;
+  const deltaXY = latestFeed.gnss.DeltaXY.toFixed(3) * 1000;
   const ionoRaw = latestFeed.gnss.IonoPercentage;
   const iono = ionoRaw === undefined ? 'N/A' : ionoRaw;
+  const baseDistance = latestFeed.gnss.BaseRoverDistance.toFixed(3);
   const time = latestFeed.datetime.toTimeString();
 
   return `
@@ -361,6 +368,7 @@ function getRoverListEntry(roverId) {
       <td>${deltaZ}</td>
       <td>${deltaXY}</td>
       <td>${iono}</td>
+      <td>${baseDistance}</td>
       <td>${time}</td>
     </tr>
   `;

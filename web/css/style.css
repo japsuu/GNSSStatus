@@ -265,6 +265,24 @@ body {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 
+.hidden {
+  display: none;
+}
+
+.center-children {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers the items horizontally */
+}
+
+.center-children p {
+  margin: 1px 0;
+}
+
+.center-text {
+  text-align: center;
+}
+
 h1 {
   text-align: center;
 }
@@ -274,55 +292,25 @@ h2 {
   margin-top: 100px;
 }
 
-.chart-container {
+/* available rovers */
+
+#availableRoversContainer table {
   width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
 
-.chart-container p {
+#availableRoversContainer th, #availableRoversContainer td {
+  border: 1px solid #ccc;
+  padding: 8px;
   text-align: center;
 }
 
-.chart-container h2 {
-  margin-top: 20px;
+#availableRoversContainer th {
+  background-color: #f4f4f4;
 }
 
-.gnss-data-text-group {
-  margin: 10px 0;
-}
-
-/* Contains full-width graphs and their settings */
-#gnss-graph-container {
-  margin: 10px 0;
-}
-
-/* Contains GNSS data as text and a smaller square chart */
-.gnss-data-container {
-  display: flex;
-  flex-wrap: wrap; /* Allows wrapping of elements to the next line if space is insufficient */
-  justify-content: space-between; /* Distributes elements evenly */
-}
-
-/* Contains GNSS data in text form */
-#gnss-data-text-container,
-#gnss-data-graph-container {
-  flex: 1 1 45%; /* Each element will take 45% of the container width on larger screens */
-  box-sizing: border-box;
-  padding: 10px;
-}
-
-#gnss-data-text-container p {
-  font-size: 1.1em;
-  margin: 1px 0;
-}
-
-#iono-container img {
-  width: 100%;
-  height: auto;
-}
-
-.hidden {
-  display: none;
-}
+/* settings */
 
 .settings-container {
   display: flex;
@@ -383,36 +371,79 @@ h2 {
   border-radius: 5px;
 }
 
-.center-children {
+/* full-width charts */
+
+#gnss-graph-container {
+  margin: 10px 0;
+}
+
+.chart-container {
+  width: 100%;
+}
+
+.chart-container p {
+  text-align: center;
+}
+
+.chart-container h2 {
+  margin-top: 20px;
+}
+
+/* text data */
+
+.gnss-data-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin-bottom: 20px;
+}
+
+.gnss-data-text-container {
+  flex: 1 1 50%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.gnss-data-text-group {
+  flex: 1 1 100%;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
   display: flex;
   flex-direction: column;
-  align-items: center; /* centers the items horizontally */
+  justify-content: space-between;
 }
 
-.center-children p {
-  margin: 1px 0;
+.gnss-data-text-group p {
+  margin: 5px 0;
 }
 
-.center-text {
-  text-align: center;
+#gnss-data-graph-container {
+  flex: 1 1 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  max-width: 600px;
 }
 
-#availableRoversContainer table {
+/* iono image */
+
+#iono-container img {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+  height: auto;
 }
 
-#availableRoversContainer th, #availableRoversContainer td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
-}
-
-#availableRoversContainer th {
-  background-color: #f4f4f4;
-}
-
+/* misc */
 
 #warning-popup {
   background-color: red;
@@ -428,7 +459,12 @@ h2 {
 
 /* Responsive styles */
 @media (max-width: 768px) {
-  #gnss-data-text-container, #gnss-data-graph-container {
+  .gnss-data-container {
+    flex-direction: column;
+  }
+
+  #gnss-data-text-container,
+  #gnss-data-graph-container {
     flex: 1 1 100%; /* Take full width on smaller screens */
   }
 
