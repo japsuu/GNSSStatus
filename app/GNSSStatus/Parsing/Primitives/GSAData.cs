@@ -6,12 +6,12 @@ public readonly struct GSAData
 {
     public const int LENGTH = 17;
     
-    public readonly string OperationMode;
-    public readonly string NavigationMode;
-    public readonly string[] PRNs;
-    public readonly string PDOP;
-    public readonly string HDOP;
-    public readonly string VDOP;
+    public readonly char OperationMode;
+    public readonly int NavigationMode;
+    public readonly int[] PRNs;
+    public readonly float PDop;
+    public readonly float HDop;
+    public readonly float VDop;
 
 
     public GSAData(Nmea0183Sentence sentence)
@@ -33,11 +33,13 @@ public readonly struct GSAData
         string hDop = sentence.Parts[16];
         string vDop = sentence.Parts[17];
         
-        OperationMode = mode;
-        NavigationMode = fix;
-        PRNs = prns;
-        PDOP = pDop;
-        HDOP = hDop;
-        VDOP = vDop;
+        OperationMode = mode[0];
+        NavigationMode = int.Parse(fix);
+        PRNs = new int[12];
+        for (int i = 0; i < 12; i++)
+            PRNs[i] = int.Parse(prns[i]);
+        PDop = float.Parse(pDop);
+        HDop = float.Parse(hDop);
+        VDop = float.Parse(vDop);
     }
 }
