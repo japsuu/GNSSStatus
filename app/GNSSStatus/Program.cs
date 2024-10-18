@@ -68,7 +68,14 @@ internal static class Program
         // Read the latest received NMEA sentence from the server.
         foreach (Nmea0183Sentence sentence in nmeaClient.ReadSentences())
         {
-            SentenceParser.Parse(sentence);
+            try
+            {
+                SentenceParser.Parse(sentence);
+            }
+            catch (Exception e)
+            {
+                Logger.LogException("Failed to parse NMEA sentence", e);
+            }
             
             double timeSinceLastSend = TimeUtils.GetTimeMillis() - lastSendTime;
             if (timeSinceLastSend < ConfigManager.CurrentConfiguration.DataSendIntervalSeconds * 1000)
