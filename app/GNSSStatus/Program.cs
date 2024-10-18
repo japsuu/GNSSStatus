@@ -22,7 +22,8 @@ internal static class Program
     private static async Task Main(string[] args)
     {
         InitializeThreadCultureInfo();
-        ConfigManager.LoadConfiguration();
+        if (!ConfigManager.TryLoadConfiguration())
+            return;
         
         if (TryProcessArgs(args))
             return;

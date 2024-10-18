@@ -1,4 +1,5 @@
-﻿using YamlDotNet.Serialization;
+﻿using GNSSStatus.Utils;
+using YamlDotNet.Serialization;
 
 namespace GNSSStatus.Configuration;
 
@@ -70,5 +71,83 @@ public class ConfigurationData
         };
         
         return defaultConfig;
+    }
+    
+    
+    public static bool Verify(ConfigurationData config)
+    {
+        if (string.IsNullOrEmpty(config.ServerAddress))
+        {
+            Logger.LogError("Server address is missing.");
+            return false;
+        }
+        
+        if (config.ServerPort <= 0)
+        {
+            Logger.LogError("Server port is invalid.");
+            return false;
+        }
+        
+        if (config.GkSystemNumber < 0)
+        {
+            Logger.LogError("GK system number is invalid.");
+            return false;
+        }
+        
+        if (string.IsNullOrEmpty(config.MqttBrokerAddress))
+        {
+            Logger.LogError("MQTT broker address is missing.");
+            return false;
+        }
+        
+        if (config.MqttBrokerPort <= 0 || config.MqttBrokerPort > 65535)
+        {
+            Logger.LogError("MQTT broker port is invalid.");
+            return false;
+        }
+        
+        if (string.IsNullOrEmpty(config.MqttBrokerTopic))
+        {
+            Logger.LogError("MQTT broker topic is missing.");
+            return false;
+        }
+        
+        if (string.IsNullOrEmpty(config.MqttClientId))
+        {
+            Logger.LogError("MQTT client ID is missing.");
+            return false;
+        }
+        
+        if (string.IsNullOrEmpty(config.MqttUsername))
+        {
+            Logger.LogError("MQTT username is missing.");
+            return false;
+        }
+        
+        if (string.IsNullOrEmpty(config.MqttPassword))
+        {
+            Logger.LogError("MQTT password is missing.");
+            return false;
+        }
+        
+        if (config.DataSendIntervalSeconds <= 0)
+        {
+            Logger.LogError("Data send interval is invalid.");
+            return false;
+        }
+        
+        if (config.IonoParseIntervalSeconds <= 0)
+        {
+            Logger.LogError("Iono parse interval is invalid.");
+            return false;
+        }
+        
+        if (string.IsNullOrEmpty(config.RoverIdentifier) || config.RoverIdentifier.Length > 16)
+        {
+            Logger.LogError("Rover identifier is invalid.");
+            return false;
+        }
+        
+        return true;
     }
 }

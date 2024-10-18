@@ -7,7 +7,6 @@ namespace GNSSStatus.Configuration;
 public static class ConfigManager
 {
     private const string CONFIG_PATH = "assets/config.yaml";
-    private static bool createdDefaultConfiguration = false;
 
     public const int MAX_JSON_PAYLOAD_LENGTH = 255;
     public const int MAX_COMBINED_PAYLOAD_COUNT = 8;
@@ -17,13 +16,14 @@ public static class ConfigManager
     public static ConfigurationData CurrentConfiguration { get; private set; } = null!;
 
 
-    public static void LoadConfiguration()
+    public static bool TryLoadConfiguration()
     {
         // Check that the config file exists.
         if (!File.Exists(CONFIG_PATH))
         {
             Logger.LogWarning("Configuration file not found, creating default configuration.");
             CreateDefaultConfiguration();
+            return false;
         }
         
         IDeserializer deserializer = new DeserializerBuilder()
@@ -34,19 +34,22 @@ public static class ConfigManager
         try
         {
             CurrentConfiguration = deserializer.Deserialize<ConfigurationData>(File.ReadAllText(CONFIG_PATH));
+            
+            if (CurrentConfiguration == null)
+                throw new Exception("Deserialization failed.");
+            
+            if (!ConfigurationData.Verify(CurrentConfiguration))
+                throw new Exception("Configuration verification failed.");
         }
         catch (Exception e)
         {
             Logger.LogError($"Failed to load configuration: {e.Message}");
-            
-            if (!createdDefaultConfiguration)
-            {
-                Logger.LogWarning("Overwriting configuration with default values.");
-                CreateDefaultConfiguration();
-            }
+            Logger.LogWarning("Rename or delete the current config file, to create a new configuration with default values on the next startup.");
+            return false;
         }
         
         Logger.LogInfo("Configuration loaded successfully.");
+        return true;
     }
 
 
@@ -59,12 +62,8 @@ public static class ConfigManager
             .Build();
         
         File.WriteAllText(CONFIG_PATH, serializer.Serialize(defaultConfig));
-        createdDefaultConfiguration = true;
         
         string configPath = Path.GetFullPath(CONFIG_PATH);
         Logger.LogInfo($"Default configuration created. Please edit the configuration file ({configPath}) and restart the application.");
-            
-        // Exit
-        Environment.Exit(0);
     }
 }
