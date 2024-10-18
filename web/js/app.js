@@ -173,6 +173,7 @@ const manualYRangeInput = document.getElementById('manualYRangeInput');
 const showOnlyRtkFixCheckbox = document.getElementById('showOnlyRtkFixCheckbox');
 const showThresholdInput = document.getElementById('showThresholdInput');
 const displayModeDropdown = document.getElementById('displayModeDropdown');
+const selectedRoverDropdown = document.getElementById('selectedRoverDropdown');
 const downloadButton = document.getElementById('downloadButton');
 const datePicker = document.getElementById('datePicker');
 const notification = document.getElementById('notification');
@@ -251,6 +252,7 @@ function refreshInterface() {
   updateGraph(latestData.feeds[selectedRover], 'DeltaXY', deltaXYChart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold);
   updateTextData(latestData.feeds[selectedRover]);
   updateFixTypeChart(latestData.feeds[selectedRover], fixTypeChart);
+  updateAvailableRoversDropdown();
 }
 
 function updateTextData(feeds) {
@@ -308,6 +310,11 @@ function updateOldDataWarning() {
   } else {
     warningPopup.classList.add('hidden');
   }
+}
+
+function updateAvailableRoversDropdown() {
+  selectedRoverDropdown.innerHTML = availableRovers.map(roverId => `<option value="${roverId}">${roverId}</option>`).join('');
+  selectedRoverDropdown.value = selectedRover;
 }
 
 autoScaleXCheckbox.checked = autoScaleX;
