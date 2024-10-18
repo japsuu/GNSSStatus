@@ -173,7 +173,6 @@ const manualYRangeInput = document.getElementById('manualYRangeInput');
 const showOnlyRtkFixCheckbox = document.getElementById('showOnlyRtkFixCheckbox');
 const showThresholdInput = document.getElementById('showThresholdInput');
 const displayModeDropdown = document.getElementById('displayModeDropdown');
-const selectedRoverContainer = document.getElementById('selectedRoverContainer');
 const selectedRoverDropdown = document.getElementById('selectedRoverDropdown');
 const downloadButton = document.getElementById('downloadButton');
 const datePicker = document.getElementById('datePicker');
@@ -193,7 +192,7 @@ let latestData;
 let latestDataReceiveTime;
 // The IDs of the rovers that are currently available
 let availableRovers = [];
-let selectedRover = "Unknown";
+let selectedRover = "unknown";
 
 async function forceRefreshData() {
   latestEntryId = 0;
@@ -225,8 +224,6 @@ async function refreshData() {
       return;
   }
 
-  selectedRoverDropdown.innerHTML = '<option>No rovers available</option>';
-
   const data = await fetchData(dataStart);
 
   if (data.availableRovers.length === 0) {
@@ -245,7 +242,7 @@ async function refreshData() {
   // Check that the currently selected rover is still available.
   // If not, select the first available rover.
   if (selectedRover && !availableRovers.includes(selectedRover)) {
-    selectedRover = availableRovers.length > 0 ? availableRovers[0] : "Unknown";
+    selectedRover = availableRovers.length > 0 ? availableRovers[0] : "unknown";
   }
 
   latestData = data;
@@ -253,6 +250,7 @@ async function refreshData() {
   latestEntryId = data.lastEntryId;
   console.log('New data received:', latestData);
   refreshInterface();
+  updateAvailableRoversDropdown();
 }
 
 function refreshInterface() {
@@ -260,7 +258,6 @@ function refreshInterface() {
   updateGraph(latestData.feeds[selectedRover], 'DeltaXY', deltaXYChart, pointsPerGraph, autoScaleX, showOnlyRtkFix, showThreshold);
   updateTextData(latestData.feeds[selectedRover]);
   updateFixTypeChart(latestData.feeds[selectedRover], fixTypeChart);
-  updateAvailableRoversDropdown();
 }
 
 function updateTextData(feeds) {
