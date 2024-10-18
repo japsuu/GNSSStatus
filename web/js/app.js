@@ -226,6 +226,11 @@ async function refreshData() {
 
   const data = await fetchData(dataStart);
 
+  if (data.availableRovers.length === 0) {
+    console.log('No rovers available');
+    return;
+  }
+
   if (latestEntryId >= data.lastEntryId) {
     console.log('No new data received');
     return;
