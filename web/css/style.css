@@ -324,6 +324,33 @@ h2 {
   display: none;
 }
 
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin-bottom: 20px;
+}
+
+.settings-container div {
+  margin-bottom: 10px;
+}
+
+.settings-container label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.settings-container input,
+.settings-container select {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
 .download-container {
   text-align: center;
   margin: 20px 0;
