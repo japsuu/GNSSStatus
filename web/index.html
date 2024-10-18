@@ -34,60 +34,67 @@
     </div>
 
     <div class="center-children">
-
-      <div class=center-text">
+      <div class="center-text">
         <p><b>Available rovers:</b></p>
       </div>
-
       <div id="availableRoversContainer">
         <p>Loading...</p>
       </div>
-
     </div>
 
     <div id="gnss-graph-container">
 
-      <div>
-        <label for="showOnlyRtkFixCheckbox">Show only RTK Fix</label>
-        <input type="checkbox" id="showOnlyRtkFixCheckbox">
-      </div>
+      <div class="settings-container">
+        <div>
+          <label for="showOnlyRtkFixCheckbox">Show only RTK Fix</label>
+          <input type="checkbox" id="showOnlyRtkFixCheckbox">
+        </div>
 
-      <div class="hidden">
-        <label for="autoScaleXCheckbox">Auto Scale X axis</label>
-        <input type="checkbox" id="autoScaleXCheckbox">
-      </div>
+        <div class="hidden">
+          <label for="autoScaleXCheckbox">Auto Scale X axis</label>
+          <input type="checkbox" id="autoScaleXCheckbox">
+        </div>
 
-      <div>
-        <label for="autoScaleYCheckbox">Auto Scale Y axis</label>
-        <input type="checkbox" id="autoScaleYCheckbox">
-      </div>
+        <div>
+          <label for="autoScaleYCheckbox">Auto Scale Y axis</label>
+          <input type="checkbox" id="autoScaleYCheckbox">
+        </div>
 
-      <div class="hidden">
-        <label for="manualYRangeInput">Manual Y scale</label>
-        <input type="number" id="manualYRangeInput" value="100" step=".01" min="0">
-      </div>
+        <div class="hidden">
+          <label for="manualYRangeInput">Manual Y scale</label>
+          <input type="number" id="manualYRangeInput" value="100" step=".01" min="0">
+        </div>
 
-      <div class="hidden">
-        <label for="showThresholdInput">Show threshold</label>
-        <input type="number" id="showThresholdInput" value="100" step=".01" min="0">
-      </div>
+        <div class="hidden">
+          <label for="showThresholdInput">Show threshold</label>
+          <input type="number" id="showThresholdInput" value="100" step=".01" min="0">
+        </div>
 
-      <div>
-        <label for="displayModeDropdown">Display mode</label>
-        <select id="displayModeDropdown">
-          <option value="startOfDay">Since start of day</option>
-          <option value="last24Hours">Last 24 hours</option>
-          <option value="last6Hours">Last 6 hours</option>
-          <option value="last1Hours">Last hour</option>
-          <option value="last10Minutes">Last 10 minutes</option>
-        </select>
-      </div>
+        <div>
+          <label for="displayModeDropdown">Display mode</label>
+          <select id="displayModeDropdown">
+            <option value="startOfDay">Since start of day</option>
+            <option value="last24Hours">Last 24 hours</option>
+            <option value="last6Hours">Last 6 hours</option>
+            <option value="last1Hours">Last hour</option>
+            <option value="last10Minutes">Last 10 minutes</option>
+          </select>
+        </div>
 
-      <div id="selectedRoverContainer">
-        <label for="selectedRoverDropdown">Selected Rover</label>
-        <select id="selectedRoverDropdown">
-          <option>Loading...</option>
-        </select>
+        <div id="selectedRoverContainer">
+          <label for="selectedRoverDropdown">Selected Rover</label>
+          <select id="selectedRoverDropdown">
+            <option>Loading...</option>
+          </select>
+        </div>
+
+        <div id="notification" class="hidden">Downloading data...</div>
+
+        <div class="download-container">
+          <label for="datePicker">Select Date:</label>
+          <input type="date" id="datePicker">
+          <button id="downloadButton">Download CSV</button>
+        </div>
       </div>
 
       <div class="chart-container">
@@ -99,14 +106,6 @@
         <h2>dXY (<span id="DeltaXYTitle">Loading...</span>)</h2>
         <canvas id="deltaXYChart"></canvas>
       </div>
-
-      <div id="notification" class="hidden">Downloading data...</div>
-
-      <div class="download-container">
-        <label for="datePicker">Select Date:</label>
-        <input type="date" id="datePicker">
-        <button id="downloadButton">Download CSV</button>
-      </div>
     </div>
 
     <h2>Current GNSS Data</h2>
@@ -115,6 +114,7 @@
 
       <div id="gnss-data-text-container">
         <div class="gnss-data-text-group">
+          <p><strong>Rover Identifier:</strong> <span id="RoverId">Loading...</span></p>
           <p><strong>GPS Time:</strong> <span id="TimeUtc">Loading...</span></p>
           <p><strong>Rover Distance to Base:</strong> <span id="BaseRoverDistance">Loading...</span></p>
           <p><strong>Fix Type:</strong> <span id="FixType">Loading...</span></p>
