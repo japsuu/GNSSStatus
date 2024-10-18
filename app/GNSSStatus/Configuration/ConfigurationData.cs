@@ -43,6 +43,8 @@ public class ConfigurationData
     public required int DataSendIntervalSeconds { get; set; }
     [YamlMember(Description = "The interval in seconds to parse the Iono graph.")]
     public required int IonoParseIntervalSeconds { get; set; }
+    [YamlMember(Description = "A UNIQUE max 16-character identifier for the rover.")]
+    public required string RoverIdentifier { get; set; }
 
 
     public static ConfigurationData GetDefault()
@@ -64,6 +66,7 @@ public class ConfigurationData
             UseTls = false,
             DataSendIntervalSeconds = 30,
             IonoParseIntervalSeconds = 60,
+            RoverIdentifier = "rover1"
         };
         
         return defaultConfig;
