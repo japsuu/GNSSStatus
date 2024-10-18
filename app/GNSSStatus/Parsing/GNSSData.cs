@@ -79,6 +79,7 @@ public class GNSSData
         
         builder.AddPayload(new
         {
+            RoverId = ConfigManager.CurrentConfiguration.RoverIdentifier,
             ErrorLatitude = GST.LatitudeError,
             ErrorLongitude = GST.LongitudeError,
             ErrorAltitude = GST.AltitudeError
