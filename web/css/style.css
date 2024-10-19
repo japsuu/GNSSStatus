@@ -273,6 +273,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center; /* centers the items horizontally */
+  overflow-x: auto; /* Allow horizontal scrolling if needed */
 }
 
 .center-children p {
@@ -293,6 +294,12 @@ h2 {
 }
 
 /* available rovers */
+
+#availableRoversContainer {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto; /* Allow horizontal scrolling if needed */
+}
 
 #availableRoversContainer table {
   width: 100%;
@@ -420,7 +427,7 @@ h2 {
 }
 
 .gnss-data-text-group p {
-  margin: 5px 0;
+  margin: 2px 0;
 }
 
 #gnss-data-graph-container {
@@ -436,11 +443,36 @@ h2 {
   max-width: 600px;
 }
 
-/* iono image */
+/* Ionosphere data section */
+#iono-container {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+#iono-container p {
+  text-align: center;
+  font-size: 1.1em;
+  margin-bottom: 10px;
+}
+
+#iono-container a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+#iono-container a:hover {
+  text-decoration: underline;
+}
 
 #iono-container img {
-  width: 100%;
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
   height: auto;
+  border-radius: 5px;
 }
 
 /* misc */
@@ -459,6 +491,11 @@ h2 {
 
 /* Responsive styles */
 @media (max-width: 768px) {
+
+  .center-children {
+    padding: 0 10px; /* Add some padding to prevent overflow */
+  }
+
   .gnss-data-container {
     flex-direction: column;
   }
