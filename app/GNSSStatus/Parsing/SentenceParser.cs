@@ -30,7 +30,9 @@ public static class SentenceParser
                 ParsedData.RoverXCache.Add(ParsedData.GGA.RoverX);
                 ParsedData.RoverYCache.Add(ParsedData.GGA.RoverY);
                 ParsedData.RoverZCache.Add(ParsedData.GGA.RoverZ);
-                ParsedData.FixTypesCache.Add(ParsedData.GGA.Quality);
+                ParsedData.RoverUtcTimeCache.Add(ParsedData.GGA.UtcTime);
+                ParsedData.RoverFixTypeCache.Add(ParsedData.GGA.Quality);
+                ParsedData.RoverSatInUseCache.Add(ParsedData.GGA.TotalSatellitesInUse);
                 break;
             }
             case Nmea0183SentenceType.GSA:
@@ -42,6 +44,9 @@ public static class SentenceParser
                 }
             
                 ParsedData.GSA = new GSAData(sentence);
+                ParsedData.RoverPDopCache.Add(ParsedData.GSA.PDop);
+                ParsedData.RoverVDopCache.Add(ParsedData.GSA.VDop);
+                ParsedData.RoverHDopCache.Add(ParsedData.GSA.HDop);
                 break;
             }
             case Nmea0183SentenceType.GST:
@@ -53,6 +58,9 @@ public static class SentenceParser
                 }
             
                 ParsedData.GST = new GSTData(sentence);
+                ParsedData.RoverErrorAltitudeCache.Add(ParsedData.GST.AltitudeError);
+                ParsedData.RoverErrorLongitudeCache.Add(ParsedData.GST.LongitudeError);
+                ParsedData.RoverErrorLatitudeCache.Add(ParsedData.GST.LatitudeError);
                 break;
             }
             case Nmea0183SentenceType.GSV:
@@ -75,6 +83,7 @@ public static class SentenceParser
                 }
             
                 ParsedData.NTR = new NTRData(sentence);
+                ParsedData.RoverBaselineCache.Add(ParsedData.NTR.DistanceBetweenBaseAndRover);
                 break;
             }
             case Nmea0183SentenceType.GBS:
