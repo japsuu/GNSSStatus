@@ -48,17 +48,6 @@ public static class SentenceParser
                 ParsedData.GST = new GSTData(sentence);
                 break;
             }
-            case Nmea0183SentenceType.GSV:
-            {
-                if (sentence.Parts.Length < GSVData.LENGTH)
-                {
-                    Logger.LogWarning($"Invalid {sentence.Type.ToString()} sentence received.");
-                    return;
-                }
-            
-                ParsedData.GSV = new GSVData(sentence);
-                break;
-            }
             case Nmea0183SentenceType.NTR:
             {
                 if (sentence.Parts.Length < NTRData.LENGTH)
@@ -70,6 +59,8 @@ public static class SentenceParser
                 ParsedData.NTR = new NTRData(sentence);
                 break;
             }
+            case Nmea0183SentenceType.GSV:
+                break;
             case Nmea0183SentenceType.GBS:
                 break;
             case Nmea0183SentenceType.GLL:
