@@ -6,7 +6,7 @@
   "availableRoversTableDeltaZ": "dZ",
   "availableRoversTableDeltaXY": "dXY",
   "availableRoversTableIono": "Iono",
-  "availableRoversTableBaseDistance": "Etäisyys tukikohtaan",
+  "availableRoversTableBaseDistance": "Etäisyys tukiasemaan",
   "availableRoversTableTime": "Aika",
 
   "settingsShowOnlyRtkFixed": "Näytä vain RTK-Fix:",
@@ -24,7 +24,7 @@
   "dataTitle": "Viimeisin GNSS-tila",
   "dataRoverId": "Roverin tunniste:",
   "dataTime": "GPS-aika:",
-  "dataBaseDistance": "Roverin etäisyys tukikohtaan:",
+  "dataBaseDistance": "Roverin etäisyys tukiasemaan:",
   "dataFixType": "Fix Type:",
   "dataSatellitesInUse": "Käytössä olevat satelliitit:",
   "dataPDop": "PDop:",
