@@ -404,6 +404,11 @@ function applyTranslations() {
   document.getElementById('dataDeltaZ').textContent = translations.dataDeltaZ;
   document.getElementById('dataDeltaXY').textContent = translations.dataDeltaXY;
   document.getElementById('dataIonosphere').textContent = translations.dataIonosphere;
+
+  // Ionosphere
+  document.getElementById('ionoTitle').textContent = translations.ionoTitle;
+  document.getElementById('ionoDescription').textContent = translations.ionoDescription;
+  document.getElementById('ionoLink').textContent = translations.ionoLink;
 }
 
 async function loadAvailableTranslations() {

@@ -35,5 +35,9 @@
   "dataErrorAltitude": "Error Altitude:",
   "dataDeltaZ": "DeltaZ:",
   "dataDeltaXY": "DeltaXY:",
-  "dataIonosphere": "Ionosphere:"
+  "dataIonosphere": "Ionosphere:",
+
+  "ionoTitle": "Latest Ionosphere status",
+  "ionoDescription": "Provided by the National Land Survey of Finland",
+  "ionoLink": "(link)"
 }

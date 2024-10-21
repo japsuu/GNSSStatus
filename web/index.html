@@ -28,8 +28,6 @@
 
   <div class="container">
     <select id="languageSwitcher">
-      <option value="fi">Suomi</option>
-      <option value="en">English</option>
     </select>
 
     <h1>GNSS Status</h1>
@@ -171,12 +169,11 @@
       </div>
     </div>
 
-    <h2>Ionosphere Data</h2>
+    <h2 id="ionoTitle">Ionosphere Data</h2>
     <div id="iono-container">
       <!-- Credit to the National Land Survey of Finland for Ionosphere data -->
-      <p>Provided by the National Land Survey of Finland <a href="https://finpos.nls.fi/iono/">(link)</a></p>
-      <!-- Link to FinPos iono graph image -->
-      <img src="https://finpos.nls.fi/iono/ir_ipi_ip0/PROD_seven2three_IPI.png" alt="Ionosphere Graph", width="100%">
+      <p><i id="ionoDescription">Provided by the National Land Survey of Finland</i> <a href="https://finpos.nls.fi/iono/"><i id="ionoLink">(link)</i></a></p>
+      <img src="https://finpos.nls.fi/iono/ir_ipi_ip0/PROD_seven2three_IPI.png" alt="Ionosphere Graph" width="100%">
     </div>
   </div>
 
