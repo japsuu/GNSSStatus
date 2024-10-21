@@ -23,7 +23,7 @@ The C# application collects and parses NMEA0183 sentences from a GNSS sensor and
 
 1. **Clone the repository**:
     ```sh
-    git clone https://github.com/yourusername/GNSSStatus.git
+    git clone https://github.com/japsuu/GNSSStatus.git
     cd GNSSStatus
     ```
 
@@ -32,12 +32,13 @@ The C# application collects and parses NMEA0183 sentences from a GNSS sensor and
 
 3. **Build the project**:
     ```sh
-    dotnet build
+    dotnet publish app/GNSSStatus.sln -r linux-arm64 -c Release --self-contained false /p:PublishSingleFile=true
     ```
 
 4. **Run the application**:
     ```sh
-    dotnet run
+    cd app/Build/Release/net7.0/linux-arm64/publish
+    ./GNSSStatus
     ```
 
 ## Configuration
