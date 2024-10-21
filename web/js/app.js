@@ -4,7 +4,6 @@ import {downloadCSV, getFixTypeName} from './utils.js';
 
 // User configuration
 // ------------------------------------------------------------
-const defaultLanguage = 'fi';
 const refreshInterval = 15; // seconds
 const defaultChartYRange = 0.03;
 const oldDataWarningThreshold = 5 * 60; // seconds
@@ -407,10 +406,26 @@ function applyTranslations() {
   document.getElementById('dataIonosphere').textContent = translations.dataIonosphere;
 }
 
-async function loadTranslations(lang) {
+async function loadAvailableTranslations() {
+
+  const response = await fetch(`locales/translations.json`);
+  const availableTranslations = await response.json();
+
+  for (let i = 0; i < availableTranslations.length; i++) {
+    console.log('Discovered translation:', availableTranslations[i].language);
+  }
+
+  // Automatically populate the languageSwitcher dropdown with the available translations
+  const languageSwitcher = document.getElementById('languageSwitcher');
+  languageSwitcher.innerHTML = availableTranslations.map(translation => `<option value="${translation.id}">${translation.language}</option>`).join('');
+
+  // Load the default translation
+  await loadTranslation(availableTranslations[0].id);
+}
+
+async function loadTranslation(lang){
   const response = await fetch(`locales/${lang}.json`);
   translations = await response.json();
-
   applyTranslations();
 }
 
@@ -491,9 +506,9 @@ downloadButton.addEventListener('click', async () => {
 });
 
 document.getElementById('languageSwitcher').addEventListener('change', (event) => {
-  loadTranslations(event.target.value);
+  loadTranslation(event.target.value);
 });
 
-loadTranslations(defaultLanguage).then(r => refreshData());
+loadAvailableTranslations().then(r => refreshData());
 setInterval(refreshData, refreshInterval * 1000);
 setInterval(updateOldDataWarning, 5000);
