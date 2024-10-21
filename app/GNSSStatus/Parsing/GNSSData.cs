@@ -14,140 +14,173 @@ public class GNSSData
     private readonly List<double> _roverYCache = new();
     private readonly List<double> _roverZCache = new();
     private readonly List<GGAData.FixType> _fixTypesCache = new();
-    
-    private GGAData _gga;
-    private GSAData _gsa;
-    private GSTData _gst;
-    private GSVData _gsv;
-    private NTRData _ntr;
-    
-    public GGAData GGA
+    private readonly List<int> _satellitesInUseCache = new();
+    private readonly List<float> _pDopCache = new();
+    private readonly List<float> _hDopCache = new();
+    private readonly List<float> _vDopCache = new();
+    private readonly List<float> _latitudeErrorCache = new();
+    private readonly List<float> _longitudeErrorCache = new();
+    private readonly List<float> _altitudeErrorCache = new();
+    private readonly List<double> _baseDistanceCache = new();
+
+    private string? _latestUtcTime;
+    private int _latestReferenceStationID;
+    private float _latestDifferentialDataAge;
+    private double _latestIonoPercentage;
+
+
+    public void SetGGA(GGAData data)
     {
-        set
-        {
-            _deltaXCache.Add(value.DeltaX);
-            _deltaYCache.Add(value.DeltaY);
-            _deltaZCache.Add(value.DeltaZ);
-            _roverXCache.Add(value.RoverX);
-            _roverYCache.Add(value.RoverY);
-            _roverZCache.Add(value.RoverZ);
-            _fixTypesCache.Add(value.Quality);
-            
-            _gga = value;
-        }
+        _deltaXCache.Add(data.DeltaX);
+        _deltaYCache.Add(data.DeltaY);
+        _deltaZCache.Add(data.DeltaZ);
+        _roverXCache.Add(data.RoverX);
+        _roverYCache.Add(data.RoverY);
+        _roverZCache.Add(data.RoverZ);
+        _fixTypesCache.Add(data.Quality);
+        _satellitesInUseCache.Add(data.TotalSatellitesInUse);
+
+        _latestUtcTime = data.UtcTime;
+        _latestReferenceStationID = data.DifferentialReferenceStationID;
+        _latestDifferentialDataAge = data.AgeOfDifferentialData;
     }
-    
-    public GSAData GSA
+
+
+    public void SetGSA(GSAData data)
     {
-        set
-        {
-            
-        }
+        _pDopCache.Add(data.PDop);
+        _hDopCache.Add(data.HDop);
+        _vDopCache.Add(data.VDop);
     }
-    
-    public GSTData GST
+
+
+    public void SetGST(GSTData data)
     {
-        set
-        {
-            
-        }
+        _latitudeErrorCache.Add(data.LatitudeError);
+        _longitudeErrorCache.Add(data.LongitudeError);
+        _altitudeErrorCache.Add(data.AltitudeError);
     }
-    
-    public GSVData GSV
+
+
+    public void SetNTR(NTRData data)
     {
-        set
-        {
-            
-        }
+        _baseDistanceCache.Add(data.DistanceBetweenBaseAndRover);
     }
-    
-    public NTRData NTR
+
+
+    public void SetIonoPercentage(double value)
     {
-        set
-        {
-            
-        }
+        _latestIonoPercentage = value;
     }
-    
-    public double IonoPercentage { get; set; }
 
 
     public string GetPayloadJson()
     {
         JsonPayloadBuilder builder = new();
-        
-        // Calculate medians and clear caches.
-        double deltaXAverage = _deltaXCache.Count > 0 ? _deltaXCache.Average() : 0;
-        double deltaYAverage = _deltaYCache.Count > 0 ? _deltaYCache.Average() : 0;
-        double deltaZAverage = _deltaZCache.Count > 0 ? _deltaZCache.Average() : 0;
-        double deltaXYAverage = Math.Sqrt(deltaXAverage * deltaXAverage + deltaYAverage * deltaYAverage);
-        double roverXAverage = _roverXCache.Count > 0 ? _roverXCache.Average() : 0;
-        double roverYAverage = _roverYCache.Count > 0 ? _roverYCache.Average() : 0;
-        double roverZAverage = _roverZCache.Count > 0 ? _roverZCache.Average() : 0;
-        
+
+        // Median properties
+        double deltaX = _deltaXCache.Count > 0 ? _deltaXCache.Median() : 0;
         _deltaXCache.Clear();
+
+        double deltaY = _deltaYCache.Count > 0 ? _deltaYCache.Median() : 0;
         _deltaYCache.Clear();
+
+        double deltaZAverage = _deltaZCache.Count > 0 ? _deltaZCache.Median() : 0;
         _deltaZCache.Clear();
+
+        double roverXAverage = _roverXCache.Count > 0 ? _roverXCache.Median() : 0;
         _roverXCache.Clear();
+
+        double roverYAverage = _roverYCache.Count > 0 ? _roverYCache.Median() : 0;
         _roverYCache.Clear();
+
+        double roverZAverage = _roverZCache.Count > 0 ? _roverZCache.Median() : 0;
         _roverZCache.Clear();
 
-        GGAData.FixType worstFixType = ReadWorstFixType();
-        
+        int satellitesInUse = _satellitesInUseCache.Count > 0 ? _satellitesInUseCache.Median() : 0;
+        _satellitesInUseCache.Clear();
+
+        float pDop = _pDopCache.Count > 0 ? _pDopCache.Median() : 0;
+        _pDopCache.Clear();
+
+        float hDop = _hDopCache.Count > 0 ? _hDopCache.Median() : 0;
+        _hDopCache.Clear();
+
+        float vDop = _vDopCache.Count > 0 ? _vDopCache.Median() : 0;
+        _vDopCache.Clear();
+
+        float latitudeError = _latitudeErrorCache.Count > 0 ? _latitudeErrorCache.Median() : 0;
+        _latitudeErrorCache.Clear();
+
+        float longitudeError = _longitudeErrorCache.Count > 0 ? _longitudeErrorCache.Median() : 0;
+        _longitudeErrorCache.Clear();
+
+        float altitudeError = _altitudeErrorCache.Count > 0 ? _altitudeErrorCache.Median() : 0;
+        _altitudeErrorCache.Clear();
+
+        double baseDistance = _baseDistanceCache.Count > 0 ? _baseDistanceCache.Median() : 0;
+        _baseDistanceCache.Clear();
+
+        // Static properties
         string roverIdentifier = ConfigManager.CurrentConfiguration.RoverIdentifier;
-        string utcTime = _gga.UtcTime;
-        int satellitesInUse = _gga.TotalSatellitesInUse;
-        float pDop = _gsa.PDop;
-        float hDop = _gsa.HDop;
-        float vDop = _gsa.VDop;
-        float latitudeError = _gst.LatitudeError;
-        float longitudeError = _gst.LongitudeError;
-        float altitudeError = _gst.AltitudeError;
-        float differentialDataAge = _gga.AgeOfDifferentialData;
-        int referenceStationID = _gga.DifferentialReferenceStationID;
-        double baseDistance = _ntr.DistanceBetweenBaseAndRover;
+
+        // Latest properties
+        string? utcTime = _latestUtcTime;
+        int referenceStationID = _latestReferenceStationID;
+        float differentialDataAge = _latestDifferentialDataAge;
+        double ionoPercentage = _latestIonoPercentage;
+
+        // Calculated properties
+        double deltaXY = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        GGAData.FixType worstFixType = GetWorstFixType();
+        _fixTypesCache.Clear();
 
         // Manually serialize relevant properties.
-        builder.AddPayload(new
-        {
-            TimeUtc = utcTime,
-            FixType = worstFixType,
-            SatellitesInUse = satellitesInUse,
-            RoverX = roverXAverage,
-            RoverY = roverYAverage,
-            RoverZ = roverZAverage,
-        });
+        builder.AddPayload(
+            new
+            {
+                TimeUtc = utcTime,
+                FixType = worstFixType,
+                SatellitesInUse = satellitesInUse,
+                RoverX = roverXAverage,
+                RoverY = roverYAverage,
+                RoverZ = roverZAverage
+            });
 
-        builder.AddPayload(new
-        {
-            DeltaXY = deltaXYAverage,
-            DeltaZ = deltaZAverage,
-            PDop = pDop,
-            HDop = hDop,
-            VDop = vDop
-        });
+        builder.AddPayload(
+            new
+            {
+                DeltaXY = deltaXY,
+                DeltaZ = deltaZAverage,
+                PDop = pDop,
+                HDop = hDop,
+                VDop = vDop
+            });
 
-        builder.AddPayload(new
-        {
-            RoverId = roverIdentifier,
-            ErrorLatitude = latitudeError,
-            ErrorLongitude = longitudeError,
-            ErrorAltitude = altitudeError
-        });
+        builder.AddPayload(
+            new
+            {
+                RoverId = roverIdentifier,
+                ErrorLatitude = latitudeError,
+                ErrorLongitude = longitudeError,
+                ErrorAltitude = altitudeError
+            });
 
-        builder.AddPayload(new
-        {
-            DifferentialDataAge = differentialDataAge,
-            ReferenceStationId = referenceStationID,
-            BaseRoverDistance = baseDistance,
-            IonoPercentage = IonoPercentage
-        });
-        
+        builder.AddPayload(
+            new
+            {
+                DifferentialDataAge = differentialDataAge,
+                ReferenceStationId = referenceStationID,
+                BaseRoverDistance = baseDistance,
+                IonoPercentage = ionoPercentage
+            });
+
         return builder.Build(true);
     }
 
 
-    private GGAData.FixType ReadWorstFixType()
+    private GGAData.FixType GetWorstFixType()
     {
         // Determine the worst fix type.
         GGAData.FixType worstFixType;
@@ -162,8 +195,7 @@ public class GNSSData
         }
         else
             worstFixType = GGAData.FixType.NoFix;
-        _fixTypesCache.Clear();
-        
+
         return worstFixType;
     }
 
@@ -176,44 +208,44 @@ public class GNSSData
     public override string ToString()
     {
         StringBuilder sb = new();
-        
+
         sb.AppendLine("GNSS Data:");
         AppendPropertiesRecursive(sb, this, 1);
-        
+
         return sb.ToString();
     }
-    
-    
+
+
     private static void AppendPropertiesRecursive(StringBuilder sb, object? obj, int depth = 0)
     {
         if (obj == null)
             return;
-        
+
         if (depth > 10)
         {
             sb.Append(' ', depth * 2);
             sb.AppendLine("...");
             return;
         }
-        
+
         PropertyInfo[] properties = obj.GetType().GetProperties();
         foreach (PropertyInfo property in properties)
         {
             object? value = property.GetValue(obj);
             if (value == null)
                 continue;
-            
+
             sb.Append(' ', depth * 2);
             sb.Append(property.Name);
             sb.Append(": ");
-            
+
             // If array or collection, print count.
             if (value is System.Collections.ICollection collection)
             {
                 sb.AppendLine($"Count: {collection.Count}");
                 continue;
             }
-            
+
             if (value is string || value.GetType().IsPrimitive)
                 sb.AppendLine(value.ToString());
             else
@@ -222,25 +254,25 @@ public class GNSSData
                 AppendPropertiesRecursive(sb, value, depth + 1);
             }
         }
-        
+
         FieldInfo[] fields = obj.GetType().GetFields();
         foreach (FieldInfo field in fields)
         {
             object? value = field.GetValue(obj);
             if (value == null)
                 continue;
-            
+
             sb.Append(' ', depth * 2);
             sb.Append(field.Name);
             sb.Append(": ");
-            
+
             // If array or collection, print count.
             if (value is System.Collections.ICollection collection)
             {
                 sb.AppendLine($"Count: {collection.Count}");
                 continue;
             }
-            
+
             if (value is string || value.GetType().IsPrimitive)
                 sb.AppendLine(value.ToString());
             else

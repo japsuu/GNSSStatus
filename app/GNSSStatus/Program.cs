@@ -81,7 +81,7 @@ internal static class Program
             if (timeSinceLastSend < ConfigManager.CurrentConfiguration.DataSendIntervalSeconds * 1000)
                 continue;
             
-            SentenceParser.ParsedData.IonoPercentage = await ionoClient.GetIonoPercentage();
+            SentenceParser.ParsedData.SetIonoPercentage(await ionoClient.GetIonoPercentage());
             
             string payload = SentenceParser.ParsedData.GetPayloadJson();
             

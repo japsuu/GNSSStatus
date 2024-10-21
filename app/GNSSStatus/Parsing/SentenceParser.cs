@@ -23,7 +23,7 @@ public static class SentenceParser
                     return;
                 }
                 
-                ParsedData.GGA = new GGAData(sentence);
+                ParsedData.SetGGA(new GGAData(sentence));
                 break;
             }
             case Nmea0183SentenceType.GSA:
@@ -34,7 +34,7 @@ public static class SentenceParser
                     return;
                 }
             
-                ParsedData.GSA = new GSAData(sentence);
+                ParsedData.SetGSA(new GSAData(sentence));
                 break;
             }
             case Nmea0183SentenceType.GST:
@@ -45,7 +45,7 @@ public static class SentenceParser
                     return;
                 }
             
-                ParsedData.GST = new GSTData(sentence);
+                ParsedData.SetGST(new GSTData(sentence));
                 break;
             }
             case Nmea0183SentenceType.NTR:
@@ -56,7 +56,7 @@ public static class SentenceParser
                     return;
                 }
             
-                ParsedData.NTR = new NTRData(sentence);
+                ParsedData.SetNTR(new NTRData(sentence));
                 break;
             }
             case Nmea0183SentenceType.GSV:
