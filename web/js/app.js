@@ -332,8 +332,8 @@ function onAvailableRoversChanged() {
       <thead>
         <tr>
           <th>Rover ID</th>
-          <th>DeltaZ (mm)</th>
-          <th>DeltaXY (mm)</th>
+          <th>dZ (mm)</th>
+          <th>dXY (mm)</th>
           <th>Iono (%)</th>
           <th>Base Distance (m)</th>
           <th>Time</th>
