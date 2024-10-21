@@ -194,7 +194,7 @@ internal static class Program
 
         if (args.Contains("--version"))
         {
-            Console.WriteLine($"GNSSStatus v{VERSION}");
+            Console.WriteLine($"GNSSStatus {VERSION}");
             exit = true;
         }
 
