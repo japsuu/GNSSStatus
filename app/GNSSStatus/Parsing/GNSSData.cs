@@ -77,50 +77,7 @@ public class GNSSData
     public string GetPayloadJson()
     {
         JsonPayloadBuilder builder = new();
-
-        // Median properties
-        double deltaX = _deltaXCache.Count > 0 ? _deltaXCache.Median() : 0;
-        _deltaXCache.Clear();
-
-        double deltaY = _deltaYCache.Count > 0 ? _deltaYCache.Median() : 0;
-        _deltaYCache.Clear();
-
-        double deltaZAverage = _deltaZCache.Count > 0 ? _deltaZCache.Median() : 0;
-        _deltaZCache.Clear();
-
-        double roverXAverage = _roverXCache.Count > 0 ? _roverXCache.Median() : 0;
-        _roverXCache.Clear();
-
-        double roverYAverage = _roverYCache.Count > 0 ? _roverYCache.Median() : 0;
-        _roverYCache.Clear();
-
-        double roverZAverage = _roverZCache.Count > 0 ? _roverZCache.Median() : 0;
-        _roverZCache.Clear();
-
-        int satellitesInUse = _satellitesInUseCache.Count > 0 ? _satellitesInUseCache.Median() : 0;
-        _satellitesInUseCache.Clear();
-
-        float pDop = _pDopCache.Count > 0 ? _pDopCache.Median() : 0;
-        _pDopCache.Clear();
-
-        float hDop = _hDopCache.Count > 0 ? _hDopCache.Median() : 0;
-        _hDopCache.Clear();
-
-        float vDop = _vDopCache.Count > 0 ? _vDopCache.Median() : 0;
-        _vDopCache.Clear();
-
-        float latitudeError = _latitudeErrorCache.Count > 0 ? _latitudeErrorCache.Median() : 0;
-        _latitudeErrorCache.Clear();
-
-        float longitudeError = _longitudeErrorCache.Count > 0 ? _longitudeErrorCache.Median() : 0;
-        _longitudeErrorCache.Clear();
-
-        float altitudeError = _altitudeErrorCache.Count > 0 ? _altitudeErrorCache.Median() : 0;
-        _altitudeErrorCache.Clear();
-
-        double baseDistance = _baseDistanceCache.Count > 0 ? _baseDistanceCache.Median() : 0;
-        _baseDistanceCache.Clear();
-
+        
         // Static properties
         string roverIdentifier = ConfigManager.CurrentConfiguration.RoverIdentifier;
 
@@ -130,11 +87,25 @@ public class GNSSData
         float differentialDataAge = _latestDifferentialDataAge;
         double ionoPercentage = _latestIonoPercentage;
 
+        // Median properties
+        double deltaX = _deltaXCache.GetMedianAndClear();
+        double deltaY = _deltaYCache.GetMedianAndClear();
+        double deltaZ = _deltaZCache.GetMedianAndClear();
+        double roverX = _roverXCache.GetMedianAndClear();
+        double roverY = _roverYCache.GetMedianAndClear();
+        double roverZ = _roverZCache.GetMedianAndClear();
+        int satellitesInUse = _satellitesInUseCache.GetMedianAndClear();
+        float pDop = _pDopCache.GetMedianAndClear();
+        float hDop = _hDopCache.GetMedianAndClear();
+        float vDop = _vDopCache.GetMedianAndClear();
+        float latitudeError = _latitudeErrorCache.GetMedianAndClear();
+        float longitudeError = _longitudeErrorCache.GetMedianAndClear();
+        float altitudeError = _altitudeErrorCache.GetMedianAndClear();
+        double baseDistance = _baseDistanceCache.GetMedianAndClear();
+
         // Calculated properties
         double deltaXY = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-
-        GGAData.FixType worstFixType = GetWorstFixType();
-        _fixTypesCache.Clear();
+        GGAData.FixType worstFixType = GetWorstFixTypeAndClear();
 
         // Manually serialize relevant properties.
         builder.AddPayload(
@@ -143,16 +114,16 @@ public class GNSSData
                 TimeUtc = utcTime,
                 FixType = worstFixType,
                 SatellitesInUse = satellitesInUse,
-                RoverX = roverXAverage,
-                RoverY = roverYAverage,
-                RoverZ = roverZAverage
+                RoverX = roverX,
+                RoverY = roverY,
+                RoverZ = roverZ
             });
 
         builder.AddPayload(
             new
             {
                 DeltaXY = deltaXY,
-                DeltaZ = deltaZAverage,
+                DeltaZ = deltaZ,
                 PDop = pDop,
                 HDop = hDop,
                 VDop = vDop
@@ -180,7 +151,7 @@ public class GNSSData
     }
 
 
-    private GGAData.FixType GetWorstFixType()
+    private GGAData.FixType GetWorstFixTypeAndClear()
     {
         // Determine the worst fix type.
         GGAData.FixType worstFixType;
@@ -195,6 +166,7 @@ public class GNSSData
         }
         else
             worstFixType = GGAData.FixType.NoFix;
+        _fixTypesCache.Clear();
 
         return worstFixType;
     }
