@@ -488,6 +488,31 @@ h2 {
   justify-content: center;
 }
 
+/* Footer */
+
+.footer {
+  background-color: #f8f9fa;
+  padding-top: 20px;
+  text-align: center;
+  border-top: 1px solid #e7e7e7;
+  width: 100%;
+  bottom: 0;
+}
+
+.footer p {
+  margin: 5px;
+}
+
+.footer a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
 
 /* Responsive styles */
 @media (max-width: 768px) {
