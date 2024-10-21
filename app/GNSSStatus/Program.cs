@@ -1,4 +1,4 @@
-//#define MQTT_ENABLE
+#define MQTT_ENABLE
 
 using System.Globalization;
 using System.Text;
