@@ -7,96 +7,167 @@ namespace GNSSStatus.Parsing;
 
 public class GNSSData
 {
-    public readonly List<double> DeltaXCache = new();
-    public readonly List<double> DeltaYCache = new();
-    public readonly List<double> DeltaZCache = new();
-    public readonly List<double> RoverXCache = new();
-    public readonly List<double> RoverYCache = new();
-    public readonly List<double> RoverZCache = new();
-    public readonly List<GGAData.FixType> FixTypesCache = new();
-    public double IonoPercentage { get; set; }
+    private readonly List<double> _deltaXCache = new();
+    private readonly List<double> _deltaYCache = new();
+    private readonly List<double> _deltaZCache = new();
+    private readonly List<double> _roverXCache = new();
+    private readonly List<double> _roverYCache = new();
+    private readonly List<double> _roverZCache = new();
+    private readonly List<GGAData.FixType> _fixTypesCache = new();
     
-    public GGAData GGA { get; set; }
-    public GSAData GSA { get; set; }
-    public GSTData GST { get; set; }
-    public GSVData GSV { get; set; }
-    public NTRData NTR { get; set; }
+    private GGAData _gga;
+    private GSAData _gsa;
+    private GSTData _gst;
+    private GSVData _gsv;
+    private NTRData _ntr;
+    
+    public GGAData GGA
+    {
+        set
+        {
+            _deltaXCache.Add(value.DeltaX);
+            _deltaYCache.Add(value.DeltaY);
+            _deltaZCache.Add(value.DeltaZ);
+            _roverXCache.Add(value.RoverX);
+            _roverYCache.Add(value.RoverY);
+            _roverZCache.Add(value.RoverZ);
+            _fixTypesCache.Add(value.Quality);
+            
+            _gga = value;
+        }
+    }
+    
+    public GSAData GSA
+    {
+        set
+        {
+            
+        }
+    }
+    
+    public GSTData GST
+    {
+        set
+        {
+            
+        }
+    }
+    
+    public GSVData GSV
+    {
+        set
+        {
+            
+        }
+    }
+    
+    public NTRData NTR
+    {
+        set
+        {
+            
+        }
+    }
+    
+    public double IonoPercentage { get; set; }
 
 
     public string GetPayloadJson()
     {
         JsonPayloadBuilder builder = new();
         
-        // Calculate averages and clear caches.
-        double deltaXAverage = DeltaXCache.Count > 0 ? DeltaXCache.Average() : 0;
-        double deltaYAverage = DeltaYCache.Count > 0 ? DeltaYCache.Average() : 0;
-        double deltaZAverage = DeltaZCache.Count > 0 ? DeltaZCache.Average() : 0;
+        // Calculate medians and clear caches.
+        double deltaXAverage = _deltaXCache.Count > 0 ? _deltaXCache.Average() : 0;
+        double deltaYAverage = _deltaYCache.Count > 0 ? _deltaYCache.Average() : 0;
+        double deltaZAverage = _deltaZCache.Count > 0 ? _deltaZCache.Average() : 0;
         double deltaXYAverage = Math.Sqrt(deltaXAverage * deltaXAverage + deltaYAverage * deltaYAverage);
-        double roverXAverage = RoverXCache.Count > 0 ? RoverXCache.Average() : 0;
-        double roverYAverage = RoverYCache.Count > 0 ? RoverYCache.Average() : 0;
-        double roverZAverage = RoverZCache.Count > 0 ? RoverZCache.Average() : 0;
-        DeltaXCache.Clear();
-        DeltaYCache.Clear();
-        DeltaZCache.Clear();
-        RoverXCache.Clear();
-        RoverYCache.Clear();
-        RoverZCache.Clear();
+        double roverXAverage = _roverXCache.Count > 0 ? _roverXCache.Average() : 0;
+        double roverYAverage = _roverYCache.Count > 0 ? _roverYCache.Average() : 0;
+        double roverZAverage = _roverZCache.Count > 0 ? _roverZCache.Average() : 0;
+        
+        _deltaXCache.Clear();
+        _deltaYCache.Clear();
+        _deltaZCache.Clear();
+        _roverXCache.Clear();
+        _roverYCache.Clear();
+        _roverZCache.Clear();
 
+        GGAData.FixType worstFixType = ReadWorstFixType();
+        
+        string roverIdentifier = ConfigManager.CurrentConfiguration.RoverIdentifier;
+        string utcTime = _gga.UtcTime;
+        int satellitesInUse = _gga.TotalSatellitesInUse;
+        float pDop = _gsa.PDop;
+        float hDop = _gsa.HDop;
+        float vDop = _gsa.VDop;
+        float latitudeError = _gst.LatitudeError;
+        float longitudeError = _gst.LongitudeError;
+        float altitudeError = _gst.AltitudeError;
+        float differentialDataAge = _gga.AgeOfDifferentialData;
+        int referenceStationID = _gga.DifferentialReferenceStationID;
+        double baseDistance = _ntr.DistanceBetweenBaseAndRover;
+
+        // Manually serialize relevant properties.
+        builder.AddPayload(new
+        {
+            TimeUtc = utcTime,
+            FixType = worstFixType,
+            SatellitesInUse = satellitesInUse,
+            RoverX = roverXAverage,
+            RoverY = roverYAverage,
+            RoverZ = roverZAverage,
+        });
+
+        builder.AddPayload(new
+        {
+            DeltaXY = deltaXYAverage,
+            DeltaZ = deltaZAverage,
+            PDop = pDop,
+            HDop = hDop,
+            VDop = vDop
+        });
+
+        builder.AddPayload(new
+        {
+            RoverId = roverIdentifier,
+            ErrorLatitude = latitudeError,
+            ErrorLongitude = longitudeError,
+            ErrorAltitude = altitudeError
+        });
+
+        builder.AddPayload(new
+        {
+            DifferentialDataAge = differentialDataAge,
+            ReferenceStationId = referenceStationID,
+            BaseRoverDistance = baseDistance,
+            IonoPercentage = IonoPercentage
+        });
+        
+        return builder.Build(true);
+    }
+
+
+    private GGAData.FixType ReadWorstFixType()
+    {
         // Determine the worst fix type.
         GGAData.FixType worstFixType;
-        if (FixTypesCache.Count > 0)
+        if (_fixTypesCache.Count > 0)
         {
-            if (FixTypesCache.Contains(GGAData.FixType.NoFix))
+            if (_fixTypesCache.Contains(GGAData.FixType.NoFix))
                 worstFixType = GGAData.FixType.NoFix;
-            else if (FixTypesCache.Contains(GGAData.FixType.RTKFloat))
+            else if (_fixTypesCache.Contains(GGAData.FixType.RTKFloat))
                 worstFixType = GGAData.FixType.RTKFloat;
             else
                 worstFixType = GGAData.FixType.RTKFixed;
         }
         else
             worstFixType = GGAData.FixType.NoFix;
-        FixTypesCache.Clear();
+        _fixTypesCache.Clear();
         
-        // Manually serialize relevant properties.
-        builder.AddPayload(new
-        {
-            TimeUtc = GGA.UtcTime,
-            FixType = worstFixType,
-            SatellitesInUse = GGA.TotalSatellitesInUse,
-            RoverX = roverXAverage,
-            RoverY = roverYAverage,
-            RoverZ = roverZAverage,
-        });
-        
-        builder.AddPayload(new
-        {
-            DeltaXY = deltaXYAverage,
-            DeltaZ = deltaZAverage,
-            PDop = GSA.PDop,
-            HDop = GSA.HDop,
-            VDop = GSA.VDop
-        });
-        
-        builder.AddPayload(new
-        {
-            RoverId = ConfigManager.CurrentConfiguration.RoverIdentifier,
-            ErrorLatitude = GST.LatitudeError,
-            ErrorLongitude = GST.LongitudeError,
-            ErrorAltitude = GST.AltitudeError
-        });
-        
-        builder.AddPayload(new
-        {
-            DifferentialDataAge = GGA.AgeOfDifferentialData,
-            ReferenceStationId = GGA.DifferentialReferenceStationID,
-            BaseRoverDistance = NTR.DistanceBetweenBaseAndRover,
-            IonoPercentage = IonoPercentage
-        });
-        
-        return builder.Build(true);
+        return worstFixType;
     }
-    
-    
+
+
     /// <summary>
     /// NOTE: Should only be used for debugging purposes.
     /// Allocates crazy amounts of memory.
