@@ -1,3 +1,10 @@
 {
-  "title": "GNSS Status EN"
+  "title": "GNSS Status",
+  "availableRoversTableTitle": "Available rovers:",
+  "availableRoversTableId": "Rover ID",
+  "availableRoversTableDeltaZ": "dZ",
+  "availableRoversTableDeltaXY": "dXY",
+  "availableRoversTableIono": "Iono",
+  "availableRoversTableBaseDistance": "Base distance",
+  "availableRoversTableTime": "Time"
 }

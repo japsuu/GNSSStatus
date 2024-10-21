@@ -1,3 +1,10 @@
 {
-  "title": "GNSS Status FI"
+  "title": "GNSS Status",
+  "availableRoversTableTitle": "Saatavilla olevat roverit:",
+  "availableRoversTableId": "Rover ID",
+  "availableRoversTableDeltaZ": "dZ",
+  "availableRoversTableDeltaXY": "dXY",
+  "availableRoversTableIono": "Iono",
+  "availableRoversTableBaseDistance": "Etäisyys tukikohtaan",
+  "availableRoversTableTime": "Aika"
 }

@@ -1,6 +1,6 @@
-import { createChart, updateGraph, updateFixTypeChart } from './charts.js';
-import { fetchData, dataToCsv } from './data.js';
-import { getFixTypeName, downloadCSV } from './utils.js';
+import {createChart, updateFixTypeChart, updateGraph} from './charts.js';
+import {dataToCsv, fetchData} from './data.js';
+import {downloadCSV, getFixTypeName} from './utils.js';
 
 // User configuration
 // ------------------------------------------------------------
@@ -194,6 +194,8 @@ let latestDataReceiveTime;
 // The IDs of the rovers that are currently available
 let availableRovers = [];
 let selectedRover = "unknown";
+// The current translations
+let translations;
 
 async function forceRefreshData() {
   latestEntryId = 0;
@@ -327,25 +329,7 @@ function onAvailableRoversChanged() {
   selectedRoverDropdown.innerHTML = availableRovers.map(roverId => `<option value="${roverId}">${roverId}</option>`).join('');
   selectedRoverDropdown.value = selectedRover;
 
-  const roverTable = `
-    <table>
-      <thead>
-        <tr>
-          <th>Rover ID</th>
-          <th>dZ (mm)</th>
-          <th>dXY (mm)</th>
-          <th>Iono (%)</th>
-          <th>Base Distance (m)</th>
-          <th>Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${availableRovers.map(roverId => getRoverListEntry(roverId)).join('')}
-      </tbody>
-    </table>
-  `;
-
-  availableRoversContainer.innerHTML = roverTable;
+  document.getElementById('availableRoversTableBody').innerHTML = availableRovers.map(roverId => getRoverListEntry(roverId)).join('');
 }
 
 function getRoverListEntry(roverId) {
@@ -374,9 +358,20 @@ function getRoverListEntry(roverId) {
   `;
 }
 
-function applyTranslations(translations) {
+function applyTranslations() {
+  // Title
   document.querySelector('title').textContent = translations.title;
   document.querySelector('h1').textContent = translations.title;
+
+  // Available rovers
+  document.getElementById('availableRoversTableTitle').textContent = translations.availableRoversTableTitle;
+  document.getElementById('availableRoversTableId').textContent = translations.availableRoversTableId;
+  document.getElementById('availableRoversTableDeltaZ').textContent = `${translations.availableRoversTableDeltaZ} (mm)`;
+  document.getElementById('availableRoversTableDeltaXY').textContent = `${translations.availableRoversTableDeltaXY} (mm)`;
+  document.getElementById('availableRoversTableIono').textContent = `${translations.availableRoversTableIono} (%)`;
+  document.getElementById('availableRoversTableBaseDistance').textContent = `${translations.availableRoversTableBaseDistance} (m)`;
+  document.getElementById('availableRoversTableTime').textContent = translations.availableRoversTableTime;
+
   /*document.querySelector('label[for="showOnlyRtkFixCheckbox"]').textContent = translations.showOnlyRtkFix;
   document.querySelector('label[for="autoScaleYCheckbox"]').textContent = translations.autoScaleY;
   document.querySelector('label[for="displayModeDropdown"]').textContent = translations.displayMode;
@@ -389,8 +384,8 @@ function applyTranslations(translations) {
 
 async function loadTranslations(lang) {
   const response = await fetch(`locales/${lang}.json`);
-  const translations = await response.json();
-  applyTranslations(translations);
+  translations = await response.json();
+  applyTranslations();
 }
 
 autoScaleXCheckbox.checked = autoScaleX;

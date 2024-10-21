@@ -40,10 +40,31 @@
 
     <div class="center-children">
       <div class="center-text">
-        <p><b>Available rovers:</b></p>
+        <p><b id="availableRoversTableTitle">Available rovers:</b></p>
       </div>
       <div id="availableRoversContainer">
-        <p>Loading...</p>
+        <table>
+          <thead>
+          <tr>
+            <th id="availableRoversTableId"></th>
+            <th id="availableRoversTableDeltaZ"></th>
+            <th id="availableRoversTableDeltaXY"></th>
+            <th id="availableRoversTableIono"></th>
+            <th id="availableRoversTableBaseDistance"></th>
+            <th id="availableRoversTableTime"></th>
+          </tr>
+          </thead>
+          <tbody id="availableRoversTableBody">
+            <tr>
+              <td><b>Loading...</b></td>
+              <td>Loading...</td>
+              <td>Loading...</td>
+              <td>Loading...</td>
+              <td>Loading...</td>
+              <td>Loading...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
