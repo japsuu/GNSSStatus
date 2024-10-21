@@ -4,6 +4,7 @@ import {downloadCSV, getFixTypeName} from './utils.js';
 
 // User configuration
 // ------------------------------------------------------------
+const defaultLanguage = 'fi';
 const refreshInterval = 15; // seconds
 const defaultChartYRange = 0.03;
 const oldDataWarningThreshold = 5 * 60; // seconds
@@ -372,19 +373,44 @@ function applyTranslations() {
   document.getElementById('availableRoversTableBaseDistance').textContent = `${translations.availableRoversTableBaseDistance} (m)`;
   document.getElementById('availableRoversTableTime').textContent = translations.availableRoversTableTime;
 
-  /*document.querySelector('label[for="showOnlyRtkFixCheckbox"]').textContent = translations.showOnlyRtkFix;
-  document.querySelector('label[for="autoScaleYCheckbox"]').textContent = translations.autoScaleY;
-  document.querySelector('label[for="displayModeDropdown"]').textContent = translations.displayMode;
-  document.querySelector('label[for="datePicker"]').textContent = translations.selectDate;
-  document.querySelector('#downloadButton').textContent = translations.downloadCSV;
-  document.querySelector('h2:nth-of-type(1)').textContent = translations.currentGnssData;
-  document.querySelector('h2:nth-of-type(2)').textContent = translations.ionosphereData;
-  document.querySelector('#iono-container p').innerHTML = `${translations.providedBy} <a href="https://finpos.nls.fi/iono/">${translations.link}</a>`;*/
+  // Settings
+  document.querySelector('label[for="showOnlyRtkFixCheckbox"]').textContent = translations.settingsShowOnlyRtkFixed;
+  document.querySelector('label[for="autoScaleYCheckbox"]').textContent = translations.settingsAutoScaleY;
+  document.querySelector('label[for="displayModeDropdown"]').textContent = translations.settingsDisplayMode;
+  // Display mode options
+  document.querySelector('option[value="startOfDay"]').textContent = translations.settingsDisplayModeStartOfDay;
+  document.querySelector('option[value="last24Hours"]').textContent = translations.settingsDisplayModeLast24Hours;
+  document.querySelector('option[value="last6Hours"]').textContent = translations.settingsDisplayModeLast6Hours;
+  document.querySelector('option[value="last1Hours"]').textContent = translations.settingsDisplayModeLast1Hours;
+  document.querySelector('option[value="last10Minutes"]').textContent = translations.settingsDisplayModeLast10Minutes;
+  // Selected rover
+  document.querySelector('label[for="selectedRoverDropdown"]').textContent = translations.settingsSelectedRover;
+  // Download section
+  document.querySelector('label[for="datePicker"]').textContent = translations.settingsSelectDate;
+  document.getElementById('downloadButton').textContent = translations.settingsDownloadCsv;
+
+  // Data
+  document.getElementById('dataTitle').textContent = translations.dataTitle;
+  document.getElementById('dataRoverId').textContent = translations.dataRoverId;
+  document.getElementById('dataTime').textContent = translations.dataTime;
+  document.getElementById('dataBaseDistance').textContent = translations.dataBaseDistance;
+  document.getElementById('dataFixType').textContent = translations.dataFixType;
+  document.getElementById('dataSatellitesInUse').textContent = translations.dataSatellitesInUse;
+  document.getElementById('dataPDop').textContent = translations.dataPDop;
+  document.getElementById('dataHDop').textContent = translations.dataHDop;
+  document.getElementById('dataVDop').textContent = translations.dataVDop;
+  document.getElementById('dataErrorLatitude').textContent = translations.dataErrorLatitude;
+  document.getElementById('dataErrorLongitude').textContent = translations.dataErrorLongitude;
+  document.getElementById('dataErrorAltitude').textContent = translations.dataErrorAltitude;
+  document.getElementById('dataDeltaZ').textContent = translations.dataDeltaZ;
+  document.getElementById('dataDeltaXY').textContent = translations.dataDeltaXY;
+  document.getElementById('dataIonosphere').textContent = translations.dataIonosphere;
 }
 
 async function loadTranslations(lang) {
   const response = await fetch(`locales/${lang}.json`);
   translations = await response.json();
+
   applyTranslations();
 }
 
@@ -468,6 +494,6 @@ document.getElementById('languageSwitcher').addEventListener('change', (event) =
   loadTranslations(event.target.value);
 });
 
-loadTranslations(document.getElementById('languageSwitcher').value).then(r => refreshData());
+loadTranslations(defaultLanguage).then(r => refreshData());
 setInterval(refreshData, refreshInterval * 1000);
 setInterval(updateOldDataWarning, 5000);

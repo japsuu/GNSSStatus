@@ -1,10 +1,41 @@
 {
+  "_language": "English",
+
   "title": "GNSS Status",
+
   "availableRoversTableTitle": "Available rovers:",
   "availableRoversTableId": "Rover ID",
   "availableRoversTableDeltaZ": "dZ",
   "availableRoversTableDeltaXY": "dXY",
   "availableRoversTableIono": "Iono",
   "availableRoversTableBaseDistance": "Base distance",
-  "availableRoversTableTime": "Time"
+  "availableRoversTableTime": "Time",
+
+  "settingsShowOnlyRtkFixed": "Show only RTK fixed:",
+  "settingsAutoScaleY": "Auto scale Y:",
+  "settingsDisplayMode": "Display mode:",
+  "settingsDisplayModeStartOfDay": "Start of day",
+  "settingsDisplayModeLast24Hours": "Last 24 hours",
+  "settingsDisplayModeLast6Hours": "Last 6 hours",
+  "settingsDisplayModeLast1Hours": "Last hour",
+  "settingsDisplayModeLast10Minutes": "Last 10 minutes",
+  "settingsSelectedRover": "Selected rover:",
+  "settingsSelectDate": "Select date:",
+  "settingsDownloadCsv": "Download CSV",
+
+  "dataTitle": "Latest GNSS status",
+  "dataRoverId": "Rover Identifier:",
+  "dataTime": "GPS Time:",
+  "dataBaseDistance": "Rover Distance to Base:",
+  "dataFixType": "Fix Type:",
+  "dataSatellitesInUse": "Satellites in Use:",
+  "dataPDop": "PDOP:",
+  "dataHDop": "HDOP:",
+  "dataVDop": "VDOP:",
+  "dataErrorLatitude": "Error Latitude:",
+  "dataErrorLongitude": "Error Longitude:",
+  "dataErrorAltitude": "Error Altitude:",
+  "dataDeltaZ": "DeltaZ:",
+  "dataDeltaXY": "DeltaXY:",
+  "dataIonosphere": "Ionosphere:"
 }
