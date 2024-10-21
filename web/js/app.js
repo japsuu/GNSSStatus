@@ -374,6 +374,25 @@ function getRoverListEntry(roverId) {
   `;
 }
 
+function applyTranslations(translations) {
+  document.querySelector('title').textContent = translations.title;
+  document.querySelector('h1').textContent = translations.title;
+  /*document.querySelector('label[for="showOnlyRtkFixCheckbox"]').textContent = translations.showOnlyRtkFix;
+  document.querySelector('label[for="autoScaleYCheckbox"]').textContent = translations.autoScaleY;
+  document.querySelector('label[for="displayModeDropdown"]').textContent = translations.displayMode;
+  document.querySelector('label[for="datePicker"]').textContent = translations.selectDate;
+  document.querySelector('#downloadButton').textContent = translations.downloadCSV;
+  document.querySelector('h2:nth-of-type(1)').textContent = translations.currentGnssData;
+  document.querySelector('h2:nth-of-type(2)').textContent = translations.ionosphereData;
+  document.querySelector('#iono-container p').innerHTML = `${translations.providedBy} <a href="https://finpos.nls.fi/iono/">${translations.link}</a>`;*/
+}
+
+async function loadTranslations(lang) {
+  const response = await fetch(`locales/${lang}.json`);
+  const translations = await response.json();
+  applyTranslations(translations);
+}
+
 autoScaleXCheckbox.checked = autoScaleX;
 autoScaleYCheckbox.checked = autoScaleY;
 manualYRangeInput.value = manualYRange;
@@ -450,6 +469,10 @@ downloadButton.addEventListener('click', async () => {
   }
 });
 
-refreshData();
+document.getElementById('languageSwitcher').addEventListener('change', (event) => {
+  loadTranslations(event.target.value);
+});
+
+loadTranslations(document.getElementById('languageSwitcher').value).then(r => refreshData());
 setInterval(refreshData, refreshInterval * 1000);
 setInterval(updateOldDataWarning, 5000);
