@@ -1,0 +1,43 @@
+{
+  "title": "GNSS Status",
+
+  "availableRoversTableTitle": "Saatavilla olevat roverit:",
+  "availableRoversTableId": "Rover ID",
+  "availableRoversTableDeltaZ": "dZ",
+  "availableRoversTableDeltaXY": "dXY",
+  "availableRoversTableIono": "Iono",
+  "availableRoversTableBaseDistance": "Etäisyys tukikohtaan",
+  "availableRoversTableTime": "Aika",
+
+  "settingsShowOnlyRtkFixed": "Näytä vain RTK-Fix:",
+  "settingsAutoScaleY": "Automaattinen skaalaus Y-akselille:",
+  "settingsDisplayMode": "Näyttötila:",
+  "settingsDisplayModeStartOfDay": "Päivän alusta",
+  "settingsDisplayModeLast24Hours": "Viimeiset 24 tuntia",
+  "settingsDisplayModeLast6Hours": "Viimeiset 6 tuntia",
+  "settingsDisplayModeLast1Hours": "Viimeinen tunti",
+  "settingsDisplayModeLast10Minutes": "Viimeiset 10 minuuttia",
+  "settingsSelectedRover": "Valittu rover:",
+  "settingsSelectDate": "Valitse päivämäärä:",
+  "settingsDownloadCsv": "Lataa CSV",
+
+  "dataTitle": "Viimeisin GNSS-tila",
+  "dataRoverId": "Roverin tunniste:",
+  "dataTime": "GPS-aika:",
+  "dataBaseDistance": "Roverin etäisyys tukikohtaan:",
+  "dataFixType": "Fix Type:",
+  "dataSatellitesInUse": "Käytössä olevat satelliitit:",
+  "dataPDop": "PDop:",
+  "dataHDop": "HDop:",
+  "dataVDop": "VDop:",
+  "dataErrorLatitude": "Virhe leveysasteella:",
+  "dataErrorLongitude": "Virhe pituusasteella:",
+  "dataErrorAltitude": "Virhe korkeudella:",
+  "dataDeltaZ": "DeltaZ:",
+  "dataDeltaXY": "DeltaXY:",
+  "dataIonosphere": "Ionosfääri:",
+
+  "ionoTitle": "Viimeisin ionosfäärin tila",
+  "ionoDescription": "Kuvan tarjoaa Maanmittauslaitos",
+  "ionoLink": "(linkki)"
+}

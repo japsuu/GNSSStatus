@@ -1,6 +1,6 @@
-import { createChart, updateGraph, updateFixTypeChart } from './charts.js';
-import { fetchData, dataToCsv } from './data.js';
-import { getFixTypeName, downloadCSV } from './utils.js';
+import {createChart, updateFixTypeChart, updateGraph} from './charts.js';
+import {dataToCsv, fetchData} from './data.js';
+import {downloadCSV, getFixTypeName} from './utils.js';
 
 // User configuration
 // ------------------------------------------------------------
@@ -194,6 +194,8 @@ let latestDataReceiveTime;
 // The IDs of the rovers that are currently available
 let availableRovers = [];
 let selectedRover = "unknown";
+// The current translations
+let translations;
 
 async function forceRefreshData() {
   latestEntryId = 0;
@@ -327,25 +329,7 @@ function onAvailableRoversChanged() {
   selectedRoverDropdown.innerHTML = availableRovers.map(roverId => `<option value="${roverId}">${roverId}</option>`).join('');
   selectedRoverDropdown.value = selectedRover;
 
-  const roverTable = `
-    <table>
-      <thead>
-        <tr>
-          <th>Rover ID</th>
-          <th>DeltaZ (mm)</th>
-          <th>DeltaXY (mm)</th>
-          <th>Iono (%)</th>
-          <th>Base Distance (m)</th>
-          <th>Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${availableRovers.map(roverId => getRoverListEntry(roverId)).join('')}
-      </tbody>
-    </table>
-  `;
-
-  availableRoversContainer.innerHTML = roverTable;
+  document.getElementById('availableRoversTableBody').innerHTML = availableRovers.map(roverId => getRoverListEntry(roverId)).join('');
 }
 
 function getRoverListEntry(roverId) {
@@ -372,6 +356,82 @@ function getRoverListEntry(roverId) {
       <td>${time}</td>
     </tr>
   `;
+}
+
+function applyTranslations() {
+  // Title
+  document.querySelector('title').textContent = translations.title;
+  document.querySelector('h1').textContent = translations.title;
+
+  // Available rovers
+  document.getElementById('availableRoversTableTitle').textContent = translations.availableRoversTableTitle;
+  document.getElementById('availableRoversTableId').textContent = translations.availableRoversTableId;
+  document.getElementById('availableRoversTableDeltaZ').textContent = `${translations.availableRoversTableDeltaZ} (mm)`;
+  document.getElementById('availableRoversTableDeltaXY').textContent = `${translations.availableRoversTableDeltaXY} (mm)`;
+  document.getElementById('availableRoversTableIono').textContent = `${translations.availableRoversTableIono} (%)`;
+  document.getElementById('availableRoversTableBaseDistance').textContent = `${translations.availableRoversTableBaseDistance} (m)`;
+  document.getElementById('availableRoversTableTime').textContent = translations.availableRoversTableTime;
+
+  // Settings
+  document.querySelector('label[for="showOnlyRtkFixCheckbox"]').textContent = translations.settingsShowOnlyRtkFixed;
+  document.querySelector('label[for="autoScaleYCheckbox"]').textContent = translations.settingsAutoScaleY;
+  document.querySelector('label[for="displayModeDropdown"]').textContent = translations.settingsDisplayMode;
+  // Display mode options
+  document.querySelector('option[value="startOfDay"]').textContent = translations.settingsDisplayModeStartOfDay;
+  document.querySelector('option[value="last24Hours"]').textContent = translations.settingsDisplayModeLast24Hours;
+  document.querySelector('option[value="last6Hours"]').textContent = translations.settingsDisplayModeLast6Hours;
+  document.querySelector('option[value="last1Hours"]').textContent = translations.settingsDisplayModeLast1Hours;
+  document.querySelector('option[value="last10Minutes"]').textContent = translations.settingsDisplayModeLast10Minutes;
+  // Selected rover
+  document.querySelector('label[for="selectedRoverDropdown"]').textContent = translations.settingsSelectedRover;
+  // Download section
+  document.querySelector('label[for="datePicker"]').textContent = translations.settingsSelectDate;
+  document.getElementById('downloadButton').textContent = translations.settingsDownloadCsv;
+
+  // Data
+  document.getElementById('dataTitle').textContent = translations.dataTitle;
+  document.getElementById('dataRoverId').textContent = translations.dataRoverId;
+  document.getElementById('dataTime').textContent = translations.dataTime;
+  document.getElementById('dataBaseDistance').textContent = translations.dataBaseDistance;
+  document.getElementById('dataFixType').textContent = translations.dataFixType;
+  document.getElementById('dataSatellitesInUse').textContent = translations.dataSatellitesInUse;
+  document.getElementById('dataPDop').textContent = translations.dataPDop;
+  document.getElementById('dataHDop').textContent = translations.dataHDop;
+  document.getElementById('dataVDop').textContent = translations.dataVDop;
+  document.getElementById('dataErrorLatitude').textContent = translations.dataErrorLatitude;
+  document.getElementById('dataErrorLongitude').textContent = translations.dataErrorLongitude;
+  document.getElementById('dataErrorAltitude').textContent = translations.dataErrorAltitude;
+  document.getElementById('dataDeltaZ').textContent = translations.dataDeltaZ;
+  document.getElementById('dataDeltaXY').textContent = translations.dataDeltaXY;
+  document.getElementById('dataIonosphere').textContent = translations.dataIonosphere;
+
+  // Ionosphere
+  document.getElementById('ionoTitle').textContent = translations.ionoTitle;
+  document.getElementById('ionoDescription').textContent = translations.ionoDescription;
+  document.getElementById('ionoLink').textContent = translations.ionoLink;
+}
+
+async function loadAvailableTranslations() {
+
+  const response = await fetch(`locales/translations.json`);
+  const availableTranslations = await response.json();
+
+  for (let i = 0; i < availableTranslations.length; i++) {
+    console.log('Discovered translation:', availableTranslations[i].language);
+  }
+
+  // Automatically populate the languageSwitcher dropdown with the available translations
+  const languageSwitcher = document.getElementById('languageSwitcher');
+  languageSwitcher.innerHTML = availableTranslations.map(translation => `<option value="${translation.id}">${translation.language}</option>`).join('');
+
+  // Load the default translation
+  await loadTranslation(availableTranslations[0].id);
+}
+
+async function loadTranslation(lang){
+  const response = await fetch(`locales/${lang}.json`);
+  translations = await response.json();
+  applyTranslations();
 }
 
 autoScaleXCheckbox.checked = autoScaleX;
@@ -450,6 +510,10 @@ downloadButton.addEventListener('click', async () => {
   }
 });
 
-refreshData();
+document.getElementById('languageSwitcher').addEventListener('change', (event) => {
+  loadTranslation(event.target.value);
+});
+
+loadAvailableTranslations().then(r => refreshData());
 setInterval(refreshData, refreshInterval * 1000);
 setInterval(updateOldDataWarning, 5000);
