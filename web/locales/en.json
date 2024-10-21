@@ -33,6 +33,8 @@
   "dataErrorLatitude": "Error Latitude:",
   "dataErrorLongitude": "Error Longitude:",
   "dataErrorAltitude": "Error Altitude:",
+  "dataDeltaTitle": "Measured error:",
+  "dataRoverTitle": "Rover data:",
   "dataDeltaZ": "DeltaZ:",
   "dataDeltaXY": "DeltaXY:",
   "dataIonosphere": "Ionosphere:",

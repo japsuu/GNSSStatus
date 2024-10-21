@@ -289,9 +289,9 @@ function updateTextData(feeds) {
   document.getElementById('PDop').textContent = latestFeed.gnss.PDop;
   document.getElementById('HDop').textContent = latestFeed.gnss.HDop;
   document.getElementById('VDop').textContent = latestFeed.gnss.VDop;
-  document.getElementById('ErrorLatitude').textContent = latestFeed.gnss.ErrorLatitude;
-  document.getElementById('ErrorLongitude').textContent = latestFeed.gnss.ErrorLongitude;
-  document.getElementById('ErrorAltitude').textContent = latestFeed.gnss.ErrorAltitude;
+  document.getElementById('ErrorLatitude').textContent = `${latestFeed.gnss.ErrorLatitude} m`;
+  document.getElementById('ErrorLongitude').textContent = `${latestFeed.gnss.ErrorLongitude} m`;
+  document.getElementById('ErrorAltitude').textContent = `${latestFeed.gnss.ErrorAltitude} m`;
   document.getElementById('BaseRoverDistance').textContent = `${latestFeed.gnss.BaseRoverDistance} m`;
 }
 
@@ -401,6 +401,8 @@ function applyTranslations() {
   document.getElementById('dataErrorLatitude').textContent = translations.dataErrorLatitude;
   document.getElementById('dataErrorLongitude').textContent = translations.dataErrorLongitude;
   document.getElementById('dataErrorAltitude').textContent = translations.dataErrorAltitude;
+  document.getElementById('dataDeltaTitle').textContent = translations.dataDeltaTitle;
+  document.getElementById('dataRoverTitle').textContent = translations.dataRoverTitle;
   document.getElementById('dataDeltaZ').textContent = translations.dataDeltaZ;
   document.getElementById('dataDeltaXY').textContent = translations.dataDeltaXY;
   document.getElementById('dataIonosphere').textContent = translations.dataIonosphere;

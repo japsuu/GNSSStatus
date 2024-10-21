@@ -33,6 +33,8 @@
   "dataErrorLatitude": "Virhe leveysasteella:",
   "dataErrorLongitude": "Virhe pituusasteella:",
   "dataErrorAltitude": "Virhe korkeudella:",
+  "dataDeltaTitle": "Mitatut virheet:",
+  "dataRoverTitle": "Roverin ilmoittamat tiedot:",
   "dataDeltaZ": "DeltaZ:",
   "dataDeltaXY": "DeltaXY:",
   "dataIonosphere": "Ionosfääri:",
