@@ -60,7 +60,7 @@ public class ConfigurationData
             RoverLocationZ = 12.220,
             MqttBrokerAddress = "mqtt3.thingspeak.com",
             MqttBrokerPort = 1883,
-            MqttBrokerTopic = "channels/2688542/publish",
+            MqttBrokerTopic = "channels/channelId/publish",
             MqttClientId = "clientID",
             MqttUsername = "username",
             MqttPassword = "password",
