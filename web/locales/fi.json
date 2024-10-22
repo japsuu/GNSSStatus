@@ -1,6 +1,7 @@
 {
   "title": "GNSS Status",
 
+  "darkModeSwitch": "Yötila:",
   "availableRoversTableTitle": "Saatavilla olevat vastaanottimet:",
   "availableRoversTableId": "ID",
   "availableRoversTableDeltaZ": "dZ",
