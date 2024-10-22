@@ -27,11 +27,20 @@
 <body>
 
   <div class="container">
-    <select id="languageSwitcher">
-    </select>
 
-    <h1>GNSS Status</h1>
+    <div class="header">
 
+      <select id="languageSwitcher">
+      </select>
+
+      <h1 id="siteTitle">GNSS Status</h1>
+
+      <div id="darkModeContainer">
+        <label for="darkModeSwitch">Dark Mode</label>
+        <input type="checkbox" id="darkModeSwitch">
+      </div>
+
+    </div>
     <div id="warning-popup" class="hidden">
       <p>Warning: The most recent data is over 5 minutes old!</p>
     </div>

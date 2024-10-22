@@ -167,6 +167,7 @@ const fixTypeChart = createChart(fixTypeChartCtx, 'pie', {
   }
 });
 
+const darkModeSwitch = document.getElementById('darkModeSwitch');
 const autoScaleXCheckbox = document.getElementById('autoScaleXCheckbox');
 const autoScaleYCheckbox = document.getElementById('autoScaleYCheckbox');
 const manualYRangeInput = document.getElementById('manualYRangeInput');
@@ -359,6 +360,9 @@ function getRoverListEntry(roverId) {
 }
 
 function applyTranslations() {
+  // Night mode
+  document.querySelector('label[for="darkModeSwitch"]').textContent = translations.darkModeSwitch;
+
   // Title
   document.querySelector('title').textContent = translations.title;
   document.querySelector('h1').textContent = translations.title;
@@ -514,6 +518,39 @@ downloadButton.addEventListener('click', async () => {
 
 document.getElementById('languageSwitcher').addEventListener('change', (event) => {
   loadTranslation(event.target.value);
+});
+
+function setDarkModeEnabled(enabled){
+  if (enabled) {
+    document.body.classList.add('dark-mode');
+
+    // Add the dark-mode class to EVERY element.
+    document.querySelectorAll('*').forEach(element => {
+      element.classList.add('dark-mode');
+    });
+
+    localStorage.setItem('darkMode', 'enabled');
+  } else {
+    document.body.classList.remove('dark-mode');
+
+    // Remove the dark-mode class from EVERY element.
+    document.querySelectorAll('*').forEach(element => {
+      element.classList.remove('dark-mode');
+    });
+
+    localStorage.setItem('darkMode', 'disabled');
+  }
+}
+
+// Check for saved user preference, if any, on load of the website
+if (localStorage.getItem('darkMode') === 'enabled') {
+  document.body.classList.add('dark-mode');
+  setDarkModeEnabled(true);
+  darkModeSwitch.checked = true;
+}
+
+darkModeSwitch.addEventListener('change', () => {
+  setDarkModeEnabled(darkModeSwitch.checked);
 });
 
 loadAvailableTranslations().then(r => refreshData());

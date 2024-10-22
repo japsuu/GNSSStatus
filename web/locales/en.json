@@ -1,6 +1,7 @@
 {
   "title": "GNSS Status",
 
+  "darkModeSwitch": "Dark Mode:",
   "availableRoversTableTitle": "Available rovers:",
   "availableRoversTableId": "Rover ID",
   "availableRoversTableDeltaZ": "dZ",
