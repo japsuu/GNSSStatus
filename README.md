@@ -126,6 +126,8 @@ This section will briefly explain the available configuration options and how to
 **Latest ionosphere status:**
 - Graph showing the latest ionospheric percentage over time. Provided by the [National Land Survey of Finland (FINPOS)](https://finpos.nls.fi/iono/).
 
+---
+
 ## License
 
 All rights reserved. The source code is provided for educational purposes only and may not be used for commercial purposes without permission. [Contact the author](mailto:japsu.honkasalo@gmail.com) for more information.
