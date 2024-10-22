@@ -11,7 +11,7 @@
   "availableRoversTableTime": "Time",
 
   "settingsShowOnlyRtkFixed": "Show only RTK fixed:",
-  "settingsAutoScaleY": "Auto scale Y:",
+  "settingsAutoScaleY": "Auto-scale Y:",
   "settingsDisplayMode": "Display mode:",
   "settingsDisplayModeStartOfDay": "Start of day",
   "settingsDisplayModeLast24Hours": "Last 24 hours",
