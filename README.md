@@ -87,6 +87,45 @@ The web UI is built using vanilla HTML, CSS, and JavaScript for maximum compatib
 - **Secure**: The web UI does not collect any personal data and does not require any permissions to run.
 - **Translation support**: The web UI is available in both English and Finnish.
 
+### Usage
+
+This section will briefly explain the available configuration options and how to use the web UI:
+
+**Settings:**
+1. **Selected rover**: Select the rover you want to view data from.
+2. **Display mode**: Choose the timespan you want to view data from (e.g. "Start of day", "Last 24 hours"...).
+3. **Auto-scale Y**: Automatically scale the Y-axis of the graphs to fit the data.
+4. **Show only RTK fixed**: Only show data points where the GNSS sensor has a fixed RTK solution.
+5. **Select date & download**: Select a specific date to download the data from, as a CSV file.
+
+**Graphs:**
+1. **dZ**: The difference between the GNSS sensor's altitude and the actual real altitude.
+2. **dXY**: The difference between the GNSS sensor's position and the actual real position.
+
+**Data (measured error):**
+1. **DeltaZ**: The latest value of the dZ graph.
+2. **DeltaXY**: The latest value of the dXY graph.
+3. **Ionosphere**: The latest ionospheric percentage. Larger value means more ionospheric interference.
+
+**Data (rover data):**
+1. **Identifier**: The identifier of the GNSS sensor. Each sensor has a unique identifier.
+2. **GPS Time**: The current GPS time.
+3. **Distance to Base**: The distance between the GNSS sensor and the base station.
+4. **Fix Type**: The current fix type of the GNSS sensor. Available values are "No Fix", "RTK Float", and "RTK Fix".
+5. **Satellites in Use**: The number of satellites in the GNSS sensor's solution.
+6. **PDOP**: The current position dilution of precision.
+7. **HDOP**: The current horizontal dilution of precision.
+8. **VDOP**: The current vertical dilution of precision.
+9. **Error Latitude**: The latitude error.
+10. **Error Longitude**: The longitude error.
+11. **Error altitude**: The altitude error.
+
+**FixType graph:**
+- Displays the percentages of the different fix types over the selected timespan.
+
+**Latest ionosphere status:**
+- Graph showing the latest ionospheric percentage over time. Provided by the [National Land Survey of Finland (FINPOS)](https://finpos.nls.fi/iono/).
+
 ## License
 
 All rights reserved. The source code is provided for educational purposes only and may not be used for commercial purposes without permission. [Contact the author](mailto:japsu.honkasalo@gmail.com) for more information.
