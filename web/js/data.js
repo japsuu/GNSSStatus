@@ -54,6 +54,9 @@ async function fetchData(startDate) {
     });
   });
 
+  // Sort the availableRovers array alphabetically
+  availableRovers.sort();
+
   return {
     feeds: feedsByRoverId,
     lastEntryId: json.channel.last_entry_id,
