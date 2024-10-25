@@ -333,11 +333,41 @@ function onAvailableRoversChanged() {
   document.getElementById('availableRoversTableBody').innerHTML = availableRovers.map(roverId => getRoverListEntry(roverId)).join('');
 }
 
+function getMinMaxFromValues(data, dataKey) {
+  let min = Infinity;
+  let max = -Infinity;
+
+  data.forEach(feed => {
+
+    // Only consider RTK Fix data
+    if (feed.gnss.FixType !== 1) {
+      return;
+    }
+
+    const value = feed.gnss[dataKey];
+    if (value < min) {
+      min = value;
+    }
+    if (value > max) {
+      max = value;
+    }
+  });
+
+  return { min, max };
+}
+
 function getRoverListEntry(roverId) {
   const feeds = latestData.feeds[roverId];
   if (!feeds || feeds.length === 0) {
     return `<tr><td colspan="5"><b>${roverId}</b>: No data</td></tr>`;
   }
+
+  const dZMinMax = getMinMaxFromValues(feeds, 'DeltaZ');
+  const dXYMinMax = getMinMaxFromValues(feeds, 'DeltaXY');
+  const highestDeltaZ = dZMinMax.max.toFixed(3) * 1000;
+  const lowestDeltaZ = dZMinMax.min.toFixed(3) * 1000;
+  const highestDeltaXY = dXYMinMax.max.toFixed(3) * 1000;
+  const lowestDeltaXY = dXYMinMax.min.toFixed(3) * 1000;
 
   const latestFeed = feeds[feeds.length - 1];
   const deltaZ = latestFeed.gnss.DeltaZ.toFixed(3) * 1000;
@@ -350,10 +380,10 @@ function getRoverListEntry(roverId) {
   return `
     <tr>
       <td><b>${roverId}</b></td>
-      <td>${deltaZ}</td>
-      <td>${deltaXY}</td>
-      <td>${iono}</td>
-      <td>${baseDistance}</td>
+      <td>${deltaZ} (<i>${highestDeltaZ} / ${lowestDeltaZ}</i>) mm</td>
+      <td>${deltaXY} (<i>${highestDeltaXY} / ${lowestDeltaXY}</i>) mm</td>
+      <td>${iono} %</td>
+      <td>${baseDistance} m</td>
       <td>${time}</td>
     </tr>
   `;
@@ -370,10 +400,10 @@ function applyTranslations() {
   // Available rovers
   document.getElementById('availableRoversTableTitle').textContent = translations.availableRoversTableTitle;
   document.getElementById('availableRoversTableId').textContent = translations.availableRoversTableId;
-  document.getElementById('availableRoversTableDeltaZ').textContent = `${translations.availableRoversTableDeltaZ} (mm)`;
-  document.getElementById('availableRoversTableDeltaXY').textContent = `${translations.availableRoversTableDeltaXY} (mm)`;
-  document.getElementById('availableRoversTableIono').textContent = `${translations.availableRoversTableIono} (%)`;
-  document.getElementById('availableRoversTableBaseDistance').textContent = `${translations.availableRoversTableBaseDistance} (m)`;
+  document.getElementById('availableRoversTableDeltaZ').textContent = `${translations.availableRoversTableDeltaZ} (${translations.availableRoversTableDeltaZHighLow})`;
+  document.getElementById('availableRoversTableDeltaXY').textContent = `${translations.availableRoversTableDeltaXY} (${translations.availableRoversTableDeltaXYHighLow})`;
+  document.getElementById('availableRoversTableIono').textContent = `${translations.availableRoversTableIono}`;
+  document.getElementById('availableRoversTableBaseDistance').textContent = `${translations.availableRoversTableBaseDistance}`;
   document.getElementById('availableRoversTableTime').textContent = translations.availableRoversTableTime;
 
   // Settings
