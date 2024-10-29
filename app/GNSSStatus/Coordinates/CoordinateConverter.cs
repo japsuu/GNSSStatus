@@ -93,17 +93,37 @@ public static class CoordinateConverter
     }
 
 
-    public static double NmeaToDecimal(string ll, string hemisphere)
+    /// <summary>
+    /// Converts NMEA0183 position to decimal degrees.
+    /// </summary>
+    /// <remarks>
+    /// https://en.wikipedia.org/wiki/Decimal_degrees#Example
+    /// https://stackoverflow.com/a/63363808
+    /// </remarks>
+    /// <param name="nmeaPos">The NMEA0183 position in ddmm.mmmmm format.</param>
+    /// <param name="quadrant">The quadrant of the position (N, S, E, W).</param>
+    /// <returns>The position in decimal degrees.</returns>
+    private static double NmeaToDecimal(string nmeaPos, string quadrant)
     {
-        // ll on koordinaatti NMEA-muodossa (esim. 6304.21725318).
-        // hemisph määrittelee, onko kyseessä pohjoinen/itäinen (1) vai eteläinen/läntinen (-1) pallonpuolisko.
-        int hemisph;
-        if (hemisphere == "N" || hemisphere == "E")
-            hemisph = 1;
-        else
-            hemisph = -1;
-        double coordinate = double.Parse(ll, CultureInfo.InvariantCulture);
-        return Math.Round((Convert.ToInt32(coordinate / 100) + (coordinate - Convert.ToInt32(coordinate / 100) * 100) / 60) * hemisph, 10);
+        // Find the index for the start of the minutes part
+        int minutesIndex = nmeaPos.IndexOf('.') - 2;
+        if (minutesIndex < 0)
+            minutesIndex = 0;
+
+        // Extract degrees and minutes
+        double degrees = double.Parse(nmeaPos[..minutesIndex]);
+        double minutes = double.Parse(nmeaPos[minutesIndex..]);
+
+        // Convert to decimal degrees
+        double decimalDegrees = degrees + (minutes / 60.0);
+
+        // Adjust for quadrant
+        if (quadrant.Equals("S", StringComparison.OrdinalIgnoreCase) || quadrant.Equals("W", StringComparison.OrdinalIgnoreCase))
+        {
+            decimalDegrees *= -1;
+        }
+
+        return decimalDegrees;
     }
 
 
